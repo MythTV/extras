@@ -435,7 +435,7 @@ package nuv_export::ui;
 
     sub query_text {
         my $text          = shift;
-        my $type          = shift;
+        my $type          = (shift or '');
         my $default       = shift;
         my $default_extra = shift;
         my $return        = undef;

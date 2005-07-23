@@ -4,7 +4,7 @@
 
 Name:       nuvexport
 Version:    0.2
-Release:    0.20050605.cvs
+Release:    0.20050723.cvs
 License:    GPL
 Summary:    mythtv nuv video file conversion script
 URL:        http://forevermore.net/nuvexport/
@@ -27,7 +27,7 @@ Requires:  mjpegtools >= 1.6.2
 Requires:  mplayer
 Requires:  divx4linux
 # mpeg2cut needs some others:
-Requires:  avidemux >= 2
+Requires:  avidemux2 >= 2
 Requires:  lve
 # Actually requires the id3tag program, but it lives in this libarary
 Requires:  id3lib

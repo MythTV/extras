@@ -62,9 +62,15 @@ package export::generic;
     # Video settings
         if (!$self->{'audioonly'}) {
         # Noise reduction?
-            $self->{'noise_reduction'} = query_text('Enable noise reduction (slower, but better results)?',
-                                                    'yesno',
-                                                    $self->val('noise_reduction'));
+            if ($self->{'denoise_error'}) {
+                query_text($self->{'denoise_error'}."\nPress enter to continue.",
+                           '', '');
+            }
+            else {
+                $self->{'noise_reduction'} = query_text('Enable noise reduction (slower, but better results)?',
+                                                        'yesno',
+                                                        $self->val('noise_reduction'));
+            }
         # Deinterlace video?
             $self->{'deinterlace'} = query_text('Enable deinterlacing?',
                                                 'yesno',

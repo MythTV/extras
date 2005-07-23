@@ -32,9 +32,14 @@ package export::ffmpeg;
     # Make sure we have ffmpeg
         my $ffmpeg = find_program('ffmpeg')
             or push @{$self->{'errors'}}, 'You need ffmpeg to use this exporter.';
-    # Make sure we have ffmpeg
+    # Make sure we have yuvdenoise
         my $yuvdenoise = find_program('yuvdenoise')
             or push @{$self->{'errors'}}, 'You need yuvdenoise (part of mjpegtools) to use this exporter.';
+    # Check the yuvdenoise version
+        my $data = `cat /dev/null | yuvdenoise 2>&1`;
+        if ($data =~ m/yuvdenoise version 1.6.3-rc1/i) {
+            $self->{'denoise_error'} = 'yuvdenoise version 1.6.3rc1 is broken and cannot be used.';
+        }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
     # Gather the supported codecs
