@@ -5,7 +5,7 @@
 # $Author$
 
 # Version
-    $VERSION = '0.2 0.20050723.cvs';
+    $VERSION = '0.2 0.20050823.svn';
 
 # Autoflush buffers
     $|++;
@@ -114,11 +114,11 @@
 # Load the recordings, and the $video_dir variable
     load_recordings();
 
+# Which exporter to use
+    $exporter = query_exporters($export_prog);
+
 # Load episodes from the commandline (and display/quit if this is search-only)
     @episodes = load_cli_episodes();
-
-# Which exporter to use
-    my $exporter = query_exporters($export_prog);
 
 # Gather the episodes we want to transcode (unless we have them from the cli already)
     @episodes = &load_episodes(@episodes) unless ($is_cli);

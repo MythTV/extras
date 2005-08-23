@@ -78,8 +78,6 @@ package export::ffmpeg::MP3;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Make sure we have finfo
-        load_finfo($episode);
     # Build the ffmpeg string
         $self->{'ffmpeg_xtra'} = " -acodec mp3 -f mp3";
     # Execute ffmpeg

@@ -58,8 +58,6 @@ package export::MPEG2_cut;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Load nuv info
-        load_finfo($episode);
 
     # Check for an MPEG2 recording with a cutlist
         if (!$episode->{'finfo'}{'is_mpeg'}) {

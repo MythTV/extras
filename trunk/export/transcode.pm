@@ -68,14 +68,11 @@ package export::transcode;
         my $transcode     = '';
         my $mythtranscode = '';
 
-        my $aspect;
-        my $inaspect;
         my $width;
         my $height;
         my $pad_h;
         my $pad_w;
-    # Load nuv info
-        load_finfo($episode);
+
     # Start the transcode command
         $transcode = "$NICE transcode"
                    # -V is now the default, but need to keep using it because people are still using an older version of transcode
@@ -87,84 +84,73 @@ package export::transcode;
             $transcode .= ' -u 100,'.($num_cpus);
         }
 
-        if ($self->val('force_aspect')) {
-            $inaspect = $self->val('force_aspect');
-            print "Forcing input aspect ratio of $inaspect\n";
-        } else {
-            $inaspect = $episode->{'finfo'}{'aspect'};
-        }
-
     # Import aspect ratio
-        if ($inaspect) {
-            if ($inaspect == 1          || $inaspect eq '1:1') {
-                $transcode .= ' --import_asr 1';
-            }
-            elsif ($inaspect =~ m/^1.3/ || $inaspect eq '4:3') {
-                $transcode .= ' --import_asr 2';
-            }
-            elsif ($inaspect =~ m/^1.7/ || $inaspect eq '16:9') {
-                $transcode .= ' --import_asr 3';
-            }
-            elsif ($inaspect == 2.21    || $inaspect eq '2.21:1') {
-                $transcode .= ' --import_asr 4';
-            }
+        if ($episode->{'finfo'}{'aspect'} eq '1:1') {
+            $transcode .= ' --import_asr 1';
         }
+        elsif ($episode->{'finfo'}{'aspect'} eq '4:3') {
+            $transcode .= ' --import_asr 2';
+        }
+        elsif ($episode->{'finfo'}{'aspect'} eq '16:9') {
+            $transcode .= ' --import_asr 3';
+        }
+        elsif ($episode->{'finfo'}{'aspect'} eq '2.21:1') {
+            $transcode .= ' --import_asr 4';
+        }
+
     # Output aspect ratio
-        if ($self->{'out_aspect'}) {
-            $aspect = $self->{'out_aspect'};
-        } else {
-            $aspect = $inaspect;
-        }
+        $self->{'out_aspect'} ||= $episode->{'finfo'}{'aspect_f'};
 
+    # The output is actually a stretched aspect ratio
+    # (like 480x480 for SVCD, which is 4:3)
         if ($self->{'aspect_stretched'}) {
-            # The output is actually a stretched aspect ratio
-            # (like 480x480 for SVCD, which is 4:3)
-
-            # Stretch the width to the full aspect ratio for calculating
-            $width = int($self->{'height'} * $aspect + 0.5);
-            # Calculate the height required to keep the source in aspect
-            $height = $width / $inaspect;
-            # Round to nearest even number
+        # Stretch the width to the full aspect ratio for calculating
+            $width = int($self->{'height'} * $self->{'out_aspect'} + 0.5);
+        # Calculate the height required to keep the source in aspect
+            $height = $width / $episode->{'finfo'}{'aspect_f'};
+        # Round to nearest even number
             $height = int(($height + 2) / 4) * 4;
-            # Calculate how much to pad the height (both top & bottom)
+        # Calculate how much to pad the height (both top & bottom)
             $pad_h = int(($self->{'height'} - $height) / 2);
-            # Set the real width again
+        # Set the real width again
             $width = $self->{'width'};
-            # No padding on the width
+        # No padding on the width
             $pad_w = 0;
         }
+    # The output will need letter/pillarboxing
         else {
-            # The output will need letter/pillarboxing
-            if ($self->{'width'} / $self->{'height'} <= $aspect) {
-                # We need to letterbox
-                $width = $self->{'width'};
-                $height = $width / $inaspect;
+        # We need to letterbox
+            if ($self->{'width'} / $self->{'height'} <= $self->{'out_aspect'}) {
+                $width  = $self->{'width'};
+                $height = $width / $episode->{'finfo'}{'aspect_f'};
                 $height = int(($height + 2) / 4) * 4;
-                $pad_h = int(($self->{'height'} - $height) / 2);
-                $pad_w = 0;
-            } else {
-                # We need to pillarbox
+                $pad_h  = int(($self->{'height'} - $height) / 2);
+                $pad_w  = 0;
+            }
+        # We need to pillarbox
+            else {
                 $height = $self->{'height'};
-                $width = $height * $inaspect;
-                $width = int(($width + 2) / 4) * 4;
-                $pad_w = int(($self->{'width'} - $width) / 2);
-                $pad_h = 0;
+                $width  = $height * $episode->{'finfo'}{'aspect_f'};
+                $width  = int(($width + 2) / 4) * 4;
+                $pad_w  = int(($self->{'width'} - $width) / 2);
+                $pad_h  = 0;
             }
         }
 
         $transcode .= ' --export_asr ';
-        if ($aspect == 1) {
+        if ($self->{'out_aspect'} == 1) {
             $transcode .= '1';
         }
-        elsif ($aspect =~ m/^1.3/) {
-            # 4:3
+    # 4:3
+        elsif ($self->{'out_aspect'} =~ m/^1.3/) {
             $transcode .= '2';
         }
-        elsif ($aspect =~ m/^1.7/) {
-            # 16:9
+    # 16:9
+        elsif ($self->{'out_aspect'} =~ m/^1.7/) {
             $transcode .= '3';
         }
-        elsif ($aspect == 2.21) {
+    # 2.21:1
+        elsif ($self->{'out_aspect'} == 2.21) {
             $transcode .= '4';
         }
 
@@ -211,8 +197,8 @@ package export::transcode;
         }
 
         if ($fpsout != $episode->{'finfo'}{'fps'}) {
-            $transcode .= ' -J fps=' . $episode->{'finfo'}{'fps'} . ':' .
-                          $fpsout . ':pre';
+            $transcode .= ' -J fps=' . $episode->{'finfo'}{'fps'} . ':'
+                         .$fpsout . ':pre';
         }
 
     # Resize & pad

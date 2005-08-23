@@ -77,8 +77,6 @@ package export::NUV_SQL;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Make sure we have finfo
-        load_finfo($episode);
     # Create a show-name directory?
         if ($self->{'create_dir'}) {
             $self->{'path'} = $self->get_outfile($episode, '');

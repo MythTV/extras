@@ -20,7 +20,7 @@ package nuv_export::shared_utils;
                           &clear        &find_program       &shell_escape
                           &wrap         &wipe_tmpfiles
                           &system       &mkdir
-                          @Exporters    @episodes
+                          @Exporters    @episodes           $exporter
                           $DEBUG        $NICE
                           $num_cpus     $is_child
                           @tmpfiles     %children
@@ -30,6 +30,7 @@ package nuv_export::shared_utils;
 # Variables that we export so all other modules can share them
     our @Exporters;     # A list of the various exporters
     our @episodes;      # A list of the requested episodes
+    our $exporter;      # The selected export module
     our $is_child = 0;  # This is set to 1 after forking to a new process
     our @tmpfiles;      # Keep track of temporary files, so we can clean them up upon quit
     our %children;      # Keep track of child pid's so we can kill them off if we quit unexpectedly

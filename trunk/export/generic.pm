@@ -38,7 +38,6 @@ package export::generic;
     add_arg('noise_reduction|denoise|nr!',   'Enable noise reduction.');
     add_arg('fast_denoise|fast-denoise!',    'Use fast noise reduction instead of standard.');
     add_arg('crop!',                         'Crop out broadcast overscan.');
-    add_arg('force_aspect|force-aspect=f',   'Force input aspect ratio rather than detect it.');
 
 # Load defaults
     sub load_defaults {
@@ -158,7 +157,9 @@ package export::generic;
         if (!$self->val('width') || $self->val('width') =~ /^\s*\D/) {
             $self->{'width'} = $episodes[0]->{'finfo'}{'width'};
         }
-        print "Default resolution based on 4:3 aspect ratio.\n";
+        print 'Default resolution based on ',
+              ($self->val('force_aspect') ? 'forced ' : ''),
+              $episodes[0]->{'finfo'}{'aspect'}, " aspect ratio.\n";
     # Ask the user what resolution he/she wants
         while (1) {
             my $w = query_text('Width?',
@@ -176,7 +177,7 @@ package export::generic;
     # Height will default to whatever is the appropriate aspect ratio for the width
     # someday, we should check the aspect ratio here, too...  Round up/down as needed.
         if (!$self->val('height') || $self->val('height') =~ /^\s*\D/) {
-            $self->{'height'} = $self->{'width'} / 4 * 3;
+            $self->{'height'} = $self->{'width'} / $episodes[0]->{'finfo'}{'aspect_f'};
             $self->{'height'} = int(($self->{'height'} + 8) / 16) * 16;
         }
     # Ask about the height

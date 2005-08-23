@@ -129,8 +129,7 @@ package export::ffmpeg::XviD;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Make sure we have finfo
-        load_finfo($episode);
+    # Make sure we have the framerate
         $self->{'out_fps'} = $episode->{'finfo'}{'fps'};
     # Dual pass?
         if ($self->{'multipass'}) {

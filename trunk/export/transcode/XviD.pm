@@ -124,8 +124,7 @@ package export::transcode::XviD;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Make sure we have finfo
-        load_finfo($episode);
+    # Set the output framerate
         $self->{'out_fps'} = $episode->{'finfo'}{'fps'};
     # Build the transcode string
         my $params = " -N 0x55" # make *sure* we're exporting mp3 audio

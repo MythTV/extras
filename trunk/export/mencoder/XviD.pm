@@ -118,8 +118,6 @@ package export::mencoder::XviD;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Make sure we have finfo
-        load_finfo($episode);
     # Build the mencoder string
         my $params = " -ovc xvid -vop scale=$self->{'width'}:$self->{'height'}"
         #." -N 0x55" # make *sure* we're exporting mp3 audio

@@ -64,8 +64,6 @@ package export::transcode::DVCD;
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Load nuv info
-        load_finfo($episode);
     # Force to 4:3 aspect ratio
         $self->{'out_aspect'} = 1.3333;
         $self->{'aspect_stretched'} = 1;

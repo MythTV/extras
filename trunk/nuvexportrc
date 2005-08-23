@@ -112,6 +112,13 @@
 #
     fast_denoise = yes
 
+#
+#  If nuvexport is having trouble detecting the aspect ratio of your recordings
+#    (MythTV still hard-codes all software-encoded files as 1:1 regardless of
+#    the true aspect), set this option to one of the following:
+#
+#   force_aspect = [ 1:1 4:3 16:9 2.21:1 ]
+
 </generic>
 
 <ffmpeg>

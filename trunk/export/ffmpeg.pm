@@ -86,9 +86,6 @@ package export::ffmpeg;
         my $ffmpeg        = '';
         my $mythtranscode = '';
 
-    # Load nuv info
-        load_finfo($episode);
-
     # Set up the fifo dirs?
         if (-e "/tmp/fifodir_$$/vidout" || -e "/tmp/fifodir_$$/audout") {
             die "Possibly stale mythtranscode fifo's in /tmp/fifodir_$$/.\nPlease remove them before running nuvexport.\n\n";
@@ -96,7 +93,7 @@ package export::ffmpeg;
 
     # Here, we have to fork off a copy of mythtranscode (Do not use --fifosync with ffmpeg or it will hang)
         $mythtranscode = "$NICE mythtranscode --showprogress -p autodetect -c $episode->{channel} -s $episode->{start_time_sep} -f \"/tmp/fifodir_$$/\"";
-        $mythtranscode .= ' --honorcutlist' if ($self->{use_cutlist});
+        $mythtranscode .= ' --honorcutlist' if ($self->{'use_cutlist'});
 
         my $videofifo = "/tmp/fifodir_$$/vidout";
         my $videotype = 'rawvideo';
@@ -104,8 +101,6 @@ package export::ffmpeg;
         my $crop_h;
         my $pad_w;
         my $pad_h;
-        my $aspect;
-        my $inaspect;
         my $height;
         my $width;
 
@@ -155,63 +150,52 @@ package export::ffmpeg;
         $ffmpeg .= " -ac " . $episode->{'finfo'}{'audio_channels'};
         $ffmpeg .= " -i /tmp/fifodir_$$/audout";
         if (!$self->{'audioonly'}) {
-            $ffmpeg .= " -f $videotype";
-            $ffmpeg .= " -s " . $episode->{'finfo'}{'width'} . "x" . $episode->{'finfo'}{'height'};
+            $ffmpeg .= " -f $videotype"
+                      .' -s ' . $episode->{'finfo'}{'width'} . 'x' . $episode->{'finfo'}{'height'}
+                      .' -aspect ' . $episode->{'finfo'}{'aspect_f'}
+                      .' -r '      . $episode->{'finfo'}{'fps'}
+                      ." -i $videofifo";
 
-            if ($self->val('force_aspect')) {
-                $inaspect = $self->val('force_aspect');
-                print "Forcing input aspect ratio of $inaspect\n";
-            } else {
-                $inaspect = $episode->{'finfo'}{'aspect'};
-            }
+            $self->{'out_aspect'} ||= $episode->{'finfo'}{'aspect_f'};
 
-            $ffmpeg .= " -aspect " . $inaspect;
-            $ffmpeg .= " -r " . $episode->{'finfo'}{'fps'};
-            $ffmpeg .= " -i $videofifo";
-
-            if ($self->{'out_aspect'}) {
-                $aspect = $self->{'out_aspect'};
-            } else {
-                $aspect = $inaspect;
-            }
-
+        # The output is actually a stretched aspect ratio
+        # (like 480x480 for SVCD, which is 4:3)
             if ($self->{'aspect_stretched'}) {
-                # The output is actually a stretched aspect ratio
-                # (like 480x480 for SVCD, which is 4:3)
-
-                # Stretch the width to the full aspect ratio for calculating
-                $width = int($self->{'height'} * $aspect + 0.5);
-                # Calculate the height required to keep the source in aspect
-                $height = $width / $inaspect;
-                # Round to nearest even number
+            # Stretch the width to the full aspect ratio for calculating
+                $width = int($self->{'height'} * $self->{'out_aspect'} + 0.5);
+            # Calculate the height required to keep the source in aspect
+                $height = $width / $episode->{'finfo'}{'aspect_f'};
+            # Round to nearest even number
                 $height = int(($height + 2) / 4) * 4;
-                # Calculate how much to pad the height (both top & bottom)
+            # Calculate how much to pad the height (both top & bottom)
                 $pad_h = int(($self->{'height'} - $height) / 2);
-                # Set the real width again
+            # Set the real width again
                 $width = $self->{'width'};
-                # No padding on the width
+            # No padding on the width
                 $pad_w = 0;
-            } else {
-                # The output will need letter/pillarboxing
-                if ($self->{'width'} / $self->{'height'} <= $aspect) {
-                    # We need to letterbox
-                    $width = $self->{'width'};
-                    $height = $width / $inaspect;
+            }
+        # The output will need letter/pillarboxing
+            else {
+            # We need to letterbox
+                if ($self->{'width'} / $self->{'height'} <= $self->{'out_aspect'}) {
+                    $width  = $self->{'width'};
+                    $height = $width / $episode->{'finfo'}{'aspect_f'};
                     $height = int(($height + 2) / 4) * 4;
-                    $pad_h = int(($self->{'height'} - $height) / 2);
-                    $pad_w = 0;
-                } else {
-                    # We need to pillarbox
+                    $pad_h  = int(($self->{'height'} - $height) / 2);
+                    $pad_w  = 0;
+                }
+            # We need to pillarbox
+                else {
                     $height = $self->{'height'};
-                    $width = $height * $inaspect;
-                    $width = int(($width + 2) / 4) * 4;
-                    $pad_w = int(($self->{'width'} - $width) / 2);
-                    $pad_h = 0;
+                    $width  = $height * $episode->{'finfo'}{'aspect_f'};
+                    $width  = int(($width + 2) / 4) * 4;
+                    $pad_w  = int(($self->{'width'} - $width) / 2);
+                    $pad_h  = 0;
                 }
             }
 
-            $ffmpeg .= " -aspect " . $aspect;
-            $ffmpeg .= " -r " . $self->{'out_fps'};
+            $ffmpeg .= ' -aspect ' . $self->{'out_aspect'}
+                      .' -r '      . $self->{'out_fps'};
 
         # Deinterlace in ffmpeg only if the user wants to
             if ($self->val('deinterlace') && !($self->val('noise_reduction') && $self->val('deint_in_yuvdenoise'))) {

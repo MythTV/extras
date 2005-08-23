@@ -42,6 +42,9 @@ package nuv_export::ui;
                     my $description = arg('description');
                     next unless (!$subtitle    || $episode->{'title'}       =~ /$subtitle/si);
                     next unless (!$description || $episode->{'description'} =~ /$description/si);
+                # Make sure we have finfo
+                    load_finfo($episode);
+                # Add this to the list
                     push @matches, $episode;
                 }
             }
@@ -224,15 +227,8 @@ package nuv_export::ui;
             $query .= "$count. ";
         # Print out the show name
             $query .= "$episode->{'title'} " if ($episode->{'title'} && $episode->{'title'} ne 'Untitled');
-            if($episode->{'finfo'}{'aspect'} == "1.3333") {
-                $aspect = "4:3";
-            } elsif($episode->{'finfo'}{'aspect'} == "1.7777" ||
-                    $episode->{'finfo'}{'aspect'} == "1.7778" ) {
-                $aspect = "16:9";
-            } else {
-                $aspect = "$episode->{'finfo'}{'aspect'}:1"
-            }
-            $query .= "($episode->{'showtime'}) ".$episode->{'finfo'}{'width'}.'x'.$episode->{'finfo'}->{'height'}.' '.$episode->{'finfo'}{'video_type'}." ($aspect)";
+            $query .= "($episode->{'showtime'}) ".$episode->{'finfo'}{'width'}.'x'.$episode->{'finfo'}->{'height'}
+                     .' '.$episode->{'finfo'}{'video_type'}.' ('.$episode->{'finfo'}{'aspect'}.')';
             $query .= wrap($episode->{'description'}, 80, $newline, '', $newline) if ($episode->{'description'});
             $query .= "\n";
             $episode_choices[$count-1] = $episode;
@@ -281,11 +277,8 @@ package nuv_export::ui;
     # Build the query
         my $count = 0;
         my $query = "\nYou have chosen to export $num_episodes episode" . ($num_episodes == 1 ? '' : 's') . ":\n\n";
-        my $aspect;
         foreach my $episode (@episodes) {
             $count++;
-        # Make sure we have finfo
-            load_finfo($episode);
         # Print out this choice, adjusting space where necessary
             $query .= '  ';
             $query .= ' ' if ($num_episodes > 10 && $count < 10);
@@ -294,15 +287,8 @@ package nuv_export::ui;
         # Print out the show name
             $query .= "$episode->{'show_name'}:$newline";
             $query .= "$episode->{'title'} " if ($episode->{'title'} && $episode->{'title'} ne 'Untitled');
-            if($episode->{'finfo'}{'aspect'} == "1.3333") {
-                $aspect = "4:3";
-            } elsif($episode->{'finfo'}{'aspect'} == "1.7777" ||
-                    $episode->{'finfo'}{'aspect'} == "1.7778" ) {
-                $aspect = "16:9";
-            } else {
-                $aspect = "$episode->{'finfo'}{'aspect'}:1"
-            }
-            $query .= "($episode->{'showtime'}) ".$episode->{'finfo'}{'width'}.'x'.$episode->{'finfo'}->{'height'}.' '.$episode->{'finfo'}{'video_type'}." (".$aspect.")";
+            $query .= "($episode->{'showtime'}) ".$episode->{'finfo'}{'width'}.'x'.$episode->{'finfo'}->{'height'}
+                     .' '.$episode->{'finfo'}{'video_type'}.' ('.$episode->{'finfo'}{'aspect'}.')';
             $query .= wrap($episode->{'description'}, 80, $newline, '', $newline) if ($episode->{'description'});
             $query .= "\n";
         }

@@ -19,7 +19,7 @@ package mythtv::nuvinfo;
     BEGIN {
         use Exporter;
         our @ISA = qw/ Exporter /;
-        our @EXPORT = qw/ &nuv_info /;
+        our @EXPORT = qw/ &nuv_info &aspect_str &aspect_float /;
     }
 
 # Opens a .nuv file and returns information about it
@@ -46,8 +46,10 @@ package mythtv::nuvinfo;
          $info{'keyframedist'}
             ) = unpack('Z12 Z5 xxx i i i i a xxx d d i i i i', $buffer);
     # Is this even a NUV file?
-        return mpeg_info($file) unless ($info{'finfo'} =~ /MythTVVideo/);
-#        return mpeg_info($file) unless ($info{'finfo'} =~ /\w/);
+        if ($info{'finfo'} !~ /MythTVVideo/) {
+            close DATA;
+            return mpeg_info($file);
+        }
     # Perl occasionally over-reads on the previous read()
         seek(DATA, 72, 0);
     # Read and parse the first frame header
@@ -109,7 +111,10 @@ package mythtv::nuvinfo;
         $info{'height'} += 0;
     # Make some corrections for myth bugs
         $info{'audio_sample_rate'} = 44100 if ($info{'audio_sample_rate'} == 42501 || $info{'audio_sample_rate'} =~ /^44\d\d\d$/);
-        $info{'aspect'} = 1.333;
+        $info{'aspect'} = '4:3';
+    # Cleanup
+        $info{'aspect'}   = aspect_str($info{'aspect'});
+        $info{'aspect_f'} = aspect_float($info{'aspect'});
     # Return
         return %info;
     }
@@ -152,13 +157,47 @@ package mythtv::nuvinfo;
                ."in your mplayer config).  If not, email the output to the nuvexport author.\n\n"
                ."    $program -v -v -v -v -nolirc -nojoystick -vo null -ao null -frames 0 -identify '$file'\n\n";
         }
-
-        $info{'aspect'} =~ s/\,/\./;
+    # Cleanup
+        $info{'aspect'}   = aspect_str($info{'aspect'});
+        $info{'aspect_f'} = aspect_float($info{'aspect'});
 # ID_VIDEO_BITRATE=6500000
 # ID_AUDIO_FORMAT=80
 # ID_LENGTH=3554
     # Return
         return %info;
+    }
+
+    sub aspect_str {
+        my $aspect = shift;
+    # Already in ratio format
+        return $aspect if ($aspect =~ /^\d+:\d+$/);
+    # European decimals...
+        $aspect =~ s/\,/\./;
+    # Parse out decimal formats
+        if ($aspect == 1)          { return '1:1';        }
+        elsif ($aspect =~ m/^1.3/) { return '4:3';        }
+        elsif ($aspect =~ m/^1.7/) { return '16:9';       }
+        elsif ($aspect == 2.21)    { return '2.21:1';     }
+    # Unknown aspect
+        print STDERR "Unknown aspect ratio:  $aspect\n";
+        return $aspect.':1';
+    }
+
+    sub aspect_float {
+        my $aspect = shift;
+    # European decimals...
+        $aspect =~ s/\,/\./;
+    # In ratio format -- do the math
+        if ($aspect =~ /^\d+:\d+$/) {
+            my ($w, $h) = split /:/, $aspect;
+            return $w / $h;
+        }
+    # Parse out decimal formats
+        if ($aspect == 1)          { return  1;     }
+        elsif ($aspect =~ m/^1.3/) { return  4 / 3; }
+        elsif ($aspect =~ m/^1.7/) { return 16 / 9; }
+    # Unknown aspect
+        return $aspect;
     }
 
 # return true

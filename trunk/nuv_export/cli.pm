@@ -33,7 +33,7 @@ package nuv_export::cli;
     our $config_file = undef;
     GetOptions('ffmpeg'     => sub { $export_prog = 'ffmpeg';    },
                'transcode'  => sub { $export_prog = 'transcode'; },
-               'mencoder'   => sub { $export_prog = 'mencoder'; },
+               'mencoder'   => sub { $export_prog = 'mencoder';  },
                'config|c=s' => \$config_file,
               );
 
@@ -110,28 +110,29 @@ package nuv_export::cli;
     my %args;
 
 # Load the following extra parameters from the commandline
-    add_arg('search-only',            'Search only, do not do anything with the found recordings');
-    add_arg('confirm!',               'Confirm commandline-entered choices');
+    add_arg('search-only',                 'Search only, do not do anything with the found recordings');
+    add_arg('confirm!',                    'Confirm commandline-entered choices');
 
-    add_arg('title=s',                'Find programs to convert based on their title.');
-    add_arg('subtitle|episode=s',     'Find programs to convert based on their subtitle (episode name).');
-    add_arg('description=s',          'Find programs to convert based on their description.');
-    add_arg('infile|input|i=s',       'Input filename');
-    add_arg('chanid|channel=i',       'Find programs to convert based on their chanid');
-    add_arg('starttime|start_time=i', 'Find programs to convert based on their starttime.');
+    add_arg('title=s',                     'Find programs to convert based on their title.');
+    add_arg('subtitle|episode=s',          'Find programs to convert based on their subtitle (episode name).');
+    add_arg('description=s',               'Find programs to convert based on their description.');
+    add_arg('infile|input|i=s',            'Input filename');
+    add_arg('chanid|channel=i',            'Find programs to convert based on their chanid');
+    add_arg('starttime|start_time=i',      'Find programs to convert based on their starttime.');
 
-    add_arg('require_cutlist',        'Only show programs that have a cutlist?');
+    add_arg('require_cutlist',             'Only show programs that have a cutlist?');
+    add_arg('force_aspect|force-aspect=s', 'Force input aspect ratio rather than detect it.');
 
-    add_arg('mode|export=s',          'Specify which export mode to use');
+    add_arg('mode|export=s',               'Specify which export mode to use');
 
-    add_arg('noserver|no-server',     "Don't talk to the server -- do all encodes here in this execution");
+    add_arg('noserver|no-server',          "Don't talk to the server -- do all encodes here in this execution");
 
-    add_arg('nice=i',                 'Set the value of "nice" for subprocesses');
-    add_arg('version',                'Show the version and exit');
+    add_arg('nice=i',                      'Set the value of "nice" for subprocesses');
+    add_arg('version',                     'Show the version and exit');
 
 # Load the commandline options
-    add_arg('help:s',  'Show nuvexport help');
-    add_arg('debug', 'Enable debug mode');
+    add_arg('help:s',                      'Show nuvexport help');
+    add_arg('debug',                       'Enable debug mode');
 
 # Load the commandline arguments
     sub load_cli_args {

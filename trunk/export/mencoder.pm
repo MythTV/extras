@@ -67,26 +67,10 @@ package export::mencoder;
     # Init the commands
         my $mencoder   = '';
         my $mythtranscode = '';
-    # Load nuv info
-        load_finfo($episode);
     # Start the mencoder command
         $mencoder = "$NICE mencoder";
     # Import aspect ratio
-        if ($episode->{'finfo'}{'aspect'}) {
-            $mencoder .= ' -aspect ';
-            if ($episode->{'finfo'}{'aspect'} == 1          || $episode->{'finfo'}{'aspect'} eq '1:1') {
-                $mencoder .= '1:1';
-            }
-            elsif ($episode->{'finfo'}{'aspect'} =~ m/^1.3/ || $episode->{'finfo'}{'aspect'} eq '4:3') {
-                $mencoder .= '4:3';
-            }
-            elsif ($episode->{'finfo'}{'aspect'} =~ m/^1.7/ || $episode->{'finfo'}{'aspect'} eq '16:9') {
-                $mencoder .= '16:9';
-            }
-            elsif ($episode->{'finfo'}{'aspect'} == 2.21    || $episode->{'finfo'}{'aspect'} eq '2.21:1') {
-                $mencoder .= '2.21:1';
-            }
-        }
+        $mencoder .= ' -aspect '.$episode->{'finfo'}{'aspect_f'};
     # Not an mpeg mencoder can not do cutlists (from what I can tell..)
         unless ($episode->{'finfo'}{'is_mpeg'} && !$self->{'use_cutlist'}) {
         # swap red/blue -- used with svcd, need to see if it's needed everywhere

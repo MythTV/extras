@@ -138,7 +138,7 @@ package mythtv::recordings;
     # We should probably do some sorting by timestamp (and also count how many shows there are)
         $num_shows = 0;
         foreach my $show (sort keys %Shows) {
-            @{$Shows{$show}} = sort {$a->{start_time} <=> $b->{start_time} || $a->{channel} <=> $b->{channel}} @{$Shows{$show}};
+            @{$Shows{$show}} = sort {$a->{'start_time'} <=> $b->{'start_time'} || $a->{'channel'} <=> $b->{'channel'}} @{$Shows{$show}};
             $num_shows++;
         }
 
@@ -154,6 +154,11 @@ package mythtv::recordings;
         my $episode = shift;
         return if ($episode->{'finfo'});
         %{$episode->{'finfo'}} = nuv_info($episode->{'filename'});
+    # Aspect override?
+        if ($exporter->val('force_aspect')) {
+            $episode->{'finfo'}{'aspect'}   = aspect_str($exporter->val('force_aspect'));
+            $episode->{'finfo'}{'aspect_f'} = aspect_float($exporter->val('force_aspect'));
+        }
     }
 
 #
@@ -168,9 +173,9 @@ package mythtv::recordings;
         $day   = int($day);
     # Special datetime format?
         if ($showtime = arg('date')) {
-print "$year-$month-$day-$hour-$minute-$second -> ",ParseDate("$year-$month-$day $hour:$minute:$second"), "\n";
+#print "$year-$month-$day-$hour-$minute-$second -> ",ParseDate("$year-$month-$day $hour:$minute:$second"), "\n";
             $showtime = UnixDate(ParseDate("$year-$month-$day $hour:$minute:$second"), $showtime);
-print "$showtime\n";exit;
+#print "$showtime\n";exit;
         }
     # Default to the standard
         else {
