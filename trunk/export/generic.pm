@@ -125,10 +125,13 @@ package export::generic;
                     $outfile = 'Untitled';
                 }
             }
-        # Some basic cleanup for illegal characters
-            $outfile =~ s/(?:[\/\\\:\*\?\<\>\|\-]+\s*)+(?=[^\s\/\\\:\*\?\<\>\|\-])/- /sg;
+        # Some basic cleanup for illegal (windows) filename characters, etc.
+            $outfile =~ tr/\ \t\r\n/ /s;
             $outfile =~ tr/"/'/s;
-            $outfile =~ s/\s+/ /s;
+            $outfile =~ s/(?:[\-\/\\:*?<>|]+\s*)+(?=[^\d\s])/- /sg;
+            $outfile =~ tr/\/\\:*?<>|/-/;
+            $outfile =~ s/^[\-\ ]+//s;
+            $outfile =~ s/[\-\ ]+$//s;
         # add underscores?
             if ($self->val('underscores')) {
                 $outfile =~ tr/ /_/s;
