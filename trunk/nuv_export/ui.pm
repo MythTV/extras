@@ -199,7 +199,12 @@ package nuv_export::ui;
         my @episodes     = @_;
         my $num_episodes = @{$Shows{$show}};
     # Only one episode recorded?
-        return ('v', $Shows{$show}->[0]) if ($num_episodes == 1);
+        if ($num_episodes == 1) {
+        # Make sure the finfo gets loaded
+            load_finfo($Shows{$show}[0]);
+        # Return the single show -- user doesn't need a prompt
+            return ('v', $Shows{$show}->[0]);
+        }
     # Define a newline + whitespace so we can tab out extra lines of episode description
         my $newline = "\n" . ' ' x (4 + length $num_episodes);
     # Build the query
