@@ -37,8 +37,8 @@ package export::ffmpeg;
             or push @{$self->{'errors'}}, 'You need yuvdenoise (part of mjpegtools) to use this exporter.';
     # Check the yuvdenoise version
         my $data = `cat /dev/null | yuvdenoise 2>&1`;
-        if ($data =~ m/yuvdenoise version 1.6.3-rc1/i) {
-            $self->{'denoise_error'} = 'yuvdenoise version 1.6.3rc1 is broken and cannot be used.';
+        if ($data =~ m/yuvdenoise version 1.6.3-rc[12]/i) {
+            $self->{'denoise_error'} = 'yuvdenoise version 1.6.3rc1 (and rc2) are broken and cannot be used.';
         }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
@@ -134,7 +134,7 @@ package export::ffmpeg;
                 if ($self->val('deint_in_yuvdenoise') && $self->val('deinterlace')) {
                     $ffmpeg .= " -F";
                 }
-                $ffmpeg .= " 2> /dev/null | ";
+                $ffmpeg .= ' | ';
                 $videofifo = '-';
                 $videotype = 'yuv4mpegpipe';
             }

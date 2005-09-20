@@ -49,7 +49,7 @@ package mythtv::recordings;
         print "Loading MythTV recording info.\n";
 
     # Query variables we'll use below
-        my ($sh, $sh2, $sh3, $q, $q2, $q3);
+        my ($sh, $sh2, $sh3, $sh4, $q, $q2, $q3, $q4);
 
     # Find the directory where the recordings are located
         $q = "SELECT data FROM settings WHERE value='RecordFilePrefix' AND hostname=?";
@@ -62,14 +62,14 @@ package mythtv::recordings;
 
     # Grab all of the video filenames
         opendir(DIR, $video_dir) or die "Can't open $video_dir:  $!\n\n";
-        @Files = grep /\.nuv$/, readdir(DIR);
+        @Files = grep /\.(?:mpg|nuv)$/, readdir(DIR);
         closedir DIR;
         die "No recordings found!\n\n" unless (@Files);
 
     # Parse out the record data for each file
-        $q  = "SELECT title, subtitle, description, hostname, cutlist FROM recorded WHERE chanid=? AND starttime=? AND endtime=?";
-        $q2 = "SELECT mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY mark DESC LIMIT 1";
-        $q3 = "SELECT mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=9 ORDER BY mark DESC LIMIT 1";
+        $q  = 'SELECT * FROM recorded WHERE basename=?';
+        $q2 = 'SELECT * FROM recorded WHERE chanid=? AND starttime=?';
+        $q3 = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY type ASC, mark DESC LIMIT 1';
 
         $sh  = $dbh->prepare($q);
         $sh2 = $dbh->prepare($q2);
@@ -77,61 +77,68 @@ package mythtv::recordings;
 
         my $count;
         foreach my $file (@Files) {
-            next unless ($file =~ /\.nuv$/);
+            next unless ($file =~ /\.(?:mpg|nuv)$/);
             next if ($file =~ /^ringbuf/);
             $count++;
-        # Print a progress dot
+        # Info hash
+            my %info;
+        # Print the progress indicator
             print "\r", sprintf('%.0f', 100 * ($count / @Files)), '% ';
-        # Pull out the various parts that make up the filename
-            my ($channel,
-                $syear, $smonth, $sday, $shour, $sminute, $ssecond,
-                $eyear, $emonth, $eday, $ehour, $eminute, $esecond) = $file =~/^([a-z0-9]+)_(....)(..)(..)(..)(..)(..)_(....)(..)(..)(..)(..)(..)\.nuv$/i;
-        # Found a bad filename?
-            unless ($channel) {
-                print "Unknown filename format:  $file\n";
-                next;
+        # New db format? (no errors, since this query will break with mythtv < .19)
+            $sh->execute($file);
+            %info = %{$sh->fetchrow_hashref};
+        # Nope
+            unless ($info{'chanid'}) {
+            # Pull out the various parts that make up the filename
+                my ($channel, $starttime) = $file =~/^(\d+)_(\d{14})[_\.]/i;
+            # Found a bad filename?
+                unless ($channel) {
+                    print "Unknown filename format:  $file\n";
+                    next;
+                }
+            # Execute the query
+                $sh2->execute($channel, $starttime)
+                    or die "Could not execute ($q):  $!\n\n";
+                %info = %{$sh2->fetchrow_hashref};
             }
-        # Execute the query
-            $sh->execute($channel, "$syear$smonth$sday$shour$sminute$ssecond", "$eyear$emonth$eday$ehour$eminute$esecond")
-                or die "Could not execute ($q):  $!\n\n";
-            my ($show, $episode, $description, $show_hostname, $cutlist) = $sh->fetchrow_array;
         # Skip shows without cutlists?
-            next if (arg('require_cutlist') && !$cutlist);
+            next if (arg('require_cutlist') && !$info{'cutlist'});
         # Unknown file - someday we should report this
-            next unless ($show);
-            $sh2->execute($channel, "$syear$smonth$sday$shour$sminute$ssecond")
-                or die "Could not execute ($q2):  $!\n\n";
-            my ($lastgop) = $sh2->fetchrow_array;
-            my $goptype = 6;
-
-            if( !$lastgop ) {
-                $sh3->execute($channel, "$syear$smonth$sday$shour$sminute$ssecond")
-                    or die "Could not execute ($q3):  $!\n\n";
-                ($lastgop) = $sh3->fetchrow_array;
-                $goptype = 9;
-            }
+            next unless ($info{'chanid'});
+        # Pull out GOP info for mpeg files
+            $sh3->execute($info{'chanid'}, $info{'starttime'})
+                or die "Could not execute ($q3):  $!\n\n";
+            ($info{'goptype'}, $info{'lastgop'}) = $sh3->fetchrow_array;
+        # Cleanup
+            $info{'starttime_sep'} = $info{'starttime'};
+            $info{'starttime_sep'} =~ s/\D+/-/sg;
+            $info{'starttime'}     =~ tr/0-9//cd;
+            $info{'endtime'}       =~ tr/0-9//cd;
         # Defaults
-            $episode     = 'Untitled'       unless ($episode =~ /\S/);
-            $description = 'No Description' unless ($description =~ /\S/);
+            $info{'title'}       = 'Untitled'       unless ($info{'title'} =~ /\S/);
+            $info{'subtitle'}    = 'Untitled'       unless ($info{'subtitle'} =~ /\S/);
+            $info{'description'} = 'No Description' unless ($info{'description'} =~ /\S/);
         #$description =~ s/(?:''|``)/"/sg;
-            push @{$Shows{$show}}, {'filename'       => "$video_dir/$file",
-                                    'channel'        => $channel,
-                                    'start_time'     => "$syear$smonth$sday$shour$sminute$ssecond",
-                                    'end_time'       => "$eyear$emonth$eday$ehour$eminute$esecond",
-                                    'start_time_sep' => "$syear-$smonth-$sday-$shour-$sminute-$ssecond",
-                                    'show_name'      => ($show          or ''),
-                                    'title'          => ($episode       or ''),
-                                    'description'    => ($description   or ''),
-                                    'hostname'       => ($show_hostname or ''),
-                                    'cutlist'        => ($cutlist       or ''),
-                                    'lastgop'        => ($lastgop       or 0),
-                                    'goptype'        => ($goptype       or 0),
-                                    'showtime'       => generate_showtime($syear, $smonth, $sday, $shour, $sminute, $ssecond),
-                                   # This field is too slow to populate here, so it will be populated in ui.pm on-demand
-                                    'finfo'          => undef
-                                   };
+            push @{$Shows{$info{'title'}}}, {'filename'       => "$video_dir/$file",
+                                             'channel'        => $info{'chanid'},
+                                             'start_time'     => $info{'starttime'},
+                                             'end_time'       => $info{'endtime'},
+                                             'start_time_sep' => $info{'starttime_sep'},
+                                             'show_name'      => $info{'title'},
+                                             'title'          => $info{'subtitle'},
+                                             'description'    => $info{'description'},
+                                             'hostname'       => ($info{'hostname'}      or ''),
+                                             'cutlist'        => ($info{'cutlist'}       or ''),
+                                             'lastgop'        => ($info{'lastgop'}       or 0),
+                                             'goptype'        => ($info{'goptype'}       or 0),
+                                             'showtime'       => generate_showtime(split(/-/, $info{'starttime_sep'})),
+                                            # This field is too slow to populate here, so it will be populated in ui.pm on-demand
+                                             'finfo'          => undef
+                                            };
         }
         $sh->finish();
+        $sh2->finish();
+        $sh3->finish();
         print "\n";
 
     # We now have a hash of show names, containing an array of episodes

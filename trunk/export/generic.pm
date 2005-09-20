@@ -62,7 +62,7 @@ package export::generic;
         if (!$self->{'audioonly'}) {
         # Noise reduction?
             if ($self->{'denoise_error'}) {
-                query_text($self->{'denoise_error'}."\nPress enter to continue.",
+                query_text($self->{'denoise_error'}."\nNoise reduction has been disabled because of an error.  Press enter to continue.",
                            '', '');
             }
             else {
