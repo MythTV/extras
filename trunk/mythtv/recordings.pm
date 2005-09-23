@@ -21,14 +21,14 @@ package mythtv::recordings;
         use Exporter;
         our @ISA = qw/ Exporter /;
 
-        our @EXPORT = qw/ &load_finfo &load_recordings $video_dir @Files %Shows /;
+        our @EXPORT = qw/ &load_finfo &load_recordings $video_dir %Shows /;
 
     # These are available for export, but for the most part should only be needed here
         our @EXPORT_OK = qw/ &generate_showtime $num_shows /;
     }
 
 # Variables we intend to export
-    our ($video_dir, @Files, %Shows, $num_shows);
+    our ($video_dir, %Shows, $num_shows);
 
 # Autoflush buffers
     $|++;
@@ -49,66 +49,70 @@ package mythtv::recordings;
         print "Loading MythTV recording info.\n";
 
     # Query variables we'll use below
-        my ($sh, $sh2, $sh3, $sh4, $q, $q2, $q3, $q4);
+        my ($q, $sh, @files, $file, $count);
 
     # Find the directory where the recordings are located
-        $q = "SELECT data FROM settings WHERE value='RecordFilePrefix' AND hostname=?";
+        $q = 'SELECT data FROM settings WHERE value="RecordFilePrefix" AND hostname=?';
         $sh = $dbh->prepare($q);
             $sh->execute($hostname) or die "Could not execute ($q):  $!\n\n";
-        ($video_dir) = $sh->fetchrow_array;
+        ($video_dir) = $sh->fetchrow_array();
         die "This host not configured for myth.\n(No RecordFilePrefix defined for $hostname in the settings table.)\n\n" unless ($video_dir);
         die "Recordings directory $video_dir doesn't exist!\n\n" unless (-d $video_dir);
         $video_dir =~ s/\/+$//;
 
-    # Grab all of the video filenames
-        opendir(DIR, $video_dir) or die "Can't open $video_dir:  $!\n\n";
-        @Files = grep /\.(?:mpg|nuv)$/, readdir(DIR);
-        closedir DIR;
-        die "No recordings found!\n\n" unless (@Files);
-
-    # Parse out the record data for each file
-        $q  = 'SELECT * FROM recorded WHERE basename=?';
-        $q2 = 'SELECT * FROM recorded WHERE chanid=? AND starttime=?';
-        $q3 = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY type ASC, mark DESC LIMIT 1';
-
-        $sh  = $dbh->prepare($q);
-        $sh2 = $dbh->prepare($q2);
-        $sh3 = $dbh->prepare($q3);
-
-        my $count;
-        foreach my $file (@Files) {
-            next unless ($file =~ /\.(?:mpg|nuv)$/);
-            next if ($file =~ /^ringbuf/);
-            $count++;
-        # Info hash
-            my %info;
-        # Print the progress indicator
-            print "\r", sprintf('%.0f', 100 * ($count / @Files)), '% ';
-        # New db format? (no errors, since this query will break with mythtv < .19)
-            $sh->execute($file);
-            %info = %{$sh->fetchrow_hashref};
-        # Nope
-            unless ($info{'chanid'}) {
-            # Pull out the various parts that make up the filename
-                my ($channel, $starttime) = $file =~/^(\d+)_(\d{14})[_\.]/i;
-            # Found a bad filename?
-                unless ($channel) {
-                    print "Unknown filename format:  $file\n";
-                    next;
-                }
-            # Execute the query
-                $sh2->execute($channel, $starttime)
-                    or die "Could not execute ($q):  $!\n\n";
-                %info = %{$sh2->fetchrow_hashref};
+    # Try a basename file search
+        $sh = $dbh->prepare('SELECT *, basename FROM recorded');
+        my $rows = $sh->execute();
+        if (defined $rows) {
+            while ($file = $sh->fetchrow_hashref()) {
+                push @files, $file;
             }
+        }
+    # Older mythtv; scan for files
+        else {
+            $sh->finish;
+            $sh = $dbh->prepare('SELECT * FROM recorded WHERE chanid=? AND starttime=?');
+        # Grab all of the video filenames
+            opendir(DIR, $video_dir) or die "Can't open $video_dir:  $!\n\n";
+            foreach $file (grep /\.nuv$/, readdir(DIR)) {
+                next if ($file =~ /^ringbuf/);
+            # Extract the file info
+                my ($chanid, $starttime) = $file =~/^(\d+)_(\d{14})_/i;
+            # Search the database
+                $sh->execute($chanid, $starttime);
+                my $ref = $sh->fetchrow_hashref();
+                next unless ($ref);
+            # Add the basename, and add the file to the list
+                $ref->{'basename'} = $file;
+                push @files, $ref;
+            }
+            closedir DIR;
+
+        }
+        $sh->finish;
+
+    # Nothing?!
+        die "No valid recordings found!\n\n" unless (@files);
+
+    # Prepare a query to look up GOP info used to determine mpeg recording length
+        $q = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY type ASC, mark DESC LIMIT 1';
+        $sh  = $dbh->prepare($q);
+
+        $num_shows = $count = 0;
+        foreach $file (@files) {
+            $count++;
+        # Print the progress indicator
+            print "\r", sprintf('%.0f', 100 * ($num_shows / @files)), '% ';
+        # Info hash
+            my %info = %{$file};
+        # Import the commercial flag list
+            ### FIXME:  how do I do this?
         # Skip shows without cutlists?
             next if (arg('require_cutlist') && !$info{'cutlist'});
-        # Unknown file - someday we should report this
-            next unless ($info{'chanid'});
         # Pull out GOP info for mpeg files
-            $sh3->execute($info{'chanid'}, $info{'starttime'})
-                or die "Could not execute ($q3):  $!\n\n";
-            ($info{'goptype'}, $info{'lastgop'}) = $sh3->fetchrow_array;
+            $sh->execute($info{'chanid'}, $info{'starttime'})
+                or die "Could not execute ($q):  $!\n\n";
+            ($info{'goptype'}, $info{'lastgop'}) = $sh->fetchrow_array();
         # Cleanup
             $info{'starttime_sep'} = $info{'starttime'};
             $info{'starttime_sep'} =~ s/\D+/-/sg;
@@ -119,7 +123,7 @@ package mythtv::recordings;
             $info{'subtitle'}    = 'Untitled'       unless ($info{'subtitle'} =~ /\S/);
             $info{'description'} = 'No Description' unless ($info{'description'} =~ /\S/);
         #$description =~ s/(?:''|``)/"/sg;
-            push @{$Shows{$info{'title'}}}, {'filename'       => "$video_dir/$file",
+            push @{$Shows{$info{'title'}}}, {'filename'       => "$video_dir/".$info{'basename'},
                                              'channel'        => $info{'chanid'},
                                              'start_time'     => $info{'starttime'},
                                              'end_time'       => $info{'endtime'},
@@ -135,25 +139,23 @@ package mythtv::recordings;
                                             # This field is too slow to populate here, so it will be populated in ui.pm on-demand
                                              'finfo'          => undef
                                             };
-        }
-        $sh->finish();
-        $sh2->finish();
-        $sh3->finish();
-        print "\n";
-
-    # We now have a hash of show names, containing an array of episodes
-    # We should probably do some sorting by timestamp (and also count how many shows there are)
-        $num_shows = 0;
-        foreach my $show (sort keys %Shows) {
-            @{$Shows{$show}} = sort {$a->{'start_time'} <=> $b->{'start_time'} || $a->{'channel'} <=> $b->{'channel'}} @{$Shows{$show}};
+        # Counter
             $num_shows++;
         }
+        $sh->finish();
+        print "\n";
 
     # No shows found?
         unless ($num_shows) {
-            die 'Found '.@Files." files, but no matching database entries.\n"
+            die "Found $count files, but no matching database entries.\n"
                 .(arg('require_cutlist') ? "Perhaps you should try disabling require_cutlist?\n" : '')
                 ."\n";
+        }
+
+    # We now have a hash of show names, containing an array of episodes
+    # We should probably do some sorting by timestamp (and also count how many shows there are)
+        foreach my $show (sort keys %Shows) {
+            @{$Shows{$show}} = sort {$a->{'start_time'} <=> $b->{'start_time'} || $a->{'channel'} <=> $b->{'channel'}} @{$Shows{$show}};
         }
     }
 
