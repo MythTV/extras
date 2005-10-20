@@ -62,7 +62,9 @@ package mythtv::recordings;
 
     # Try a basename file search
         $sh = $dbh->prepare('SELECT *, basename FROM recorded');
-        my $rows = $sh->execute();
+        if ($sh) {
+            my $rows = $sh->execute();
+        }
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
                 push @files, $file;
@@ -70,7 +72,7 @@ package mythtv::recordings;
         }
     # Older mythtv; scan for files
         else {
-            $sh->finish;
+            $sh->finish if ($sh);
             $sh = $dbh->prepare('SELECT * FROM recorded WHERE chanid=? AND starttime=?');
         # Grab all of the video filenames
             opendir(DIR, $video_dir) or die "Can't open $video_dir:  $!\n\n";
