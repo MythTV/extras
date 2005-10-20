@@ -22,8 +22,9 @@ package export::transcode;
     use mythtv::recordings;
 
 # Load the following extra parameters from the commandline
-    add_arg('zoom_filter:s',        'Which zoom filter to use.');
-    add_arg('force_mythtranscode!', 'Force use of mythtranscode, even on mpeg files.');
+    add_arg('zoom_filter:s',          'Which zoom filter to use.');
+    add_arg('force_mythtranscode!',   'Force use of mythtranscode, even on mpeg files.');
+    add_arg('mythtranscode_cutlist!', "Force use of mythtranscode's cutlist instead of transcode's internal one (only works with --force_mythtranscode).");
 
 # Check for transcode
     sub init_transcode {
@@ -221,7 +222,9 @@ package export::transcode;
         # On no-audio encodes, we need to do something to keep mythtranscode's audio buffers from filling up available RAM
         #    $mythtranscode .= ' --fifosync' if ($skip_audio);
         # let transcode handle the cutlist -- got too annoyed with the first/last frame(s) showing up no matter what I told mythtranscode
-            #$mythtranscode .= ' --honorcutlist' if ($self->{'use_cutlist'});
+            if ($self->val('use_cutlist') && $self->val('mythtranscode_cutlist')) {
+                $mythtranscode .= ' --honorcutlist';
+            }
         # Figure out the input files
             $transcode .= " -i /tmp/fifodir_$$/vidout -p /tmp/fifodir_$$/audout"
                          .' -H 0 -x raw'
@@ -251,7 +254,8 @@ package export::transcode;
             $transcode .= " -j $h,$w,$h,$w" if ($h || $w);
         }
     # Use the cutlist?  (only for mpeg files -- nuv files are handled by mythtranscode)
-        if ($self->{'use_cutlist'} && $episode->{'cutlist'} && $episode->{'cutlist'} =~ /\d/) {
+        if ($self->{'use_cutlist'} && !$self->val('mythtranscode_cutlist')
+                && $episode->{'cutlist'} && $episode->{'cutlist'} =~ /\d/) {
             my $cutlist = $episode->{'cutlist'};
             $cutlist =~ tr/ //d;
             $cutlist =~ tr/\n/ /;

@@ -141,9 +141,19 @@
 #  Setting always_use_mythtranscode to yes will force nuvexport to call
 #    mythtranscode when using the transcode exporter.  This may help problems
 #    that some people have been having with transcode not recognizing certain
-#    dvb recordings.
+#    dvb recordings, as well as transcode not working properly on certain ivtv
+#    recordings.
 #
 #    force_mythtranscode=no
+
+#
+#  Setting both force_mythtranscode and mythtranscode_cutlist to yes will tell
+#    nuvexport to use mythtranscode's built-in cutlist functions, rather than
+#    having transcode use its own.  I've found that the cutlists for a handful
+#    of ivtv recordings that do not work properly with transcode's internal
+#    cutlist handler.
+#
+#    mythtranscode_cutlist=no
 
 </transcode>
 
