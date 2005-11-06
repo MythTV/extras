@@ -61,9 +61,10 @@ package mythtv::recordings;
         $video_dir =~ s/\/+$//;
 
     # Try a basename file search
+        my $rows;
         $sh = $dbh->prepare('SELECT *, basename FROM recorded');
         if ($sh) {
-            my $rows = $sh->execute();
+            $rows = $sh->execute();
         }
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
