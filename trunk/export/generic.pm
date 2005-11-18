@@ -27,7 +27,7 @@ package export::generic;
 
 # Load the following extra parameters from the commandline
     add_arg('path:s',                        'Save path (only used with the noserver option).');
-    add_arg('filename:s',                    'Format string for output names.');
+    add_arg('filename|name:s',               'Format string for output names.');
     add_arg('underscores!',                  'Convert spaces to underscores for output filename.');
     add_arg('use_cutlist|cutlist!',          'Use the myth cutlist (or not)');
 

@@ -72,7 +72,7 @@
 #    %d -> description
 #    %% -> a % character
 #
-#    name=%t - %s
+#    filename=%t - %s
 
 #
 #  By default, nuvexport uses an American-style date to represent showtimes in
