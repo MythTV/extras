@@ -81,9 +81,10 @@ package export::transcode;
                     .' --print_status 16'      # Only print status every 16 frames -- prevents buffer-related slowdowns
                     ;
     # Take advantage of multiple CPU's?
-        if ($num_cpus > 1) {
-            $transcode .= ' -u 100,'.($num_cpus);
-        }
+    # * This has been disabled because it looks like it causes jerkiness.
+    #    if ($num_cpus > 1) {
+    #        $transcode .= ' -u 100,'.($num_cpus);
+    #    }
 
     # Import aspect ratio
         if ($episode->{'finfo'}{'aspect'} eq '1:1') {
