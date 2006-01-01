@@ -40,6 +40,15 @@ package export::ffmpeg;
         if ($data =~ m/yuvdenoise version 1.6.3-rc[12]/i) {
             $self->{'denoise_error'} = 'yuvdenoise version 1.6.3rc1 (and rc2) are broken and cannot be used.';
         }
+    # Check the ffmpeg version
+        $data = `ffmpeg -version 2>&1`;
+        if ($data =~ m/ffmpeg\sversion\s(.+?),\sbuild\s(\d+)/si) {
+            $self->{'ffmpeg_vers'}  = lc($1);
+            $self->{'ffmpeg_build'} = $2;
+        }
+        else {
+            push @{$self->{'errors'}}, 'Unrecognizeable ffmpeg version string.';
+        }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
     # Gather the supported codecs
@@ -141,7 +150,10 @@ package export::ffmpeg;
         }
 
     # Start the ffmpeg command
-        $ffmpeg .= "$NICE ffmpeg -hq";
+        $ffmpeg .= "$NICE ffmpeg";
+        if ($self->{'ffmpeg_vers'} ne 'cvs') {
+            $ffmpeg .= ' -hq';
+        }
         if ($num_cpus > 1) {
             $ffmpeg .= ' -threads '.($num_cpus);
         }
@@ -289,6 +301,11 @@ package export::ffmpeg;
                 }
             # Another error?
                 elsif ($l =~ /\bError\swhile\b/m) {
+                    $warnings .= $l;
+                    die "\n\nffmpeg had critical errors:\n\n$warnings";
+                }
+            # Unrecognized options
+                elsif ($l =~ /^ffmpeg:\sunrecognized\soption/m) {
                     $warnings .= $l;
                     die "\n\nffmpeg had critical errors:\n\n$warnings";
                 }
