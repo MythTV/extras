@@ -8,7 +8,7 @@
 
 # Add a couple of include paths so we can load the various export and gui modules
     use File::Basename;
-    use lib dirname($ENV{'_'}), '/usr/share/nuvexport', '/usr/local/share/nuvexport';
+    use lib dirname($0), '/usr/share/nuvexport', '/usr/local/share/nuvexport';
 
 # Load the nuv utilities
     use mythtv::nuvinfo;
