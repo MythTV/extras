@@ -27,7 +27,7 @@ package export::mencoder::XviD;
     sub new {
         my $class = shift;
         my $self  = {
-                     'cli'      => qr/\bxvidmen\b/i,
+                     'cli'      => qr/\bxvid\b/i,
                      'name'     => 'Export to XviD (using mencoder)',
                      'enabled'  => 1,
                      'errors'   => [],
