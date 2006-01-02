@@ -60,6 +60,7 @@
         require export::ffmpeg::ASF;
         require export::ffmpeg::MP3;
         require export::ffmpeg::PSP;
+        require export::ffmpeg::iPod;
     }
     elsif ($export_prog eq 'mencoder') {
         find_program('mencoder')
@@ -93,6 +94,7 @@
         push @Exporters, export::ffmpeg::ASF->new;
         push @Exporters, export::ffmpeg::MP3->new;
         push @Exporters, export::ffmpeg::PSP->new;
+        push @Exporters, export::ffmpeg::iPod->new;
     }
     elsif ($export_prog eq 'mencoder') {
         push @Exporters, export::mencoder::XviD->new;
