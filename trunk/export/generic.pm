@@ -38,6 +38,7 @@ package export::generic;
     add_arg('noise_reduction|denoise|nr!',   'Enable noise reduction.');
     add_arg('fast_denoise|fast-denoise!',    'Use fast noise reduction instead of standard.');
     add_arg('crop!',                         'Crop out broadcast overscan.');
+    add_arg('overscan_pct=f',                'Percentage of overscan to crop (0-5%, defaults to 2%).');
 
 # Load defaults
     sub load_defaults {
@@ -47,6 +48,11 @@ package export::generic;
         $self->{'defaults'}{'noise_reduction'} = 1;
         $self->{'defaults'}{'deinterlace'}     = 1;
         $self->{'defaults'}{'crop'}            = 1;
+        $self->{'defaults'}{'overscan_pct'}    = 2;
+    # Make sure the overscan percentage is valid
+        if ($self->val('overscan_pct') < 0 || $self->val('overscan_pct') > 5) {
+            die "overscan_pct must be a number between 0 and 5.\n";
+        }
     }
 
 # Gather settings from the user
@@ -75,7 +81,7 @@ package export::generic;
                                                 'yesno',
                                                 $self->val('deinterlace'));
         # Crop video to get rid of broadcast padding
-            $self->{'crop'} = query_text('Crop broadcast overscan (2% border)?',
+            $self->{'crop'} = query_text('Crop broadcast overscan ('.$self->val('overscan_pct').'% border)?',
                                          'yesno',
                                          $self->val('crop'));
         }

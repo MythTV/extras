@@ -248,8 +248,8 @@ package export::transcode;
         }
     # Crop?
         if ($self->{'crop'}) {
-            my $w = sprintf('%.0f', .02 * $episode->{'finfo'}{'width'});
-            my $h = sprintf('%.0f', .02 * $episode->{'finfo'}{'height'});
+            my $w = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'width'});
+            my $h = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'height'});
             $w-- if ($w > 0 && $w % 2);    # transcode freaks out if these are odd numbers
             $h-- if ($h > 0 && $h % 2);
             $transcode .= " -j $h,$w,$h,$w" if ($h || $w);

@@ -82,6 +82,14 @@
 #
 #    date=%m/%d, %i:%M %p
 
+#
+#  Nuvexport has the option to crop a percentage of the border of each recording
+#  in order to get rid of the unsightly edges of the tv signal.  The default 2%
+#  approximates the overscan of an average TV, but you can alter this from 0 to
+#  5% to fit your preferences.
+#
+    overscan_pct = 2
+
 </nuvexport>
 
 #

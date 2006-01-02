@@ -127,9 +127,9 @@ package export::ffmpeg;
         my $width;
 
         if ($self->{'crop'}) {
-            $crop_w = sprintf('%.0f', .02 * $episode->{'finfo'}{'width'});
-            $crop_h = sprintf('%.0f', .02 * $episode->{'finfo'}{'height'});
-            # keep crop numbers even
+            $crop_w = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'width'});
+            $crop_h = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'height'});
+        # keep crop numbers even
             $crop_w-- if ($crop_w > 0 && $crop_w % 2);
             $crop_h-- if ($crop_h > 0 && $crop_h % 2);
         }
