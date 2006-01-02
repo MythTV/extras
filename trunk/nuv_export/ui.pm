@@ -239,7 +239,7 @@ package nuv_export::ui;
             $episode_choices[$count-1] = $episode;
         }
     # Instructions
-        $query .= "\n* Separate multiple episodes with spaces, or * for all shows.\n";
+        $query .= "\n* Separate multiple episodes with spaces, ranges with '-', or * for all shows.\n";
     # Show the link to "verify"?
         $query .= "\n  d. Done selecting shows" if (@episodes);
     # Offer the remaining options, and the choice
@@ -260,6 +260,14 @@ package nuv_export::ui;
         }
     # Make sure the user made a valid episode choice, and then move on to the next stage
         elsif ($choice =~ /\d/) {
+        # Expand range selections
+            while ($choice =~ /\b(\d+)-(\d+)\b/) {
+                my $range;
+                foreach my $value ($1 .. $2) {
+                    $range .= " $value";
+                }
+                $choice =~ s/$1-$2/$range/;
+            }
             my @matches;
             foreach my $episode (split(/\D+/, $choice)) {
                 next unless ($episode > 0 && $episode_choices[$episode-1]);
@@ -298,7 +306,7 @@ package nuv_export::ui;
             $query .= "\n";
         }
     # Instructions
-        $query .= "\n* Separate multiple episodes with spaces\n";
+        $query .= "\n* Separate multiple episodes with spaces, or ranges with '-'\n";
     # Offer the remaining options, and the choice
         $query .= "\n  c. Continue\n  n. Choose another show\n  q. Quit\n\nChoose a function, or episode(s) to remove: ";
     # Query the user
@@ -309,6 +317,14 @@ package nuv_export::ui;
         return ('s', @episodes) if ($choice =~ /^\W*[ns]/i);    # Choose another show
     # Make sure the user made a valid episode choice, and then move on to the next stage
         if ($choice =~ /\d/) {
+        # Expand range selections
+            while ($choice =~ /\b(\d+)-(\d+)\b/) {
+                my $range;
+                foreach my $value ($1 .. $2) {
+                    $range .= " $value";
+                }
+                $choice =~ s/$1-$2/$range/;
+            }
             foreach my $episode (split(/\D+/, $choice)) {
                 next unless ($episode > 0 && $episodes[$episode-1]);
                 $episodes[$episode-1] = undef;
