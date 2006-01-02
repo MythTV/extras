@@ -79,7 +79,7 @@ package export::ffmpeg::MP3;
         my $self    = shift;
         my $episode = shift;
     # Build the ffmpeg string
-        $self->{'ffmpeg_xtra'} = " -acodec mp3 -f mp3";
+        $self->{'ffmpeg_xtra'} = ' -ab '.$self->val('bitrate').' -acodec mp3 -f mp3';
     # Execute ffmpeg
         $self->SUPER::export($episode, '.mp3');
     # Now tag it
