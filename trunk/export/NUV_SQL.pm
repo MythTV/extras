@@ -79,15 +79,15 @@ package export::NUV_SQL;
         my $episode = shift;
     # Create a show-name directory?
         if ($self->{'create_dir'}) {
-            $self->{'path'} = $self->get_outfile($episode, '');
-            mkdir($self->{'path'}, 0755) or die "Can't create $self->{'path'}:  $!\n\n";
+            $self->{'export_path'} = $self->get_outfile($episode, '');
+            mkdir($self->{'export_path'}, 0755) or die "Can't create $self->{'export_path'}:  $!\n\n";
         }
     # Load the three files we'll be using
         my $txt_file = basename($episode->{'filename'}, '.nuv') . '.txt';
         my $sql_file = basename($episode->{'filename'}, '.nuv') . '.sql';
         my $nuv_file = basename($episode->{'filename'});
     # Create a txt file with descriptive info in it
-        open(DATA, ">$self->{'path'}/$txt_file") or die "Can't create $self->{'path'}/$txt_file:  $!\n\n";
+        open(DATA, ">$self->{'export_path'}/$txt_file") or die "Can't create $self->{'export_path'}/$txt_file:  $!\n\n";
         print DATA '       Show:  ', $episode->{'show_name'},                                        "\n",
                    '    Episode:  ', $episode->{'title'},                                            "\n",
                    '   Recorded:  ', $episode->{'showtime'},                                         "\n",
@@ -99,7 +99,7 @@ package export::NUV_SQL;
                    ;
         close DATA;
     # Start saving the SQL
-        open(DATA, ">$self->{'path'}/$sql_file") or die "Can't create $self->{'path'}/$sql_file:  $!\n\n";
+        open(DATA, ">$self->{'export_path'}/$sql_file") or die "Can't create $self->{'export_path'}/$sql_file:  $!\n\n";
     # Define some query-related variables
         my ($q, $sh);
     # Load and save the related database info
@@ -134,8 +134,8 @@ package export::NUV_SQL;
         close DATA;
     # Rename/move the file
         if ($self->{'delete'}) {
-            print "\nMoving $episode->{'filename'} to $self->{'path'}/$nuv_file\n";
-            move("$episode->{'filename'}", "$self->{'path'}/$nuv_file")
+            print "\nMoving $episode->{'filename'} to $self->{'export_path'}/$nuv_file\n";
+            move($episode->{'filename'}, "$self->{'export_path'}/$nuv_file")
                 or die "Couldn't move specified .nuv file:  $!\n\n";
         # Remove the entry from recordedmarkup
             $q = 'DELETE FROM recordedmarkup WHERE chanid=? AND starttime=?';
@@ -155,14 +155,14 @@ package export::NUV_SQL;
         }
     # Copy the file
         else {
-            print "\nCopying $episode->{'filename'} to $self->{'path'}/$nuv_file\n";
+            print "\nCopying $episode->{'filename'} to $self->{'export_path'}/$nuv_file\n";
         # use hard links when copying within a filesystem
-            if ((stat($episode->{'filename'}))[0] == (stat($self->{path}))[0]) {
-                link("$episode->{'filename'}", "$self->{'path'}/$nuv_file")
+            if ((stat($episode->{'filename'}))[0] == (stat($self->{'path'}))[0]) {
+                link($episode->{'filename'}, "$self->{'export_path'}/$nuv_file")
                     or die "Couldn't hard link specified .nuv file:  $!\n\n";
             }
             else {
-                copy("$episode->{'filename'}", "$self->{'path'}/$nuv_file")
+                copy($episode->{'filename'}, "$self->{'export_path'}/$nuv_file")
                     or die "Couldn't copy specified .nuv file:  $!\n\n";
             }
         }
