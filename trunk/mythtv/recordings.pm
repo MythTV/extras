@@ -126,6 +126,7 @@ package mythtv::recordings;
             $info{'subtitle'}    = 'Untitled'       unless ($info{'subtitle'} =~ /\S/);
             $info{'description'} = 'No Description' unless ($info{'description'} =~ /\S/);
         #$description =~ s/(?:''|``)/"/sg;
+        print $info{'transcoder'}, "\n";exit;
             push @{$Shows{$info{'title'}}}, {'filename'       => "$video_dir/".$info{'basename'},
                                              'channel'        => $info{'chanid'},
                                              'start_time'     => $info{'starttime'},
@@ -134,6 +135,7 @@ package mythtv::recordings;
                                              'show_name'      => $info{'title'},
                                              'title'          => $info{'subtitle'},
                                              'description'    => $info{'description'},
+                                             'transcoder'     => ($info{'transcoder'}    or 'autodetect'),
                                              'hostname'       => ($info{'hostname'}      or ''),
                                              'cutlist'        => ($info{'cutlist'}       or ''),
                                              'lastgop'        => ($info{'lastgop'}       or 0),
