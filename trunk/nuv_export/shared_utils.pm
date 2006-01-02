@@ -11,6 +11,7 @@
 package nuv_export::shared_utils;
 
     use Time::HiRes qw(usleep);
+    use Config;
 
     BEGIN {
         use Exporter;
@@ -18,8 +19,8 @@ package nuv_export::shared_utils;
 
         our @EXPORT = qw/ &min
                           &clear        &find_program       &shell_escape
-                          &wrap         &wipe_tmpfiles
-                          &system       &mkdir
+                          &wrap         &wipe_tmpfiles      &byteswap32
+                          &system       &mkdir              &byteswap64
                           @Exporters    @episodes           $exporter
                           $DEBUG        $NICE
                           $num_cpus     $is_child
@@ -87,6 +88,36 @@ package nuv_export::shared_utils;
         print $DEBUG ? "\n" : $terminal->Tputs('cl');
     }
 
+# Byte swap a 32-bit number from little-endian to big-endian
+    sub byteswap32 {
+       # Read in a 4-character string
+       my $in = shift;
+       my $out = $in;
+
+       if ($Config{'byteorder'} == 4321) {
+           substr($out, 0, 1) = substr($in, 3, 1);
+           substr($out, 3, 1) = substr($in, 0, 1);
+           substr($out, 1, 1) = substr($in, 2, 1);
+           substr($out, 2, 1) = substr($in, 1, 1);
+       }
+
+       return $out;
+    }
+
+# Byte swap a 64-bit number from little-endian to big-endian
+    sub byteswap64 {
+       # Read in a 8-character string
+       my $in = shift;
+       my $out = $in;
+
+       if ($Config{'byteorder'} == 4321) {
+           substr($out, 4, 4) = byteswap32(substr($in, 0, 4));
+           substr($out, 0, 4) = byteswap32(substr($in, 4, 4));
+       }
+
+       return $out;
+    }
+
 # This searches the path for the specified programs, and returns the
 #   lowest-index-value program found, caching the results
 BEGIN {
@@ -110,6 +141,10 @@ BEGIN {
                     if (-e "$path/$program" && (!$found{'name'} || $programs{$program} < $programs{$found{'name'}})) {
                         $found{'name'} = $program;
                         $found{'path'} = $path;
+                    }
+                    elsif ($^O eq "darwin" && -e "$path/$program.app" && (!$found{'name'} || $programs{$program} < $programs{$found{'name'}})) {
+                        $found{'name'} = $program;
+                        $found{'path'} = "$path/$program.app/Contents/MacOS";
                     }
                 # Leave early if we found the highest priority program
                     last if ($found{'name'} && $programs{$found{'name'}} == 1);

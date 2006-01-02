@@ -13,6 +13,8 @@
 
 package mythtv::nuvinfo;
 
+    use Config;
+
     use nuv_export::shared_utils;
 
 # Export the one routine that this package should export
@@ -30,6 +32,19 @@ package mythtv::nuvinfo;
         open(DATA, $file) or die "Can't open $file:  $!\n\n";
     # Read the file info header
         read(DATA, $buffer, 72);
+    # Byte swap the buffer
+        if ($Config{'byteorder'} == 4321) {
+            substr($buffer, 20, 4) = byteswap32(substr($buffer, 20, 4));
+            substr($buffer, 24, 4) = byteswap32(substr($buffer, 24, 4));
+            substr($buffer, 28, 4) = byteswap32(substr($buffer, 28, 4));
+            substr($buffer, 32, 4) = byteswap32(substr($buffer, 32, 4));
+            substr($buffer, 40, 8) = byteswap64(substr($buffer, 40, 8));
+            substr($buffer, 48, 8) = byteswap64(substr($buffer, 48, 8));
+            substr($buffer, 56, 4) = byteswap32(substr($buffer, 56, 4));
+            substr($buffer, 60, 4) = byteswap32(substr($buffer, 60, 4));
+            substr($buffer, 64, 4) = byteswap32(substr($buffer, 64, 4));
+            substr($buffer, 68, 4) = byteswap32(substr($buffer, 68, 4));
+        }
     # Unpack the data structure
         ($info{'finfo'},          # "NuppelVideo" + \0
          $info{'version'},        # "0.05" + \0
@@ -54,6 +69,11 @@ package mythtv::nuvinfo;
         seek(DATA, 72, 0);
     # Read and parse the first frame header
         read(DATA, $buffer, 12);
+    # Byte swap the buffer
+        if ($Config{'byteorder'} == 4321) {
+            substr($buffer, 4, 4) = byteswap32(substr($buffer, 4, 4));
+            substr($buffer, 8, 4) = byteswap32(substr($buffer, 8, 4));
+        }
         my ($frametype,
             $comptype,
             $keyframe,
@@ -66,6 +86,11 @@ package mythtv::nuvinfo;
         read(DATA, $buffer, $packetlength) if ($packetlength);
     # Read the remaining frame headers
         while (12 == read(DATA, $buffer, 12)) {
+        # Byte swap the buffer
+            if ($Config{'byteorder'} == 4321) {
+                substr($buffer, 4, 4) = byteswap32(substr($buffer, 4, 4));
+                substr($buffer, 8, 4) = byteswap32(substr($buffer, 8, 4));
+            }
         # Parse the frame header
             ($frametype,
              $comptype,
@@ -77,6 +102,24 @@ package mythtv::nuvinfo;
             read(DATA, $buffer, $packetlength) if ($packetlength);
         # Look for the audio frame
             if ($frametype eq 'X') {
+            # Byte swap the buffer
+                if ($Config{'byteorder'} == 4321) {
+                    substr($buffer, 0, 4)  = byteswap32(substr($buffer, 0, 4));
+                    substr($buffer, 12, 4) = byteswap32(substr($buffer, 12, 4));
+                    substr($buffer, 16, 4) = byteswap32(substr($buffer, 16, 4));
+                    substr($buffer, 20, 4) = byteswap32(substr($buffer, 20, 4));
+                    substr($buffer, 24, 4) = byteswap32(substr($buffer, 24, 4));
+                    substr($buffer, 28, 4) = byteswap32(substr($buffer, 28, 4));
+                    substr($buffer, 32, 4) = byteswap32(substr($buffer, 32, 4));
+                    substr($buffer, 36, 4) = byteswap32(substr($buffer, 36, 4));
+                    substr($buffer, 40, 4) = byteswap32(substr($buffer, 40, 4));
+                    substr($buffer, 44, 4) = byteswap32(substr($buffer, 44, 4));
+                    substr($buffer, 48, 4) = byteswap32(substr($buffer, 48, 4));
+                    substr($buffer, 52, 4) = byteswap32(substr($buffer, 52, 4));
+                    substr($buffer, 56, 4) = byteswap32(substr($buffer, 56, 4));
+                    substr($buffer, 60, 8) = byteswap64(substr($buffer, 60, 8));
+                    substr($buffer, 68, 8) = byteswap64(substr($buffer, 68, 8));
+                }
                 my $frame_version;
                 ($frame_version,
                  $info{'video_type'},

@@ -15,6 +15,7 @@ package export::transcode;
 
     use Time::HiRes qw(usleep);
     use POSIX;
+    use Config;
 
     use nuv_export::shared_utils;
     use nuv_export::cli;
@@ -219,7 +220,8 @@ package export::transcode;
                 die "Possibly stale mythtranscode fifo's in /tmp/fifodir_$$/.\nPlease remove them before running nuvexport.\n\n";
             }
         # Here, we have to fork off a copy of mythtranscode (no need to use --fifosync with transcode -- it seems to do this on its own)
-            $mythtranscode = "$NICE mythtranscode --showprogress -p $episode->{transcoder} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
+            my $mythtranscode_bin = find_program('mythtranscode');
+            $mythtranscode = "$NICE $mythtranscode_bin --showprogress -p $episode->{'transcoder'} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
         # On no-audio encodes, we need to do something to keep mythtranscode's audio buffers from filling up available RAM
         #    $mythtranscode .= ' --fifosync' if ($skip_audio);
         # let transcode handle the cutlist -- got too annoyed with the first/last frame(s) showing up no matter what I told mythtranscode

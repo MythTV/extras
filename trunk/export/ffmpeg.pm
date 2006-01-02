@@ -16,6 +16,7 @@ package export::ffmpeg;
 
     use Time::HiRes qw(usleep);
     use POSIX;
+    use Config;
 
     use nuv_export::shared_utils;
     use nuv_export::cli;
@@ -114,7 +115,8 @@ package export::ffmpeg;
         }
 
     # Here, we have to fork off a copy of mythtranscode (Do not use --fifosync with ffmpeg or it will hang)
-        $mythtranscode = "$NICE mythtranscode --showprogress -p $episode->{transcoder} -c $episode->{channel} -s $episode->{start_time_sep} -f \"/tmp/fifodir_$$/\"";
+        my $mythtranscode_bin = find_program('mythtranscode');
+        $mythtranscode = "$NICE $mythtranscode_bin --showprogress -p $episode->{'transcoder'} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
         $mythtranscode .= ' --honorcutlist' if ($self->{'use_cutlist'});
 
         my $videofifo = "/tmp/fifodir_$$/vidout";
@@ -176,9 +178,9 @@ package export::ffmpeg;
         if ($num_cpus > 1) {
             $ffmpeg .= ' -threads '.($num_cpus);
         }
-        $ffmpeg .= " -y -f s16le";
-        $ffmpeg .= " -ar " . $episode->{'finfo'}{'audio_sample_rate'};
-        $ffmpeg .= " -ac " . $episode->{'finfo'}{'audio_channels'};
+        $ffmpeg .= ' -y -f '.($Config{'byteorder'} == 4321 ? 's16be' : 's16le');
+        $ffmpeg .= ' -ar ' . $episode->{'finfo'}{'audio_sample_rate'};
+        $ffmpeg .= ' -ac ' . $episode->{'finfo'}{'audio_channels'};
         $ffmpeg .= " -i /tmp/fifodir_$$/audout";
         if (!$self->{'audioonly'}) {
             $ffmpeg .= " -f $videotype"
