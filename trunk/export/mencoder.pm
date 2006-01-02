@@ -80,7 +80,8 @@ package export::mencoder;
                 die "Possibly stale mythtranscode fifo's in /tmp/fifodir_$$/.\nPlease remove them before running nuvexport.\n\n";
             }
         # Here, we have to fork off a copy of mythtranscode (need to use --fifosync with mencoder? needs testing)
-            $mythtranscode = "$NICE mythtranscode --showprogress -p $episode->{transcoder} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
+            my $mythtranscode_bin = find_program('mythtranscode');
+            $mythtranscode = "$NICE $mythtranscode_bin --showprogress -p $episode->{'transcoder'} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
         # On no-audio encodes, we need to do something to keep mythtranscode's audio buffers from filling up available RAM
         #    $mythtranscode .= ' --fifosync' if ($skip_audio);
         # let mythtranscode handle the cutlist
