@@ -117,7 +117,7 @@ package export::ffmpeg;
         $mythtranscode .= ' --honorcutlist' if ($self->{'use_cutlist'});
 
         my $videofifo = "/tmp/fifodir_$$/vidout";
-        my $videotype = 'rawvideo';
+        my $videotype = 'rawvideo -pix_fmt yuv420p';
         my $crop_w;
         my $crop_h;
         my $pad_w;
@@ -229,7 +229,7 @@ package export::ffmpeg;
 
         # Deinterlace in ffmpeg only if the user wants to
             if ($self->val('deinterlace') && !($self->val('noise_reduction') && $self->val('deint_in_yuvdenoise'))) {
-                $ffmpeg .= " -deinterlace";
+                $ffmpeg .= ' -deinterlace';
             }
         # Crop
             if ($self->val('crop')) {
