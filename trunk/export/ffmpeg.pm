@@ -36,18 +36,30 @@ package export::ffmpeg;
         my $yuvdenoise = find_program('yuvdenoise')
             or push @{$self->{'errors'}}, 'You need yuvdenoise (part of mjpegtools) to use this exporter.';
     # Check the yuvdenoise version
-        my $data = `cat /dev/null | yuvdenoise 2>&1`;
-        if ($data =~ m/yuvdenoise version 1.6.3-rc[12]/i) {
-            $self->{'denoise_error'} = 'yuvdenoise version 1.6.3rc1 (and rc2) are broken and cannot be used.';
+        if (!defined $self->{'denoise_vmaj'}) {
+            my $data = `cat /dev/null | yuvdenoise 2>&1`;
+            if ($data =~ m/yuvdenoise version (\d+(?:\.\d+)?)(\.\d+)?/i) {
+                $self->{'denoise_vmaj'} = $1;
+                $self->{'denoise_vmin'} = $2;
+            }
+            else {
+                push @{$self->{'errors'}}, 'Unrecognizeable yuvdenoise version string.';
+            }
+        # New yuvdenoise can't deinterlace
+            if ($self->{'denoise_vmaj'} > 1.6 || ($self->{'denoise_vmaj'} == 1.6 && $self->{'denoise_vmin'} > 2)) {
+                $self->{'deint_in_yuvdenoise'} = 0;
+            }
         }
     # Check the ffmpeg version
-        $data = `ffmpeg -version 2>&1`;
-        if ($data =~ m/ffmpeg\sversion\s(.+?),\sbuild\s(\d+)/si) {
-            $self->{'ffmpeg_vers'}  = lc($1);
-            $self->{'ffmpeg_build'} = $2;
-        }
-        else {
-            push @{$self->{'errors'}}, 'Unrecognizeable ffmpeg version string.';
+        if (!defined $self->{'ffmpeg_vers'}) {
+            $data = `ffmpeg -version 2>&1`;
+            if ($data =~ m/ffmpeg\sversion\s(.+?),\sbuild\s(\d+)/si) {
+                $self->{'ffmpeg_vers'}  = lc($1);
+                $self->{'ffmpeg_build'} = $2;
+            }
+            else {
+                push @{$self->{'errors'}}, 'Unrecognizeable ffmpeg version string.';
+            }
         }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
@@ -132,16 +144,22 @@ package export::ffmpeg;
                 $ffmpeg .= " -r " . $episode->{'finfo'}{'fps'};
                 $ffmpeg .= " -i /tmp/fifodir_$$/vidout -f yuv4mpegpipe -";
                 $ffmpeg .= " 2> /dev/null | ";
-                $ffmpeg .= "$NICE yuvdenoise -r 16";
-                if ($self->val('fast_denoise')) {
-                    $ffmpeg .= ' -f';
+                $ffmpeg .= "$NICE yuvdenoise";
+                if ($self->{'denoise_vmaj'} < 1.6 || ($self->{'denoise_vmaj'} == 1.6 && $self->{'denoise_vmin'} < 3)) {
+                    $ffmpeg .= ' -r 16';
+                    if ($self->val('fast_denoise')) {
+                        $ffmpeg .= ' -f';
+                    }
+                    if ($self->{'crop'}) {
+                        $ffmpeg .= " -b $crop_w,$crop_h,-$crop_w,-$crop_h";
+                    }
+                # Deinterlace in yuvdenoise
+                    if ($self->val('deint_in_yuvdenoise') && $self->val('deinterlace')) {
+                        $ffmpeg .= " -F";
+                    }
                 }
-                if ($self->{'crop'}) {
-                    $ffmpeg .= " -b $crop_w,$crop_h,-$crop_w,-$crop_h";
-                }
-            # Deinterlace in yuvdenoise
-                if ($self->val('deint_in_yuvdenoise') && $self->val('deinterlace')) {
-                    $ffmpeg .= " -F";
+                else {
+                    $ffmpeg .= ' 2>&1';
                 }
                 $ffmpeg .= ' | ';
                 $videofifo = '-';
