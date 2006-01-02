@@ -135,8 +135,8 @@ BEGIN {
 # Escape a parameter for safe use in a commandline call
     sub shell_escape {
         $file = shift;
-        $file =~ s/(["\$])/\\$1/sg;
-        return "\"$file\"";
+        $file =~ s/'/'\\''/sg;
+        return "'$file'";
     }
 
 #
