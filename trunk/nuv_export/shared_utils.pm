@@ -243,12 +243,12 @@ BEGIN {
 
 # Remove tmpfiles
     sub wipe_tmpfiles {
-        foreach my $file (@tmpfiles) {
+        foreach my $file (reverse sort @tmpfiles) {
             if (-d $file) {
-                rmdir $file;
+                rmdir $file or warn "Couldn't remove $file: $!\n";
             }
             elsif (-e $file) {
-                unlink $file;
+                unlink $file or warn "Couldn't remove $file: $!\n";
             }
         }
         @tmpfiles = ();
