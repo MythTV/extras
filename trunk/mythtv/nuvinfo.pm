@@ -151,6 +151,13 @@ package mythtv::nuvinfo;
         elsif ($data =~ m/^TS file format detected/m) {
             $info{'mpeg_stream_type'} = 'ts';
         }
+    # French localisation
+        elsif ($data =~ m/Fichier de type MPEG-(PE?S) détecté./m) {
+            $info{'mpeg_stream_type'} = lc($1);
+        }
+        elsif ($data =~ m/Fichier de type TS détecté./m) {
+            $info{'mpeg_stream_type'} = 'ts';
+        }
         else {
             die "Unrecognized mpeg stream type.  Please execute the following and see if you\n"
                ."notice errors (make sure that you don't have the \"really quiet\" option set\n"
