@@ -69,20 +69,20 @@ package export::ffmpeg::PSP;
         my $self    = shift;
         my $episode = shift;
     # Force to 4:3 aspect ratio
-        $self->{'out_aspect'} = 1.3333;
+        $self->{'out_aspect'}       = 1.3333;
         $self->{'aspect_stretched'} = 1;
     # PAL or NTSC?
         my $standard = ($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 'PAL' : 'NTSC';
-        $self->{'width'} = 320;
-        $self->{'height'} = ($standard eq 'PAL') ? '288' : '240';
-        $self->{'out_fps'} = ($standard eq 'PAL') ? 25 : 29.97;
-    # Build the transcode string
+        $self->{'width'}   = 320;
+        $self->{'height'}  = ($standard eq 'PAL') ? '288' : '240';
+        $self->{'out_fps'} = ($standard eq 'PAL') ? 25    : 29.97;
+    # Build the ffmpeg string
         my $safe_title       = shell_escape($episode->{'show_name'}." - ".$episode->{'title'});
-        $self->{'ffmpeg_xtra'}  = " -b 768"
-                                 ." -ab 32 -ar 24000 -acodec aac"
+        $self->{'ffmpeg_xtra'}  = ' -b 768'
+                                 .' -ab 32 -ar 24000 -acodec aac'
                                  ." -bitexact -f psp -title $safe_title";
     # Execute the parent method
-        $self->SUPER::export($episode, ".mp4");
+        $self->SUPER::export($episode, '.mp4');
     }
 
 1;  #return true
