@@ -33,9 +33,9 @@ Usage: $0 inputfile outputfile lastFrame segmentList
 To run mpeg2cut, you need to use avidemux2, which requires gdk support.  To
 fill this dependancy, you will need one of (in order of preference):
 
-	Xvfb		(virtual framebuffer X server)
-	gdk-cursed	(GDK for curses)
-	run under X	(have a DISPLAY= environment variable)
+    Xvfb        (virtual framebuffer X server)
+    gdk-cursed  (GDK for curses)
+    run under X (have a DISPLAY= environment variable)
 
 EOF
 
@@ -81,17 +81,47 @@ fi
 # Check command line so we don't get odd issues
 if [ $# -lt 4 ] ; then
     displayUsage
-fi
+fi 
+
 
 FILENAME=$1
-BASENAME=`basename ${FILENAME} .nuv`
 OUTFILE=$2
 LASTFRAME=$3
 
-echo mpeg2cut v${VERSION}
+# This will catch the old-style filenames
+BASENAME=`basename ${FILENAME} .nuv`
+# This will catch the new-style filenames.
+BASENAME=`basename ${BASENAME} .mpg`
+OUTPUTDIR=`dirname "${OUTFILE}"`
+OUTPUTBASE="${OUTPUTDIR}/${BASENAME}"
+
+SPACEAVAIL=`df -k -P "${OUTPUTDIR}" | tail -1 | tr -s " " | cut -d " " -f 4`
+FILESIZE=`du -k ${FILENAME} | tr "\t" " " | tr -s " " | cut -d " " -f 1`
+SPACENEED=$((${FILESIZE} * 2))
+
+
+echo mpeg2cut "v${VERSION}-svn (c) 2005-2006 Gavin Hurlbut"
 echo Using mode ${MODE}
 echo Filename \"${FILENAME}\"
 echo OutFile \"${OUTFILE}\"
+echo Output Dir \"${OUTPUTDIR}\"
+echo Space needed: ${SPACENEED}, Space available: ${SPACEAVAIL}
+
+if [ ${SPACENEED} -ge ${SPACEAVAIL} ] ; then
+    echo -n "You are short on drive space in the output dir, continue? "
+    read answer crap
+    case ${answer}. in
+        y*|Y*)
+            # OK, suckers.   I wish you luck
+            echo "OK, but you might get odd results."
+            ;;
+        *)
+            # anything else, abort!
+            echo "Aborting..."
+            exit 1
+            ;;
+    esac
+fi
 
 shift 3
 CUTLIST=$*
@@ -126,13 +156,13 @@ then
 fi
 
 
-cat > ${BASENAME}.cut << EOF
+cat > "${OUTPUTBASE}".cut << EOF
 ADMW0002
 01 videos
 Name : ${FILENAME}.idx
 EOF
 
-cat /dev/null > ${BASENAME}.cut2
+cat /dev/null > "${OUTPUTBASE}".cut2
 
 count=0
 for i in ${CUTLIST}
@@ -156,17 +186,17 @@ do
     fi
     LENGTH=$((${END} - ${START} + 1))
 
-    cat >> ${BASENAME}.cut2 << EOF
+    cat >> "${OUTPUTBASE}".cut2 << EOF
 Start : ${START}
 Size : ${LENGTH}
 Ref :   0
 EOF
     count=$((${count} + 1))
 done
-echo ${count} segments >> ${BASENAME}.cut
+echo ${count} segments >> "${OUTPUTBASE}".cut
 
-cat ${BASENAME}.cut2 >> ${BASENAME}.cut
-cat >> ${BASENAME}.cut << EOF
+cat "${OUTPUTBASE}".cut2 >> "${OUTPUTBASE}".cut
+cat >> "${OUTPUTBASE}".cut << EOF
 Audio codec : none
 Audio filter : audioNormalizeMode=0 audioResampleMode=0 audioDRC=0 audioShift=0
 audioDelay=0 audioFreq=48000
@@ -174,9 +204,9 @@ Audio conf : audioProcessMode=0 audioMP3mode=0 audioMP3bitrate=128
 EOF
 
 echo Cutting out commercials with avidemux2
-nice -n 19 avidemux2 --load-workbench ${BASENAME}.cut \
-    --audio-codec MP2 --save-raw-video ${BASENAME}.m2v \
-    --save-raw-audio ${BASENAME}.mp2 --quit 2> /dev/null > /dev/null
+nice -n 19 avidemux2 --load-workbench "${OUTPUTBASE}".cut \
+    --audio-codec MP2 --save-raw-video "${OUTPUTBASE}".m2v \
+    --save-raw-audio "${OUTPUTBASE}".mp2 --quit 2> /dev/null > /dev/null
 
 # Shut down Xvfb if we used it
 if [ .${MODE}. = .Xvfb. ]
@@ -185,12 +215,12 @@ then
 fi
 
 echo Remultiplexing video
-nice -n 19 lvemux -r -1 -sh ${OFFSET} -v ${BASENAME}.m2v -a ${BASENAME}.mp2 \
-    -o "${OUTFILE}"
+nice -n 19 lvemux -r -1 -sh ${OFFSET} -v "${OUTPUTBASE}".m2v \
+    -a "${OUTPUTBASE}".mp2 -o "${OUTFILE}"
 
 echo Cleaning up
-rm ${FILENAME}.idx ${BASENAME}.m2v ${BASENAME}.mp2 ${BASENAME}.m2v.idx
-rm ${BASENAME}.cut ${BASENAME}.cut2
+rm ${FILENAME}.idx "${OUTPUTBASE}".m2v "${OUTPUTBASE}".mp2 
+rm "${OUTPUTBASE}".m2v.idx "${OUTPUTBASE}".cut "${OUTPUTBASE}".cut2
 
 # vim:ts=4:sw=4:ai:et:si:sts=4
 
