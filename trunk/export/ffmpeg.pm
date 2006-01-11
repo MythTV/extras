@@ -43,6 +43,10 @@ package export::ffmpeg;
                 $self->{'denoise_vmaj'} = $1;
                 $self->{'denoise_vmin'} = $2;
             }
+            elsif ($data =~ m/version: mjpegtools (\d+(?:\.\d+)?)(\.\d+)?/i) {
+                $self->{'denoise_vmaj'} = $1;
+                $self->{'denoise_vmin'} = $2;
+            }
             else {
                 push @{$self->{'errors'}}, 'Unrecognizeable yuvdenoise version string.';
                 $self->{'noise_reduction'} = 0;
