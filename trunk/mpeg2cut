@@ -1,6 +1,5 @@
 #! /bin/bash
 #
-# $Id$
 # $Date$
 # $Revision$
 # $Author$
@@ -19,6 +18,29 @@
 # Usage: mpeg2cut inputfile outputfile lastFrame segmentList
 #	where segmentList is a space separated list of frame regions to keep
 #		(i.e.  -1999 3000-5000 6000-)
+
+VERSION=`echo '$Revision$' | sed -e 's/\$Revision\(\: \)*\([^ $]*\).*\$/\2/'`
+
+function displayUsage {
+    cat << EOF
+
+mpeg2cut v${VERSION}-svn (c) 2005-2006 Gavin Hurlbut
+
+Usage: $0 inputfile outputfile lastFrame segmentList
+    where segmentList is a space separated list of frame regions to keep
+    (i.e.  -1999 3000-5000 6000-)
+
+To run mpeg2cut, you need to use avidemux2, which requires gdk support.  To
+fill this dependancy, you will need one of (in order of preference):
+
+	Xvfb		(virtual framebuffer X server)
+	gdk-cursed	(GDK for curses)
+	run under X	(have a DISPLAY= environment variable)
+
+EOF
+
+    exit 1
+}
 
 LOCAL_PRELOAD=
 
@@ -51,26 +73,20 @@ else
             MODE=X
         else
             # Don't even have a display, we can't run avidemux2, give up!
-            cat << EOF
-
-To run mpeg2cut, you need to use avidemux2, which requires gdk support.  To
-fill this dependancy, you will need one of (in order of preference):
-
-	Xvfb		(virtual framebuffer X server)
-	gdk-cursed	(GDK for curses)
-	run under X	(have a DISPLAY= environment variable)
-
-EOF
-            exit 1
+            displayUsage
         fi
     fi
+fi
+
+# Check command line so we don't get odd issues
+if [ $# -lt 4 ] ; then
+    displayUsage
 fi
 
 FILENAME=$1
 BASENAME=`basename ${FILENAME} .nuv`
 OUTFILE=$2
 LASTFRAME=$3
-VERSION=`echo '$Revision$' | sed -e 's/\$Revision\(\: \)*\([^ $]*\).*\$/\2/'`
 
 echo mpeg2cut v${VERSION}
 echo Using mode ${MODE}
