@@ -70,10 +70,18 @@ package export::ffmpeg;
     # Audio only?
         $self->{'audioonly'} = $audioonly;
     # Gather the supported codecs
-        my $formats = `$ffmpeg -formats 2>/dev/null`;
-        $formats =~ s/^.+?\n\s*Codecs:\s*\n(.+?\n)\s*\n.*?$/$1/s;
-        while ($formats =~ /^\s(.{6})\s(\S+)\s*$/mg) {
-            $self->{'codecs'}{$2} = $1;
+        my $data      = `$ffmpeg -formats 2>/dev/null`;
+        my ($formats) = $data =~ /(?:^|\n\s*)File\sformats:\s*\n(.+?\n)\s*\n/s;
+        my ($codecs)  = $data =~ /(?:^|\n\s*)Codecs:\s*\n(.+?\n)\s*\n/s;
+        if ($formats) {
+            while ($formats =~ /^\s(..)\s(\S+)\s*$/mg) {
+                $self->{'formats'}{$2} = $1;
+            }
+        }
+        if ($codecs) {
+            while ($codecs =~ /^\s(.{6})\s(\S+)\s*$/mg) {
+                $self->{'codecs'}{$2} = $1;
+            }
         }
     }
 
@@ -81,12 +89,14 @@ package export::ffmpeg;
     sub can_decode {
         my $self  = shift;
         my $codec = shift;
-        return ($self->{'codecs'}{$codec} && $self->{'codecs'}{$codec} =~ /^D/) ? 1 : 0;
+        return ($self->{'codecs'}{$codec} && $self->{'codecs'}{$codec} =~ /^D/
+                || $self->{'formats'}{$codec} && $self->{'formats'}{$codec} =~ /^D/) ? 1 : 0;
     }
     sub can_encode {
         my $self  = shift;
         my $codec = shift;
-        return ($self->{'codecs'}{$codec} && $self->{'codecs'}{$codec} =~ /^.E/) ? 1 : 0;
+        return ($self->{'codecs'}{$codec} && $self->{'codecs'}{$codec} =~ /^.E/
+                || $self->{'formats'}{$codec} && $self->{'formats'}{$codec} =~ /^.E/) ? 1 : 0;
     }
 
 # Load default settings
@@ -165,10 +175,7 @@ package export::ffmpeg;
                         $ffmpeg .= " -F";
                     }
                 }
-                else {
-                    $ffmpeg .= ' 2>&1';
-                }
-                $ffmpeg .= ' | ';
+                $ffmpeg   .= ' 2> /dev/null | ';
                 $videofifo = '-';
                 $videotype = 'yuv4mpegpipe';
             }

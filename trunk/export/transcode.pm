@@ -41,6 +41,8 @@ package export::transcode;
     # Load the parent module's settings
         $self->SUPER::load_defaults();
     # Not really anything to add
+        $self->{'defaults'}{'force_mythtranscode'}   = 1;
+        $self->{'defaults'}{'mythtranscode_cutlist'} = 1;
     }
 
 # Gather settings from the user
@@ -224,7 +226,7 @@ package export::transcode;
             $mythtranscode = "$NICE $mythtranscode_bin --showprogress -p $episode->{'transcoder'} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
         # On no-audio encodes, we need to do something to keep mythtranscode's audio buffers from filling up available RAM
         #    $mythtranscode .= ' --fifosync' if ($skip_audio);
-        # let transcode handle the cutlist -- got too annoyed with the first/last frame(s) showing up no matter what I told mythtranscode
+        # Let mythtranscode handle the cutlist?
             if ($self->val('use_cutlist') && $self->val('mythtranscode_cutlist')) {
                 $mythtranscode .= ' --honorcutlist';
             }

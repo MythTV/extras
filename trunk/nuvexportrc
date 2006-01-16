@@ -146,13 +146,14 @@
 <transcode>
 
 #
-#  Setting always_use_mythtranscode to yes will force nuvexport to call
-#    mythtranscode when using the transcode exporter.  This may help problems
-#    that some people have been having with transcode not recognizing certain
-#    dvb recordings, as well as transcode not working properly on certain ivtv
-#    recordings.
+#  Mythtranscode will always be used for nupplevideo recordings because
+#    transcode can't read them, but setting force_mythtranscode to yes will
+#    force nuvexport to call mythtranscode when using the transcode exporter for
+#    mpeg recordings, too.  This may help problems that some people have been
+#    having with transcode not recognizing certain dvb recordings, as well as
+#    transcode not working properly on certain ivtv recordings.
 #
-#    force_mythtranscode=no
+    force_mythtranscode = yes
 
 #
 #  Setting both force_mythtranscode and mythtranscode_cutlist to yes will tell
@@ -161,7 +162,7 @@
 #    of ivtv recordings that do not work properly with transcode's internal
 #    cutlist handler.
 #
-#    mythtranscode_cutlist=no
+    mythtranscode_cutlist = yes
 
 </transcode>
 
@@ -199,6 +200,22 @@
 #  If you want to provide settings for a very specific export module, you can
 #    use its full name, and it will override any more generic settings.
 #
+
+<ffmpeg::PSP>
+
+# PSP framerate (high=29.97, low=14.985)
+    psp_fps = low
+
+# PSP resolution (320x240, 368x208 or 400x192)
+    psp_resolution = 320x240
+
+# PSP video bitrate (high=768, low=384)
+    psp_bitrate = high
+
+# Create a thumbnail to go with the PSP video export?
+    psp_thumbnail = yes
+
+</ffmpeg::PSP>
 
 <mencoder::XviD>
 
