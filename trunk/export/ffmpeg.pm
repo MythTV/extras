@@ -58,7 +58,7 @@ package export::ffmpeg;
         }
     # Check the ffmpeg version
         if (!defined $self->{'ffmpeg_vers'}) {
-            $data = `ffmpeg -version 2>&1`;
+            $data = `$ffmpeg -version 2>&1`;
             if ($data =~ m/ffmpeg\sversion\s(.+?),\sbuild\s(\d+)/si) {
                 $self->{'ffmpeg_vers'}  = lc($1);
                 $self->{'ffmpeg_build'} = $2;
@@ -157,10 +157,10 @@ package export::ffmpeg;
         # Do noise reduction -- ffmpeg's -nr flag doesn't seem to do anything other than prevent denoise from working
             if ($self->{'noise_reduction'}) {
                 $ffmpeg .= "$NICE ffmpeg -f rawvideo";
-                $ffmpeg .= " -s " . $episode->{'finfo'}{'width'} . "x" . $episode->{'finfo'}{'height'};
-                $ffmpeg .= " -r " . $episode->{'finfo'}{'fps'};
+                $ffmpeg .= ' -s ' . $episode->{'finfo'}{'width'} . 'x' . $episode->{'finfo'}{'height'};
+                $ffmpeg .= ' -r ' . $episode->{'finfo'}{'fps'};
                 $ffmpeg .= " -i /tmp/fifodir_$$/vidout -f yuv4mpegpipe -";
-                $ffmpeg .= " 2> /dev/null | ";
+                $ffmpeg .= ' 2> /dev/null | ';
                 $ffmpeg .= "$NICE yuvdenoise";
                 if ($self->{'denoise_vmaj'} < 1.6 || ($self->{'denoise_vmaj'} == 1.6 && $self->{'denoise_vmin'} < 3)) {
                     $ffmpeg .= ' -r 16';
@@ -247,8 +247,8 @@ package export::ffmpeg;
             }
         # Crop
             if ($self->val('crop')) {
-                $ffmpeg .= " -croptop $crop_h -cropbottom $crop_h";
-                $ffmpeg .= " -cropleft $crop_w -cropright $crop_w";
+                $ffmpeg .= " -croptop $crop_h -cropbottom $crop_h"
+                          ." -cropleft $crop_w -cropright $crop_w";
             }
 
         # Letter/Pillarboxing as appropriate
@@ -258,7 +258,7 @@ package export::ffmpeg;
             if ($pad_w) {
                 $ffmpeg .= " -padleft $pad_w -padright $pad_w";
             }
-            $ffmpeg .= " -s $width" . "x$height";
+            $ffmpeg .= " -s ${width}x$height";
         }
 
     # Add any additional settings from the child module
