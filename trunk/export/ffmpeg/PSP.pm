@@ -165,12 +165,11 @@ package export::ffmpeg::PSP;
     # Force to 4:3 aspect ratio
         $self->{'out_aspect'}       = 1.3333;
         $self->{'aspect_stretched'} = 1;
-    # PAL or NTSC?
-        my $standard = ($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 'PAL' : 'NTSC';
     # Build the ffmpeg string
         my $safe_title = shell_escape($episode->{'show_name'}.' - '.$episode->{'title'});
         $self->{'ffmpeg_xtra'}  = ' -b ' . $self->{'v_bitrate'}
-                                 .' -ab 32 -ar 24000 -acodec aac'
+                                 .' -bufsize 65535'
+                                 .' -ab 32 -acodec aac'
                                  ." -f psp -title $safe_title";
     # Execute the parent method
         $self->SUPER::export($episode, '.MP4');
