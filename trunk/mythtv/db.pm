@@ -39,12 +39,12 @@ package mythtv::db;
                  '/usr/share/mythtv/mysql.txt',
                  '/etc/mythtv/mysql.txt',
                  '/usr/local/etc/mythtv/mysql.txt',
-                 "$ENV{'MYTHCONFDIR'}/mysql.txt",
+                 $ENV{'MYTHCONFDIR'} ? "$ENV{'MYTHCONFDIR'}/mysql.txt" : '',
                  "$ENV{'HOME'}/.mythtv/mysql.txt",
                  'mysql.txt'
                 );
     foreach my $file (@mysql) {
-        next unless (-e $file);
+        next unless ($file && -e $file);
         $found = 1;
         open(CONF, $file) or die "Unable to open $file:  $!\n\n";
         while (my $line = <CONF>) {
