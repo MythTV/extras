@@ -35,12 +35,13 @@ package mythtv::db;
 # Read the mysql.txt file in use by MythTV.
 # could be in a couple places, so try the usual suspects
     my $found = 0;
-    my @mysql = ("/usr/local/share/mythtv/mysql.txt",
-                 "/usr/share/mythtv/mysql.txt",
-                 "/etc/mythtv/mysql.txt",
-                 "/usr/local/etc/mythtv/mysql.txt",
-                 "$ENV{HOME}/.mythtv/mysql.txt",
-                 "mysql.txt"
+    my @mysql = ('/usr/local/share/mythtv/mysql.txt',
+                 '/usr/share/mythtv/mysql.txt',
+                 '/etc/mythtv/mysql.txt',
+                 '/usr/local/etc/mythtv/mysql.txt',
+                 "$ENV{'MYTHCONFDIR'}/mysql.txt",
+                 "$ENV{'HOME'}/.mythtv/mysql.txt",
+                 'mysql.txt'
                 );
     foreach my $file (@mysql) {
         next unless (-e $file);
