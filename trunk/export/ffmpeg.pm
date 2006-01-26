@@ -59,7 +59,7 @@ package export::ffmpeg;
     # Check the ffmpeg version
         if (!defined $self->{'ffmpeg_vers'}) {
             $data = `$ffmpeg -version 2>&1`;
-            if ($data =~ m/ffmpeg\sversion\s(.+?),\sbuild\s(\d+)/si) {
+            if ($data =~ m/ffmpeg\sversion\s(.+?),(?:\sbuild\s(\d+))?/si) {
                 $self->{'ffmpeg_vers'}  = lc($1);
                 $self->{'ffmpeg_build'} = $2;
             }
