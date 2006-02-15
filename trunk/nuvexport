@@ -5,7 +5,7 @@
 # $Author$
 
 # Version
-    $VERSION = '0.2 0.20060125.svn';
+    $VERSION = '0.3 0.20060214.svn';
 
 # Autoflush buffers
     $|++;
@@ -70,7 +70,6 @@
     }
 
 # Load the other export modules
-    require export::MPEG2_cut;
     require export::NUV_SQL;
 
 # Load the ui
@@ -99,7 +98,6 @@
     elsif ($export_prog eq 'mencoder') {
         push @Exporters, export::mencoder::XviD->new;
     }
-    push @Exporters, export::MPEG2_cut->new;
     push @Exporters, export::NUV_SQL->new;
 
 # Show the version?
