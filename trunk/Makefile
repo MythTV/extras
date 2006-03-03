@@ -3,10 +3,6 @@
 #
 
 BINS	          = mpeg2cut nuvexport nuvinfo
-MANS	          = man/nuvexport.1 \
-                    man/nuvexport-svcd.1 \
-                    man/nuvexport-vcd.1 \
-                    man/nuvexport-xvid.1
 
 CONF              = nuvexportrc
 
@@ -54,11 +50,9 @@ INSTALL	= /usr/bin/install
 prefix=/usr/local
 bindir=${prefix}/bin
 datadir=${prefix}/share
-mandir=${prefix}/man
 sysconfdir=/etc
 
 MODDIR=${datadir}/nuvexport
-MAN1DIR=${mandir}/man1
 
 default:
 	@echo "Use \"make install\" to install the new version"
@@ -83,11 +77,6 @@ install:
 	# Install the modules
 	@for i in ${MODULES} ; do \
 	   ${INSTALL} -Dv ${OWNER} -m 0755 $$i ${MODDIR}/$$i; \
-	done
-	# Install the man page
-	@${INSTALL} -dv ${OWNER} -m 0755 ${MAN1DIR}
-	@for i in ${MANS} ; do \
-	   ${INSTALL} -v ${OWNER} -m 0644 $$i ${MAN1DIR}; \
 	done
 
 
