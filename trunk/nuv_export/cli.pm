@@ -146,14 +146,12 @@ package nuv_export::cli;
     # Get the options
         GetOptions(\%args, @args)
             or die "Invalid commandline parameter(s).\n";
-    # Make sure nice is defined
-        if (defined($args{'nice'})) {
-            die "--nice must be between -20 (highest priority) and 19 (lowest)\n" if (int($args{'nice'}) != $args{'nice'} || $args{'nice'} > 19 || $args{'nice'} < -20);
-            $NICE .= ' -n'.int($args{'nice'});
+    # Make sure $NICE is defined
+        $args{'nice'} = arg('nice', 19);
+        if (int($args{'nice'}) != $args{'nice'} || $args{'nice'} > 19 || $args{'nice'} < -20) {
+            die "--nice must be between -20 (highest priority) and 19 (lowest)\n";
         }
-        else {
-            $NICE .= ' -n19';
-        }
+        $NICE .= ' -n'.int($args{'nice'});
     # Is this a commandline-only request?
         if (!$args{'confirm'} && ($args{'title'} || $args{'subtitle'} || $args{'description'} || $args{'infile'} || $args{'starttime'} || $args{'chanid'})) {
             $is_cli = 1;
