@@ -123,6 +123,9 @@ package export::ffmpeg;
         my $ffmpeg        = '';
         my $mythtranscode = '';
 
+    # Generate a cutlist?
+        $self->gen_cutlist($episode);
+
     # Set up the fifo dirs?
         if (-e "/tmp/fifodir_$$/vidout" || -e "/tmp/fifodir_$$/audout") {
             die "Possibly stale mythtranscode fifo's in /tmp/fifodir_$$/.\nPlease remove them before running nuvexport.\n\n";

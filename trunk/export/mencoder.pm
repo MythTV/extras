@@ -67,6 +67,10 @@ package export::mencoder;
     # Init the commands
         my $mencoder   = '';
         my $mythtranscode = '';
+
+    # Generate a cutlist?
+        $self->gen_cutlist($episode);
+
     # Start the mencoder command
         $mencoder = "$NICE mencoder";
     # Import aspect ratio

@@ -63,9 +63,8 @@ package mythtv::recordings;
     # Try a basename file search
         my $rows;
         $sh = $dbh->prepare('SELECT *, basename FROM recorded');
-        if ($sh) {
-            $rows = $sh->execute();
-        }
+        die "nuvexport 0.3 requires MythTV 0.19\n" unless ($sh);
+        $rows = $sh->execute();
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
                 push @files, $file;

@@ -1,9 +1,11 @@
+#!/usr/bin/perl -w
 #
-# $Date$
-# $Revision$
-# $Author$
+# help
 #
-#  help.pm
+# @url       $URL$
+# @date      $Date$
+# @version   $Revision$
+# @author    $Author$
 #
 
     if (arg('mode')) {
@@ -17,8 +19,7 @@
 
     else {
         print "Help section still needs to be updated.\n"
-             ."   For now, use `man nuvexport` or visit the nuvexport "
-             ."wiki at\n"
+             ."   For now, please read /etc/nuvexportrc or the nuvexport wiki at\n"
              ."   https://svn.forevermore.net/nuvexport/\n\n";
     }
 

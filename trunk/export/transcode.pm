@@ -77,6 +77,9 @@ package export::transcode;
         my $pad_h;
         my $pad_w;
 
+    # Generate a cutlist?
+        $self->gen_cutlist($episode);
+
     # Start the transcode command
         $transcode = "$NICE transcode"
                    # -V is now the default, but need to keep using it because people are still using an older version of transcode

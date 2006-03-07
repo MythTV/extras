@@ -58,34 +58,28 @@ package nuv_export::ui;
             my $starttime = arg('starttime');
         # Filename specified on the command line -- extract the chanid and starttime
             if (arg('infile')) {
-                if (arg('infile') =~ /\basdasd(\d+)_(\d+)(?:_\d+)?\.(nuv|mpg)$/) {
-                    $chanid    = $1;
-                    $starttime = $2;
-                }
-                else {
-                # Try to pick out the chanid and starttime from the database
-                    my $sh = $dbh->prepare('SELECT chanid, starttime FROM recorded WHERE basename=?');
-                    if ($sh) {
-                    # Stip off the video directory so the basename will actually match
-                        my $infile = arg('infile');
-                        $infile =~ s/^$video_dir\/*//;
-                    # Look up the file
-                        $rows = $sh->execute($infile);
-                        if (defined $rows) {
-                            ($chanid, $starttime) = $sh->fetchrow_array();
-                            if ($starttime) {
-                            # strip non-numbers to get the proper format
-                                $starttime =~ tr/0-9//cd;
-                            }
+            # Try to pick out the chanid and starttime from the database
+                my $sh = $dbh->prepare('SELECT chanid, starttime FROM recorded WHERE basename=?');
+                if ($sh) {
+                # Stip off the video directory so the basename will actually match
+                    my $infile = arg('infile');
+                    $infile =~ s/^$video_dir\/*//;
+                # Look up the file
+                    $rows = $sh->execute($infile);
+                    if (defined $rows) {
+                        ($chanid, $starttime) = $sh->fetchrow_array();
+                        if ($starttime) {
+                        # strip non-numbers to get the proper format
+                            $starttime =~ tr/0-9//cd;
                         }
-                        $sh->finish;
                     }
-                # Give up
-                    if (!defined $rows || !$chanid || !$starttime) {
-                        die "Input filename does not match the MythTV recording name format\n"
-                           ."and no matching file could be found in the MythTV database.\n"
-                           ."Please reference only files in your active MythTV video directory.\n";
-                    }
+                    $sh->finish;
+                }
+            # Give up
+                if (!defined $rows || !$chanid || !$starttime) {
+                    die "Input filename does not match the MythTV recording name format\n"
+                       ."and no matching file could be found in the MythTV database.\n"
+                       ."Please reference only files in your active MythTV video directory.\n";
                 }
             }
         # Find the show

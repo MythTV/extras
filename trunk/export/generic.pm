@@ -29,7 +29,8 @@ package export::generic;
     add_arg('path:s',                        'Save path (only used with the noserver option).');
     add_arg('filename|name:s',               'Format string for output names.');
     add_arg('underscores!',                  'Convert spaces to underscores for output filename.');
-    add_arg('use_cutlist|cutlist!',          'Use the myth cutlist (or not)');
+    add_arg('use_cutlist|cutlist!',          'Use the myth cutlist (or not).');
+    add_arg('gencutlist!',                   'Generate a cutlist from the commercial flag list (don\'t forget --use_cutlist, too).');
 
 # These aren't used by all modules, but the routine to define them is here, so here they live
     add_arg('height|v_res|h=s',              'Output height.');
@@ -85,6 +86,18 @@ package export::generic;
                                          'yesno',
                                          $self->val('crop'));
         }
+    }
+
+# Generate a cutlist
+    sub gen_cutlist {
+        my $self    = shift;
+        my $episode = shift;
+    # Find mythcommflag
+        my $mythcommflag = find_program('mythcommflag');
+    # Nothing?
+        die "Can't find mythcommflag.\n" unless ($mythcommflag);
+    # Generate the cutlist
+        system("$NICE $mythcommflag --gencutlist -c $episode->{'channel'} -s $episode->{'start_time_sep'}");
     }
 
 # Check for a duplicate filename, and return a full path to the output filename

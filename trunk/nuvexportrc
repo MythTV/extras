@@ -99,14 +99,50 @@
 
 <generic>
 
+#
+# Default to export to the current directory
+#
     path = .
 
-    use_cutlist     = yes
-    multipass       = yes
+#
+# Use the cutlist (not to be confused with the commercial flag list) when
+#    exporting.
+#
+    use_cutlist = yes
 
+#
+# Tell mythcommflag to generate a cutlist from the commercial flags before
+#    exporting.  Don't forget to enable use_cutlist above, too.
+#
+#   gencutlist = no
+
+#
+# Contrary to popular belief, enabling multipass will not make your recordings
+#    look better.  What it will do, however is guarantee that the bitrate you
+#    choose will be the average bitrate of your entire encode (meaning that your
+#    exports will end up being about the same size per-minute), and that you
+#    will receive the best overall quality for a files of the same size.
+#
+    multipass = yes
+
+#
+# Disabling noise reduction can speed up your exports dramatically, but at the
+#    expense of some quality.  You can also access this on the commandline via
+#    the --denoise (or --nodenoise) flag.
+#
     noise_reduction = yes
+
+#
+# Deinterlace the video so that it looks better on software players.
+#
     deinterlace     = yes
-    crop            = yes
+
+#
+# Crop about 2% from the border of the recording before encoding.  This is done
+#    to get rid of part of the broadcast signal that is usually obscured by the
+#    tv's overscan.
+#
+    crop = yes
 
 #
 #  You can create settings for each export module type.  These are the
@@ -117,13 +153,15 @@
 #    fast_denoise (it's actually part of yuvdenoise, which both the ffmpeg
 #    and transcode exporters call).  It can be almost twice as slow as the
 #    default "fast" normal noise reduction, but it considerably more effective.
+#    The latest version of yuvdenoise (which is called directly by the ffmpeg
+#    exporters) does not support this option, so it is ignored in that case.
 #
     fast_denoise = yes
 
 #
-#  If nuvexport is having trouble detecting the aspect ratio of your recordings
-#    (MythTV used to hard-code all software-encoded files as 1:1 regardless of
-#    the true aspect), set this option to one of the following:
+#  If nuvexport is having trouble detecting the *input* aspect ratio of your
+#    recordings (MythTV used to hard-code all software-encoded files as 1:1
+#    regardless of the true aspect), set this option to one of the following:
 #
 #   force_aspect = [ 1:1 4:3 16:9 2.21:1 ]
 
