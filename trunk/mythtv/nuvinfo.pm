@@ -165,7 +165,7 @@ package mythtv::nuvinfo;
 # Uses one of two mpeg info programs to load data about mpeg-based nuv files
     sub mpeg_info {
         my $file = shift;
-        $file =~ s/'/\\'/sg;
+        $file =~ s/'/'\\''/sg;
         my %info;
     # First, we check for the existence of  an mpeg info program
         my $program = find_program('mplayer');

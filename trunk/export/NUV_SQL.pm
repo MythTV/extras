@@ -57,7 +57,7 @@ package export::NUV_SQL;
              ."This will extract it from the MythTV database into .nuv and .sql \n"
              ."files to import into another MythTV installation.\n\n";
     # Make sure the user knows what he/she is doing
-        $self->{'delete'} = query_text("Do you want to removed it from this server when finished?",
+        $self->{'delete'} = query_text("Do you want to remove it from this server when finished?",
                                        'yesno',
                                        $self->{'delete'} ? 'Yes' : 'No');
     # Make EXTRA sure
@@ -81,6 +81,9 @@ package export::NUV_SQL;
         if ($self->{'create_dir'}) {
             $self->{'export_path'} = $self->get_outfile($episode, '');
             mkdir($self->{'export_path'}, 0755) or die "Can't create $self->{'export_path'}:  $!\n\n";
+        }
+        else {
+            $self->{'export_path'} = $self->{'path'};
         }
     # Load the three files we'll be using
         my $txt_file = basename($episode->{'filename'}, '.nuv') . '.txt';
