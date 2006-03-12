@@ -92,6 +92,8 @@ package export::generic;
     sub gen_cutlist {
         my $self    = shift;
         my $episode = shift;
+    # Don't generate a cutlist
+        return unless ($self->val('gencutlist'));
     # Find mythcommflag
         my $mythcommflag = find_program('mythcommflag');
     # Nothing?
