@@ -67,29 +67,9 @@ package mythtv::recordings;
         $rows = $sh->execute();
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
+                next unless (-e "$video_dir/".$file->{'basename'});
                 push @files, $file;
             }
-        }
-    # Older mythtv; scan for files
-        else {
-            $sh->finish if ($sh);
-            $sh = $dbh->prepare('SELECT * FROM recorded WHERE chanid=? AND starttime=?');
-        # Grab all of the video filenames
-            opendir(DIR, $video_dir) or die "Can't open $video_dir:  $!\n\n";
-            foreach $file (grep /\.nuv$/, readdir(DIR)) {
-                next if ($file =~ /^ringbuf/);
-            # Extract the file info
-                my ($chanid, $starttime) = $file =~/^(\d+)_(\d{14})_/i;
-            # Search the database
-                $sh->execute($chanid, $starttime);
-                my $ref = $sh->fetchrow_hashref();
-                next unless ($ref);
-            # Add the basename, and add the file to the list
-                $ref->{'basename'} = $file;
-                push @files, $ref;
-            }
-            closedir DIR;
-
         }
         $sh->finish;
 
