@@ -367,6 +367,10 @@ package nuv_export::ui;
             print "Unknown exporter mode:  $mode\n";
             exit -1;
         }
+        elsif ($is_cli) {
+            print "Please specify an export mode with --mode or the nuvexportrc file\n";
+            exit -1;
+        }
     # Build the query
         my $query = "Using $export_prog for exporting.\n"
                   . "What would you like to do?\n\n";
