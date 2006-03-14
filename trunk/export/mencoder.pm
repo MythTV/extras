@@ -97,10 +97,11 @@ package export::mencoder;
         }
         else {
             $mencoder .= " -noskip -idx /tmp/fifodir_$$/vidout -audiofile /tmp/fifodir_$$/audout  "
-                         .' -rawvideo'
-                         .' on:w='.$episode->{'finfo'}{'width'}.':h='.$episode->{'finfo'}{'height'}
+                         .' -demuxer 20 -audio-demuxer 20 -rawaudio'
+                         .' rate='.$episode->{'finfo'}{'audio_sample_rate'}.':channels='.$episode->{'finfo'}{'audio_channels'}
+                         .' -demuxer 26 -rawvideo'
+                         .' w='.$episode->{'finfo'}{'width'}.':h='.$episode->{'finfo'}{'height'}
                          .':fps='.$episode->{'finfo'}{'fps'}
-                         .' -rawaudio on:rate='.$episode->{'finfo'}{'audio_sample_rate'}.':channels='.$episode->{'finfo'}{'audio_channels'}
                          ;
         }
     # NOTE: this comes before the standard filters below, because
@@ -120,10 +121,10 @@ package export::mencoder;
     # Filters (remember, mencoder reads these in reverse order (so deint should be last if used)
     # Normally you would do -vop filter1=<val>,filter2=<val>,lavcdeint...
         if ($self->{'noise_reduction'}) {
-            $mencoder .= " -vop denoise3d";
+            $mencoder .= " -vf denoise3d";
         }
         if ($self->{'deinterlace'}) {
-            $mencoder .= " -vop lavcdeint";
+            $mencoder .= " -vf lavcdeint";
             #smartyuv|smartdeinter|dilyuvmmx
         }
     # Output directory set to null means the first pass of a multipass
