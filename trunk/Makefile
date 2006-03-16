@@ -2,7 +2,7 @@
 # Makefile for installing nuvexport
 #
 
-BINS	          = mpeg2cut nuvexport nuvinfo
+BINS	          = nuvexport nuvinfo
 
 CONF              = nuvexportrc
 
@@ -10,7 +10,6 @@ EXPORT_MODULES	  = export/generic.pm         \
 		    export/ffmpeg.pm          \
 		    export/transcode.pm       \
 		    export/mencoder.pm        \
-		    export/MPEG2_cut.pm       \
 		    export/NUV_SQL.pm         \
 		    export/transcode/DVCD.pm  \
 		    export/transcode/DVD.pm   \
@@ -41,7 +40,7 @@ NUVEXPORT_MODULES = nuv_export/help.pm         \
 		    nuv_export/ui.pm
 MODULES		  = ${EXPORT_MODULES} ${MYTHTV_MODULES} ${NUVEXPORT_MODULES}
 
-NUVEXPORT_LINKS   = divx dvcd dvd mp3 mpeg2cut nuvsql svcd vcd asf xvid
+NUVEXPORT_LINKS   = divx dvcd dvd mp3 nuvsql svcd vcd asf xvid
 
 OWNER	= -o root -g root
 
