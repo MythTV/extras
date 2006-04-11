@@ -42,7 +42,7 @@ MODULES		  = ${EXPORT_MODULES} ${MYTHTV_MODULES} ${NUVEXPORT_MODULES}
 
 NUVEXPORT_LINKS   = divx dvcd dvd mp3 nuvsql svcd vcd asf xvid
 
-OWNER	= -o root -g root
+OWNER	=
 
 INSTALL	= /usr/bin/install
 

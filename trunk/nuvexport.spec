@@ -20,7 +20,7 @@ Requires:  perl >= 5.6
 Requires:  perl-DateManip
 Requires:  perl-DBD-MySQL
 Requires:  perl-DBI
-Requires:  perl-Time-HiRes
+#Requires:  perl-Time-HiRes     # This is now built into the core perl package.
 Requires:  transcode >= 0.6.12
 Requires:  ffmpeg >= 0.4.9
 Requires:  mjpegtools >= 1.6.2
