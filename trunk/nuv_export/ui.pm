@@ -489,8 +489,9 @@ package nuv_export::ui;
         while (1) {
         # Ask the question, get the answer
             print $text,
-                  ($default ? " [$default]".($default_extra ? $default_extra : '').' '
-                            : ' ');
+                  (defined $default && length($default) > 0
+                      ? " [$default]".($default_extra ? $default_extra : '').' '
+                      : ' ');
             chomp($return = <STDIN>);
         # Nothing typed, is there a default value?
             unless ($return =~ /\S/) {

@@ -110,11 +110,19 @@ package export::mencoder;
         $mencoder .= ' '.$self->{'mencoder_xtra'};
     # Crop?
         if ($self->{'crop'}) {
-            my $w = sprintf('%.0f', (1 - $self->val('overscan_pct') / 100) * $episode->{'finfo'}{'width'});
-            my $h = sprintf('%.0f', (1 - $self->val('overscan_pct') / 100) * $episode->{'finfo'}{'height'});
-            $w-- if ($w > 0 && $w % 2);    # mencoder freaks out if these are odd numbers (does it?)
-            $h-- if ($h > 0 && $h % 2);
-            $mencoder .= " -vop crop=$w:$h " if ($h || $w);
+            my $t = sprintf('%.0f', ($self->val('crop_top')    / 100) * $episode->{'finfo'}{'height'});
+            my $r = sprintf('%.0f', ($self->val('crop_right')  / 100) * $episode->{'finfo'}{'width'});
+            my $b = sprintf('%.0f', ($self->val('crop_bottom') / 100) * $episode->{'finfo'}{'height'});
+            my $l = sprintf('%.0f', ($self->val('crop_left')   / 100) * $episode->{'finfo'}{'width'});
+        # Keep the crop numbers even
+            $t-- if ($t > 0 && $t % 2);
+            $r-- if ($r > 0 && $r % 2);
+            $b-- if ($b > 0 && $b % 2);
+            $l-- if ($l > 0 && $l % 2);
+        # Figure out the new width/height
+            my $w = $episode->{'finfo'}{'width'}  - $r - $l;
+            my $h = $episode->{'finfo'}{'height'} - $t - $b;
+            $mencoder .= " -vop crop=$w:$h:$l:$t " if ($t || $r || $b || $l);
         }
     # Use the cutlist?  (only for mpeg files -- nuv files are handled by mythtranscode)
     # Can we cut with mencoder?

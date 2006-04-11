@@ -86,9 +86,20 @@
 #  Nuvexport has the option to crop a percentage of the border of each recording
 #  in order to get rid of the unsightly edges of the tv signal.  The default 2%
 #  approximates the overscan of an average TV, but you can alter this from 0 to
-#  5% to fit your preferences.
+#  5% to fit your preferences.  Please keep in mind that this amount is removed
+#  prior to making any aspect conversions like removing black bars from 4:3
+#  recordings to make a 16:9 export.
 #
-    overscan_pct = 2
+    crop_pct = 2
+
+#
+#  Alternatively, you can override the general crop_pct to crop a different
+#  amount from specific sides of the recording.
+#
+#   crop_top    = 2
+#   crop_right  = 2
+#   crop_bottom = 2
+#   crop_left   = 2
 
 </nuvexport>
 

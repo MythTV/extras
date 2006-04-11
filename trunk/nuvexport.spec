@@ -4,7 +4,7 @@
 
 Name:       nuvexport
 Version:    0.3
-Release:    0.20060315.svn
+Release:    0.20060410.svn
 License:    GPL
 Summary:    mythtv nuv video file conversion script
 URL:        http://forevermore.net/nuvexport/

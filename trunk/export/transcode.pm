@@ -255,11 +255,17 @@ package export::transcode;
         }
     # Crop?
         if ($self->{'crop'}) {
-            my $w = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'width'});
-            my $h = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'height'});
-            $w-- if ($w > 0 && $w % 2);    # transcode freaks out if these are odd numbers
-            $h-- if ($h > 0 && $h % 2);
-            $transcode .= " -j $h,$w,$h,$w" if ($h || $w);
+            my $t = sprintf('%.0f', ($self->val('crop_top')    / 100) * $episode->{'finfo'}{'height'});
+            my $r = sprintf('%.0f', ($self->val('crop_right')  / 100) * $episode->{'finfo'}{'width'});
+            my $b = sprintf('%.0f', ($self->val('crop_bottom') / 100) * $episode->{'finfo'}{'height'});
+            my $l = sprintf('%.0f', ($self->val('crop_left')   / 100) * $episode->{'finfo'}{'width'});
+        # Keep the crop numbers even
+            $t-- if ($t > 0 && $t % 2);
+            $r-- if ($r > 0 && $r % 2);
+            $b-- if ($b > 0 && $b % 2);
+            $l-- if ($l > 0 && $l % 2);
+        # crop
+            $transcode .= " -j $t,$l,$b,$r" if ($t || $r || $b || $l);
         }
     # Use the cutlist?  (only for mpeg files -- nuv files are handled by mythtranscode)
         if ($self->{'use_cutlist'} && !$self->val('mythtranscode_cutlist')

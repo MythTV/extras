@@ -145,14 +145,6 @@ package export::ffmpeg;
         my $height;
         my $width;
 
-        if ($self->{'crop'}) {
-            $crop_w = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'width'});
-            $crop_h = sprintf('%.0f', ($self->val('overscan_pct') / 100) * $episode->{'finfo'}{'height'});
-        # keep crop numbers even
-            $crop_w-- if ($crop_w > 0 && $crop_w % 2);
-            $crop_h-- if ($crop_h > 0 && $crop_h % 2);
-        }
-
         if ($self->{'audioonly'}) {
             $ffmpeg .= "cat /tmp/fifodir_$$/vidout > /dev/null | ";
         }
@@ -169,9 +161,6 @@ package export::ffmpeg;
                     $ffmpeg .= ' -r 16';
                     if ($self->val('fast_denoise')) {
                         $ffmpeg .= ' -f';
-                    }
-                    if ($self->{'crop'}) {
-                        $ffmpeg .= " -b $crop_w,$crop_h,-$crop_w,-$crop_h";
                     }
                 # Deinterlace in yuvdenoise
                     if ($self->val('deint_in_yuvdenoise') && $self->val('deinterlace')) {
@@ -249,9 +238,19 @@ package export::ffmpeg;
                 $ffmpeg .= ' -deinterlace';
             }
         # Crop
-            if ($self->val('crop')) {
-                $ffmpeg .= " -croptop $crop_h -cropbottom $crop_h"
-                          ." -cropleft $crop_w -cropright $crop_w";
+            if ($self->{'crop'}) {
+                my $t = sprintf('%.0f', ($self->val('crop_top')    / 100) * $episode->{'finfo'}{'height'});
+                my $r = sprintf('%.0f', ($self->val('crop_right')  / 100) * $episode->{'finfo'}{'width'});
+                my $b = sprintf('%.0f', ($self->val('crop_bottom') / 100) * $episode->{'finfo'}{'height'});
+                my $l = sprintf('%.0f', ($self->val('crop_left')   / 100) * $episode->{'finfo'}{'width'});
+            # Keep the crop numbers even
+                $t-- if ($t > 0 && $t % 2);
+                $r-- if ($r > 0 && $r % 2);
+                $b-- if ($b > 0 && $b % 2);
+                $l-- if ($l > 0 && $l % 2);
+            # crop
+                $ffmpeg .= " -croptop    $t -cropright $r"
+                          ." -cropbottom $b -cropleft  $l" if ($t || $r || $b || $l);
             }
 
         # Letter/Pillarboxing as appropriate

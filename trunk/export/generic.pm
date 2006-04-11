@@ -38,8 +38,12 @@ package export::generic;
     add_arg('deinterlace!',                  'Deinterlace video.');
     add_arg('noise_reduction|denoise|nr!',   'Enable noise reduction.');
     add_arg('fast_denoise|fast-denoise!',    'Use fast noise reduction instead of standard.');
-    add_arg('crop!',                         'Crop out broadcast overscan.');
-    add_arg('overscan_pct=f',                'Percentage of overscan to crop (0-5%, defaults to 2%).');
+    add_arg('nocrop',                        'Do not crop out broadcast overscan.');
+    add_arg('crop_pct=f',                    'Percentage of overscan to crop (0-5%, defaults to 2%).');
+    add_arg('crop_top=f',                    'Percentage of overscan to crop from the top.');
+    add_arg('crop_right=f',                  'Percentage of overscan to crop from the right.');
+    add_arg('crop_bottom=f',                 'Percentage of overscan to crop from the top.');
+    add_arg('crop_left=f',                   'Percentage of overscan to crop from the left.');
 
 # Load defaults
     sub load_defaults {
@@ -48,11 +52,56 @@ package export::generic;
         $self->{'defaults'}{'use_cutlist'}     = 1;
         $self->{'defaults'}{'noise_reduction'} = 1;
         $self->{'defaults'}{'deinterlace'}     = 1;
-        $self->{'defaults'}{'crop'}            = 1;
-        $self->{'defaults'}{'overscan_pct'}    = 2;
-    # Make sure the overscan percentage is valid
-        if ($self->val('overscan_pct') < 0 || $self->val('overscan_pct') > 5) {
-            die "overscan_pct must be a number between 0 and 5.\n";
+        $self->{'defaults'}{'crop_pct'}        = 2;
+    # Disable all cropping
+        if ($self->val('nocrop')) {
+            $self->{'crop'}        = 0;
+            $self->{'crop_pct'}    = 0;
+            $self->{'crop_top'}    = 0;
+            $self->{'crop_right'}  = 0;
+            $self->{'crop_bottom'} = 0;
+            $self->{'crop_left'}   = 0;
+        }
+    # Make sure the crop percentage is valid
+        else {
+        # Set any unset crop percentages
+            unless (defined $self->val('crop_pct')) {
+                $self->{'crop_pct'} = 0;
+            }
+            unless (defined $self->val('crop_top')) {
+                $self->{'crop_top'} = $self->val('crop_pct');
+            }
+            unless (defined $self->val('crop_right')) {
+                $self->{'crop_right'} = $self->val('crop_pct');
+            }
+            unless (defined $self->val('crop_bottom')) {
+                $self->{'crop_bottom'} = $self->val('crop_pct');
+            }
+            unless (defined $self->val('crop_left')) {
+                $self->{'crop_left'} = $self->val('crop_pct');
+            }
+        # Check for errors
+            if ($self->val('crop_pct') < 0 || $self->val('crop_pct') > 5) {
+                die "crop_pct must be a number between 0 and 5.\n";
+            }
+            if ($self->val('crop_top') < 0 || $self->val('crop_top') > 5) {
+                die "crop_top must be a number between 0 and 5.\n";
+            }
+            if ($self->val('crop_right') < 0 || $self->val('crop_right') > 5) {
+                die "crop_right must be a number between 0 and 5.\n";
+            }
+            if ($self->val('crop_bottom') < 0 || $self->val('crop_bottom') > 5) {
+                die "crop_bottom must be a number between 0 and 5.\n";
+            }
+            if ($self->val('crop_left') < 0 || $self->val('crop_left') > 5) {
+                die "crop_left must be a number between 0 and 5.\n";
+            }
+        # Are we cropping at all?
+            if ($self->{'crop_pct'}
+                    || $self->{'crop_top'}    || $self->{'crop_right'}
+                    || $self->{'crop_bottom'} || $self->{'crop_left'}) {
+                $self->{'crop'} = 1;
+            }
         }
     }
 
@@ -81,10 +130,50 @@ package export::generic;
             $self->{'deinterlace'} = query_text('Enable deinterlacing?',
                                                 'yesno',
                                                 $self->val('deinterlace'));
-        # Crop video to get rid of broadcast padding
-            $self->{'crop'} = query_text('Crop broadcast overscan ('.$self->val('overscan_pct').'% border)?',
-                                         'yesno',
-                                         $self->val('crop'));
+        # Crop video to get rid of broadcast overscan
+            if ($self->val('crop_pct') == $self->val('crop_top')
+                    && $self->val('crop_pct') == $self->val('crop_right')
+                    && $self->val('crop_pct') == $self->val('crop_bottom')
+                    && $self->val('crop_pct') == $self->val('crop_left')) {
+                while (1) {
+                    my $pct = query_text('Crop broadcast overscan border (0-5%) ?',
+                                         'float',
+                                         $self->val('crop_pct'));
+                    if ($pct < 0 || $pct > 5) {
+                        print "Crop percentage must be between 0 and 5 percent.\n";
+                    }
+                    else {
+                        $self->{'crop_pct'} = $pct;
+                        last;
+                    }
+                }
+            }
+        # Custom cropping
+            else {
+                foreach my $side ('top', 'right', 'bottom', 'left') {
+                    while (1) {
+                        my $pct = query_text("Crop broadcast overscan $side border (0-5\%) ?",
+                                             'float',
+                                             $self->{"crop_$side"});
+                        if ($pct < 0 || $pct > 5) {
+                            print "Crop percentage must be between 0 and 5 percent.\n";
+                        }
+                        else {
+                            $self->{"crop_$side"} = $pct;
+                            last;
+                        }
+                    }
+                }
+            }
+        # Are we cropping at all?
+            if ($self->{'crop_pct'}
+                    || $self->{'crop_top'}    || $self->{'crop_right'}
+                    || $self->{'crop_bottom'} || $self->{'crop_left'}) {
+                $self->{'crop'} = 1;
+            }
+            else {
+                $self->{'crop'} = 0;
+            }
         }
     }
 
