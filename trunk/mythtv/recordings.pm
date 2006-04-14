@@ -77,7 +77,7 @@ package mythtv::recordings;
         die "No valid recordings found!\n\n" unless (@files);
 
     # Prepare a query to look up GOP info used to determine mpeg recording length
-        $q = 'SELECT mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY mark DESC LIMIT 1';
+        $q = 'SELECT MAX(mark) FROM recordedmarkup WHERE chanid=? AND starttime=?';
         $sh  = $dbh->prepare($q);
 
     # Prepare a query to pull out cutlist information
@@ -114,7 +114,7 @@ package mythtv::recordings;
         # Pull out GOP info for mpeg files
             $sh->execute($info{'chanid'}, $info{'starttime'})
                 or die "Could not execute ($q):  $!\n\n";
-            ($info{'lastgop'}) = $sh->fetchrow_array();
+            ($info{'last_frame'}) = $sh->fetchrow_array();
         # Cleanup
             $info{'starttime_sep'} = $info{'starttime'};
             $info{'starttime_sep'} =~ s/\D+/-/sg;
@@ -136,7 +136,7 @@ package mythtv::recordings;
                                              'transcoder'     => ($info{'transcoder'}    or 'autodetect'),
                                              'hostname'       => ($info{'hostname'}      or ''),
                                              'cutlist'        => ($info{'cutlist'}       or ''),
-                                             'lastgop'        => ($info{'lastgop'}       or 0),
+                                             'last_frame'     => ($info{'last_frame'}       or 0),
                                              'cutlist_frames' => ($cutlist_frames        or 0),
                                              'showtime'       => generate_showtime(split(/-/, $info{'starttime_sep'})),
                                             # This field is too slow to populate here, so it will be populated in ui.pm on-demand
