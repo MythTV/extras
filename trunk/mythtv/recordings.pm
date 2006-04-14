@@ -99,15 +99,15 @@ package mythtv::recordings;
             my $last_mark      = 0;
             $c_sh->execute($info{'chanid'}, $info{'starttime'})
                 or die "Could not execute ($c_q):  $!\n\n";
-            while (my ($mark, $type) = $c_sh->fetchrow_array) {
+            while (my ($type, $mark) = $c_sh->fetchrow_array) {
                 if ($type == 1) {
                     $info{'cutlist'} .= " $mark";
+                    $last_mark = $mark;
                 }
                 elsif ($type == 0) {
                     $info{'cutlist'} .= "-$mark";
                     $cutlist_frames += $mark - $last_mark;
                 }
-                $last_mark = $mark;
             }
         # Skip shows without cutlists?
             next if (arg('require_cutlist') && !$info{'cutlist'});

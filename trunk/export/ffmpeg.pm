@@ -294,8 +294,8 @@ package export::ffmpeg;
         $frames = 0;
         $fps = 0.0;
         $start = time();
-        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15)
-                           - $episode->{'cutlist_frames'};
+        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15);
+        $total_frames -= $episode->{'cutlist_frames'} if ($total_frames > 0);
     # Keep track of any warnings
         my $warnings    = '';
         my $death_timer = 0;
