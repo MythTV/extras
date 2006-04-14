@@ -22,7 +22,7 @@ package export::ffmpeg::XviD;
     add_arg('quantisation|q=i', 'Quantisation');
     add_arg('a_bitrate|a=i',    'Audio bitrate');
     add_arg('v_bitrate|v=i',    'Video bitrate');
-    add_arg('multipass!',       'Enably two-pass encoding.');
+    add_arg('multipass!',       'Enable two-pass encoding.');
 
     sub new {
         my $class = shift;

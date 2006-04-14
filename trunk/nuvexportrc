@@ -266,6 +266,16 @@
 
 </ffmpeg::PSP>
 
+<ffmpeg::iPod>
+
+# Codec to use (xvid or h264).  Please note that h264 support is experimental.
+# I have not yet been able to export a file using h264 that actuall works,
+# despite the fact that I've tried my best to copy the ffmpeg parameters from
+# iSquint, which does work.
+    ipod_codec = xvid
+
+</ffmpeg::PSPiPod
+
 <mencoder::XviD>
 
     multipass = no
