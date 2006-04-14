@@ -324,7 +324,8 @@ package export::transcode;
         my ($frames, $fps);
         $frames = 0;
         $fps    = 0.0;
-        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15);
+        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15)
+                           - $episode->{'cutlist_frames'};
     # Keep track of any warnings
         my $warnings    = '';
         my $death_timer = 0;
@@ -361,7 +362,7 @@ package export::transcode;
                 while (has_data($mythtrans_h) and $l = <$mythtrans_h>) {
                     if ($l =~ /Processed:\s*(\d+)\s*of\s*(\d+)\s*frames\s*\((\d+)\s*seconds\)/) {
                         #$frames       = int($1);
-                        $total_frames = $2;
+                        $total_frames ||= $2 - $episode->{'cutlist_frames'};
                     }
                 }
             }

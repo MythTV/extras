@@ -294,7 +294,8 @@ package export::ffmpeg;
         $frames = 0;
         $fps = 0.0;
         $start = time();
-        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15);
+        my $total_frames = $episode->{'lastgop'} * (($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 12 : 15)
+                           - $episode->{'cutlist_frames'};
     # Keep track of any warnings
         my $warnings    = '';
         my $death_timer = 0;
@@ -347,10 +348,10 @@ package export::ffmpeg;
         # Read from the mythtranscode handle?
             while (has_data($mythtrans_h) and $l = <$mythtrans_h>) {
                 if ($l =~ /Processed:\s*(\d+)\s*of\s*(\d+)\s*frames\s*\((\d+)\s*seconds\)/) {
-                    if ($self->{'audioonly'}) {
-                        $frames = int($1);
-                    }
-                    $total_frames = $2;
+                    #if ($self->{'audioonly'}) {
+                    #    $frames = int($1);
+                    #}
+                    $total_frames ||= $2 - $episode->{'cutlist_frames'};
                 }
             }
         # Has the deathtimer been started?  Stick around for awhile, but not too long

@@ -77,8 +77,12 @@ package mythtv::recordings;
         die "No valid recordings found!\n\n" unless (@files);
 
     # Prepare a query to look up GOP info used to determine mpeg recording length
-        $q = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY type ASC, mark DESC LIMIT 1';
+        $q = 'SELECT mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type=6 ORDER BY mark DESC LIMIT 1';
         $sh  = $dbh->prepare($q);
+
+    # Prepare a query to pull out cutlist information
+        my $c_q  = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type IN (0,1) ORDER BY mark';
+        my $c_sh = $dbh->prepare($c_q);
 
         $num_shows = $count = 0;
         foreach $file (@files) {
@@ -89,12 +93,28 @@ package mythtv::recordings;
             my %info = %{$file};
         # Import the commercial flag list
             ### FIXME:  how do I do this?
+        # Import the cutlist
+            $info{'cutlist'} = '';
+            my $cutlist_frames = 0;
+            my $last_mark      = 0;
+            $c_sh->execute($info{'chanid'}, $info{'starttime'})
+                or die "Could not execute ($c_q):  $!\n\n";
+            while (my ($mark, $type) = $c_sh->fetchrow_array) {
+                if ($type == 1) {
+                    $info{'cutlist'} .= " $mark";
+                }
+                elsif ($type == 0) {
+                    $info{'cutlist'} .= "-$mark";
+                    $cutlist_frames += $mark - $last_mark;
+                }
+                $last_mark = $mark;
+            }
         # Skip shows without cutlists?
             next if (arg('require_cutlist') && !$info{'cutlist'});
         # Pull out GOP info for mpeg files
             $sh->execute($info{'chanid'}, $info{'starttime'})
                 or die "Could not execute ($q):  $!\n\n";
-            ($info{'goptype'}, $info{'lastgop'}) = $sh->fetchrow_array();
+            ($info{'lastgop'}) = $sh->fetchrow_array();
         # Cleanup
             $info{'starttime_sep'} = $info{'starttime'};
             $info{'starttime_sep'} =~ s/\D+/-/sg;
@@ -117,7 +137,7 @@ package mythtv::recordings;
                                              'hostname'       => ($info{'hostname'}      or ''),
                                              'cutlist'        => ($info{'cutlist'}       or ''),
                                              'lastgop'        => ($info{'lastgop'}       or 0),
-                                             'goptype'        => ($info{'goptype'}       or 0),
+                                             'cutlist_frames' => ($cutlist_frames        or 0),
                                              'showtime'       => generate_showtime(split(/-/, $info{'starttime_sep'})),
                                             # This field is too slow to populate here, so it will be populated in ui.pm on-demand
                                              'finfo'          => undef
