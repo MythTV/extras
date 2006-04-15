@@ -102,12 +102,16 @@ package mythtv::recordings;
             while (my ($type, $mark) = $c_sh->fetchrow_array) {
                 if ($type == 1) {
                     $info{'cutlist'} .= " $mark";
-                    $last_mark = $mark;
+                    $last_mark        = $mark;
                 }
                 elsif ($type == 0) {
                     $info{'cutlist'} .= "-$mark";
-                    $cutlist_frames += $mark - $last_mark;
+                    $cutlist_frames  += $mark - $last_mark;
                 }
+            }
+            if ($type && $type == 1) {
+                $info{'cutlist'} .= '-'.$self->{'last_frame'};
+                $cutlist_frames  += $self->{'last_frame'} - $last_mark;
             }
         # Skip shows without cutlists?
             next if (arg('require_cutlist') && !$info{'cutlist'});
@@ -145,6 +149,7 @@ package mythtv::recordings;
         # Counter
             $num_shows++;
         }
+        $c_sh->finish();
         $sh->finish();
         print "\n";
 
