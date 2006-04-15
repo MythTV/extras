@@ -140,7 +140,7 @@ package mythtv::recordings;
                                              'transcoder'     => ($info{'transcoder'}    or 'autodetect'),
                                              'hostname'       => ($info{'hostname'}      or ''),
                                              'cutlist'        => ($info{'cutlist'}       or ''),
-                                             'last_frame'     => ($info{'last_frame'}       or 0),
+                                             'last_frame'     => ($info{'last_frame'}    or 0),
                                              'cutlist_frames' => ($cutlist_frames        or 0),
                                              'showtime'       => generate_showtime(split(/-/, $info{'starttime_sep'})),
                                             # This field is too slow to populate here, so it will be populated in ui.pm on-demand
