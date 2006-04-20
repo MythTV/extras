@@ -274,7 +274,7 @@
 # iSquint, which does work.
     ipod_codec = xvid
 
-</ffmpeg::PSPiPod
+</ffmpeg::iPod>
 
 <mencoder::XviD>
 
