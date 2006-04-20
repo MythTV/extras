@@ -183,7 +183,9 @@ package export::ffmpeg::iPod;
                               .' -b '     .$self->{'v_bitrate'}
                               ." -f mp4 -title $safe_title";
         # Add the temporary files to the list
-            push @tmpfiles, 'x264_2pass.log', 'x264_2pass.log.temp';
+            push @tmpfiles, 'x264_2pass.log',
+                            'x264_2pass.log.temp',
+                            'ffmpeg2pass-0.log';
         # Back up the path and use /dev/null for the first pass
             my $path_bak = $self->{'path'};
             $self->{'path'} = '/dev/null';
