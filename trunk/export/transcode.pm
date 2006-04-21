@@ -246,7 +246,7 @@ package export::transcode;
     # Is an mpeg
         else {
             $transcode .= " -i $episode->{'filename'} -x ";
-            if ($episode->{'finfo'}{'mpeg_stream_type'} eq 'pes') {
+            if ($episode->{'finfo'}{'mpeg_stream_type'} eq 'mpegpes') {
                 $transcode .= 'vob';
             }
             else {
