@@ -194,7 +194,22 @@ package mythtv::nuvinfo;
             die "Stream type '$info{'mpeg_stream_type'}' is not an mpeg, and will\n"
                ."not work with this program.\n";
         }
-        else {
+    # Detect things the old way...
+        elsif ($data =~ m/\bMPEG-(PE?S) file format detected/m) {
+            $info{'mpeg_stream_type'} = lc($1);
+        }
+        elsif ($data =~ m/^TS file format detected/m) {
+            $info{'mpeg_stream_type'} = 'ts';
+        }
+    # French localisation
+        elsif ($data =~ m/Fichier de type MPEG-(PE?S) détecté./m) {
+            $info{'mpeg_stream_type'} = lc($1);
+        }
+        elsif ($data =~ m/Fichier de type TS détecté./m) {
+            $info{'mpeg_stream_type'} = 'ts';
+        }
+    # No matches on stream type?
+        if (!$info{'mpeg_stream_type'}) {
             die "Unrecognized stream type.  Please execute the following and see if you\n"
                ."notice errors (make sure that you don't have the \"really quiet\" option\n"
                ."set in your mplayer config).  If not, create a ticket at\n"
@@ -205,9 +220,6 @@ package mythtv::nuvinfo;
     # Cleanup
         $info{'aspect'}   = aspect_str($info{'aspect'});
         $info{'aspect_f'} = aspect_float($info{'aspect'});
-# ID_VIDEO_BITRATE=6500000
-# ID_AUDIO_FORMAT=80
-# ID_LENGTH=3554
     # Return
         return %info;
     }
