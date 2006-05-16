@@ -74,12 +74,12 @@ package export::ffmpeg;
         my ($formats) = $data =~ /(?:^|\n\s*)File\sformats:\s*\n(.+?\n)\s*\n/s;
         my ($codecs)  = $data =~ /(?:^|\n\s*)Codecs:\s*\n(.+?\n)\s*\n/s;
         if ($formats) {
-            while ($formats =~ /^\s(..)\s(\S+)\s*$/mg) {
+            while ($formats =~ /^\s(..)\s(\S+)\b/mg) {
                 $self->{'formats'}{$2} = $1;
             }
         }
         if ($codecs) {
-            while ($codecs =~ /^\s(.{6})\s(\S+)\s*$/mg) {
+            while ($codecs =~ /^\s(.{6})\s(\S+)\b/mg) {
                 $self->{'codecs'}{$2} = $1;
             }
         }
