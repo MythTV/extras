@@ -422,7 +422,7 @@ package export::generic;
             $eta      = ($eta % 60);
         }
         if ($eta > 0) {
-            $eta_str .= $eta.'s';
+            $eta_str .= int($eta).'s';
         }
         return $eta_str;
     }
