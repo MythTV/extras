@@ -403,6 +403,30 @@ package export::generic;
         }
     }
 
+    sub build_eta {
+        my $self         = shift;
+        my $frames       = shift;
+        my $total_frames = shift;
+        my $fps          = shift;
+    # Return early?
+        return 'unknown' unless ($total_frames && $fps);
+    # Calculate a nice string
+        my $eta_str      = '';
+        my $eta          = ($total_frames - $frames) / $fps;
+        if ($eta > 3600) {
+            $eta_str .= int($eta / 3600).'h ';
+            $eta      = ($eta % 3600);
+        }
+        if ($eta > 60) {
+            $eta_str .= int($eta / 60).'m ';
+            $eta      = ($eta % 60);
+        }
+        if ($eta > 0) {
+            $eta_str .= $eta.'s';
+        }
+        return $eta_str;
+    }
+
     sub val {
         my $self = shift;
         my $arg  = shift;

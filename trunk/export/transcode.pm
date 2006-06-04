@@ -333,16 +333,17 @@ package export::transcode;
         my $last_death  = '';
 	# Wait for child processes to finish
         while ((keys %children) > 0) {
-            my $l;
-            my $pct;
+            my ($l, $pct);
         # Show progress
             if ($frames && $total_frames) {
                 $pct = sprintf('%.2f', 100 * $frames / $total_frames);
             }
             else {
-                $pct = "0.00";
+                $pct = '~';
             }
-            print "\rprocessed:  $frames of $total_frames frames ($pct\%), $fps fps ";
+            print "\rprocessed:  $frames of $total_frames frames at $fps fps ($pct\%, eta: ",
+                  $self->build_eta($frames, $total_frames, $fps),
+                  ')  ';
         # Read from the transcode handle
             while (has_data($trans_h) and $l = <$trans_h>) {
                 if ($l =~ /encoding\s+frames\s+\[(\d+)-(\d+)\],\s*([\d\.]+)\s*fps,\s+EMT:\s*([\d:]+),/) {
