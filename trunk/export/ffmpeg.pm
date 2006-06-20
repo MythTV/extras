@@ -70,7 +70,7 @@ package export::ffmpeg;
     # Audio only?
         $self->{'audioonly'} = $audioonly;
     # Gather the supported codecs
-        my $data      = `$ffmpeg -formats 2>/dev/null`;
+        my $data      = `$ffmpeg -formats 2>&1`;
         my ($formats) = $data =~ /(?:^|\n\s*)File\sformats:\s*\n(.+?\n)\s*\n/s;
         my ($codecs)  = $data =~ /(?:^|\n\s*)Codecs:\s*\n(.+?\n)\s*\n/s;
         if ($formats) {
