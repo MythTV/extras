@@ -152,6 +152,10 @@ package mythtv::nuvinfo;
     # Make sure some things are actually numbers
         $info{'width'}  += 0;
         $info{'height'} += 0;
+    # HD fix
+        if ($info{'height'} == 1080) {
+            $info{'height'} = 1088;
+        }
     # Make some corrections for myth bugs
         $info{'audio_sample_rate'} = 44100 if ($info{'audio_sample_rate'} == 42501 || $info{'audio_sample_rate'} =~ /^44\d\d\d$/);
         $info{'aspect'} = '4:3';
@@ -216,6 +220,10 @@ package mythtv::nuvinfo;
                ."http://svn.mythtv.org/trac/newticket and attach the output from:\n\n"
                ."    $program -v -v -v -v -nolirc -nojoystick -vo null -ao null \\\n"
                ."             -frames 0 -identify '$file'\n\n";
+        }
+    # HD fix
+        if ($info{'height'} == 1080) {
+            $info{'height'} = 1088;
         }
     # Cleanup
         $info{'aspect'}   = aspect_str($info{'aspect'});
