@@ -298,9 +298,11 @@ package export::ffmpeg;
         $frames = 0;
         $fps = 0.0;
         $start = time();
-        my $total_frames = $episode->{'last_frame'} > 0
-                            ? $episode->{'last_frame'} - $episode->{'cutlist_frames'}
-                            : 0;
+        if ($episode->{'total_frames'} < 1) {
+            $episode->{'total_frames'} = $episode->{'last_frame'} > 0
+                                         ? $episode->{'last_frame'} - $episode->{'cutlist_frames'}
+                                         : 0;
+        }
     # Keep track of any warnings
         my $warnings    = '';
         my $death_timer = 0;
@@ -309,21 +311,24 @@ package export::ffmpeg;
         while ((keys %children) > 0) {
             my ($l, $pct);
         # Show progress
-            if ($frames && $total_frames) {
-                $pct = sprintf('%.2f', 100 * $frames / $total_frames);
+            if ($frames && $episode->{'total_frames'}) {
+                $pct = sprintf('%.2f', 100 * $frames / $episode->{'total_frames'});
                 $fps = sprintf('%.2f', ($frames * 1.0) / (time() - $start));
             }
             else {
                 $pct = '~';
             }
-            print "\rprocessed:  $frames of $total_frames frames at $fps fps ($pct\%, eta: ",
-                  $self->build_eta($frames, $total_frames, $fps),
+            print "\rprocessed:  $frames of $episode->{'total_frames'} frames at $fps fps ($pct\%, eta: ",
+                  $self->build_eta($frames, $episode->{'total_frames'}, $fps),
                   ')  ';
 
         # Read from the ffmpeg handle
             while (has_data($ffmpeg_h) and $l = <$ffmpeg_h>) {
                 if ($l =~ /frame=\s*(\d+)/) {
                     $frames = int($1);
+                    if ($episode->{'total_frames'} < $frames) {
+                        $episode->{'total_frames'} = $frames;
+                    }
                 }
             # ffmpeg warnings?
                 elsif ($l =~ /^Unknown.+?(codec|format)/m) {
@@ -357,7 +362,10 @@ package export::ffmpeg;
                     #if ($self->{'audioonly'}) {
                     #    $frames = int($1);
                     #}
-                    $total_frames ||= $2 - $episode->{'cutlist_frames'};
+                    my $total = $2 - $episode->{'cutlist_frames'};
+                    if ($episode->{'total_frames'} < $total) {
+                        $episode->{'total_frames'} = $total;
+                    }
                 }
             }
         # Has the deathtimer been started?  Stick around for awhile, but not too long
