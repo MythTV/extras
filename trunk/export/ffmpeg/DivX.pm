@@ -136,7 +136,7 @@ package export::ffmpeg::DivX;
                                    . ' -minrate 32 -maxrate '.(2*$self->{'v_bitrate'}).' -bt 32'
                                    . ' -bufsize 65535'
                                    . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} eq 'cvs' ? ' -mv4' : ' -4mv')
+                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
                                    . ' -part'
                                    . ' -vtag divx'
                                    . " -pass 1 -passlogfile '/tmp/divx.$$.log'"
@@ -151,7 +151,7 @@ package export::ffmpeg::DivX;
                                    . ' -minrate 32 -maxrate '.(2*$self->{'v_bitrate'}).' -bt 32'
                                    . ' -bufsize 65535'
                                    . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} eq 'cvs' ? ' -mv4' : ' -4mv')
+                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
                                    . ' -part'
                                    . ' -vtag divx'
                                    . ' -acodec mp3'
@@ -171,7 +171,7 @@ package export::ffmpeg::DivX;
                                        . ' -bufsize 65535'
                                        : '')
                                    . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} eq 'cvs' ? ' -mv4' : ' -4mv')
+                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
                                    . ' -part'
                                    . ' -vtag divx'
                                    . ' -acodec mp3'

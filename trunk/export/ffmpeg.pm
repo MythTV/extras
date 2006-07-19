@@ -62,6 +62,10 @@ package export::ffmpeg;
             if ($data =~ m/ffmpeg\sversion\s(.+?),(?:\sbuild\s(\d+))?/si) {
                 $self->{'ffmpeg_vers'}  = lc($1);
                 $self->{'ffmpeg_build'} = $2;
+                if ($self->{'ffmpeg_vers'} =~ /^svn-r(.+?)$/) {
+                    $self->{'ffmpeg_vers'}  = 'svn';
+                    $self->{'ffmpeg_build'} = $1;
+                }
             }
             else {
                 push @{$self->{'errors'}}, 'Unrecognizeable ffmpeg version string.';
@@ -175,7 +179,7 @@ package export::ffmpeg;
 
     # Start the ffmpeg command
         $ffmpeg .= "$NICE ffmpeg";
-        if ($self->{'ffmpeg_vers'} ne 'cvs') {
+        if ($self->{'ffmpeg_vers'} !~ /cvs|svn/) {
             $ffmpeg .= ' -hq';
         }
         if ($num_cpus > 1) {
