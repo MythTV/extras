@@ -5,7 +5,7 @@
 # $Author$
 
 # Version
-    $VERSION = '0.3 0.20060626.svn';
+    $VERSION = '0.3 0.20060719.svn';
 
 # Autoflush buffers
     $|++;
