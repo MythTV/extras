@@ -225,6 +225,10 @@ package mythtv::nuvinfo;
         if ($info{'height'} == 1080) {
             $info{'height'} = 1088;
         }
+    # mplayer is confused and we need to detect the aspect on our own
+        if ($info{'aspect'} =~ /^0.0/) {
+            $info{'aspect'} = $info{'width'} / $info{'height'};
+        }
     # Cleanup
         $info{'aspect'}   = aspect_str($info{'aspect'});
         $info{'aspect_f'} = aspect_float($info{'aspect'});
@@ -240,7 +244,6 @@ package mythtv::nuvinfo;
         $aspect =~ s/\,/\./;
     # Parse out decimal formats
         if ($aspect == 1)          { return '1:1';        }
-        elsif ($aspect =~ m/^0.0/) { return '4:3';        }     # mplayer is confused -- assume 4:3
         elsif ($aspect =~ m/^1.3/) { return '4:3';        }
         elsif ($aspect =~ m/^1.7/) { return '16:9';       }
         elsif ($aspect == 2.21)    { return '2.21:1';     }
