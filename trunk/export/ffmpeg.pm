@@ -71,6 +71,9 @@ package export::ffmpeg;
                 push @{$self->{'errors'}}, 'Unrecognizeable ffmpeg version string.';
             }
         }
+        if ($self->{'ffmpeg_vers'} !~ /cvs|svn/) {
+            die "This version of nuvexport requires either the cvs or svn version of ffmpeg.\n";
+        }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
     # Gather the supported codecs
@@ -179,9 +182,6 @@ package export::ffmpeg;
 
     # Start the ffmpeg command
         $ffmpeg .= "$NICE ffmpeg";
-        if ($self->{'ffmpeg_vers'} !~ /cvs|svn/) {
-            $ffmpeg .= ' -hq';
-        }
         if ($num_cpus > 1) {
             $ffmpeg .= ' -threads '.($num_cpus);
         }
