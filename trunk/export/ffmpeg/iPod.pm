@@ -1,9 +1,15 @@
+#!/usr/bin/perl -w
 #
-# $Date$
-# $Revision$
-# $Author$
+# ffmpeg-based iPod video module for nuvexport.
 #
-#  export::ffmpeg::iPod
+# Many thanks to cartman in #ffmpeg, and for the instructions at
+# http://rob.opendot.cl/index.php?active=3&subactive=1
+#
+# @url       $URL$
+# @date      $Date$
+# @version   $Revision$
+# @author    $Author$
+# @copyright Silicon Mechanics
 #
 
 package export::ffmpeg::iPod;
@@ -222,8 +228,6 @@ package export::ffmpeg::iPod;
         # Second Pass
             print "Final pass...\n";
             $self->{'ffmpeg_xtra'} = ' -pass 2 '
-                                    .' -acodec aac -ar 48000 -async 1'
-                                    .' -ab '.$self->{'a_bitrate'}
                                     .$ffmpeg_xtra;
             if ($self->{'ipod_codec'} eq 'h264') {
                 $self->{'ffmpeg_xtra'} .= ' -partitions partp8x8+partb8x8'
@@ -253,10 +257,11 @@ package export::ffmpeg::iPod;
                                        .' -qmax 51 -max_qdiff 4'
                                        .' -maxrate '.(2*$self->{'v_bitrate'})
                                       : '')
-                                    .' -acodec aac -ar 48000 -async 1'
-                                    .' -ab '.$self->{'a_bitrate'}
                                     .$ffmpeg_xtra;
         }
+    # Don't forget the audio, etc.
+        $self->{'ffmpeg_xtra'} .= ' -acodec aac -ar 48000 -async 1'
+                                 .' -ab '.$self->{'a_bitrate'};
     # Execute the (final pass) encode
         $self->SUPER::export($episode, '.mp4');
     }

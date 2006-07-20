@@ -268,10 +268,9 @@
 
 <ffmpeg::iPod>
 
-# Codec to use (xvid or h264).  Please note that h264 support is experimental.
-# I have not yet been able to export a file using h264 that actuall works,
-# despite the fact that I've tried my best to copy the ffmpeg parameters from
-# iSquint, which does work.
+# Codec to use (xvid or h264).  Please note that h264 support requires the
+# SVN version of ffmpeg (not CVS!).  In fact, even the xvid method works
+# better with the SVN version.
     ipod_codec = xvid
 
 </ffmpeg::iPod>
