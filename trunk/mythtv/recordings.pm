@@ -79,6 +79,8 @@ package mythtv::recordings;
     # Prepare a query to look up GOP info used to determine mpeg recording length
         $q = 'SELECT MAX(mark) FROM recordedmarkup WHERE chanid=? AND starttime=?';
         $sh  = $dbh->prepare($q);
+        $q2 = 'SELECT MAX(mark) FROM recordedseek WHERE chanid=? AND starttime=?';
+        $sh2  = $dbh->prepare($q2);
 
     # Prepare a query to pull out cutlist information
         my $c_q  = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type IN (0,1) ORDER BY mark';
@@ -119,6 +121,11 @@ package mythtv::recordings;
             $sh->execute($info{'chanid'}, $info{'starttime'})
                 or die "Could not execute ($q):  $!\n\n";
             ($info{'last_frame'}) = $sh->fetchrow_array();
+            if (!$info{'last_frame'} || $info{'last_frame'} < 1) {
+                $sh2->execute($info{'chanid'}, $info{'starttime'})
+                    or die "Could not execute ($q):  $!\n\n";
+                ($info{'last_frame'}) = $sh2->fetchrow_array();
+            }
         # Cleanup
             $info{'starttime_sep'} = $info{'starttime'};
             $info{'starttime_sep'} =~ s/\D+/-/sg;
