@@ -27,7 +27,7 @@ package export::ffmpeg::iPod;
     add_arg('a_bitrate|a=i',    'Audio bitrate');
     add_arg('v_bitrate|v=i',    'Video bitrate');
     add_arg('multipass!',       'Enable two-pass encoding.');
-    add_arg('ipod_codec=s',     'Video codec to use for iPod video (xvid or h264).');
+    add_arg('ipod_codec=s',     'Video codec to use for iPod video (mpeg4 or h264).');
 
     sub new {
         my $class = shift;
@@ -66,8 +66,8 @@ package export::ffmpeg::iPod;
         if (!$self->can_encode('aac')) {
             push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to aac audio.";
         }
-        if (!$self->can_encode('xvid') && !$self->can_encode('h264')) {
-            push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to either xvid or h264 video.";
+        if (!$self->can_encode('mpeg4') && !$self->can_encode('h264')) {
+            push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to either mpeg4 or h264 video.";
         }
     # Any errors?  disable this function
         $self->{'enabled'} = 0 if ($self->{'errors'} && @{$self->{'errors'}} > 0);
@@ -83,10 +83,10 @@ package export::ffmpeg::iPod;
     # Default settings
         $self->{'defaults'}{'v_bitrate'}  = 384;
         $self->{'defaults'}{'a_bitrate'}  = 64;
-        $self->{'defaults'}{'ipod_codec'} = 'xvid';
+        $self->{'defaults'}{'ipod_codec'} = 'mpeg4';
     # Verify commandline options
-        if ($self->val('ipod_codec') !~ /^(?:xvid|h264)$/i) {
-            die "ipod_codec must be either xvid or h264.\n";
+        if ($self->val('ipod_codec') !~ /^(?:mpeg4|h264)$/i) {
+            die "ipod_codec must be either mpeg4 or h264.\n";
         }
         $self->{'ipod_codec'} =~ tr/A-Z/a-z/;
 
@@ -106,22 +106,22 @@ package export::ffmpeg::iPod;
         # Video codec
             if ($self->{'ffmpeg_vers'} eq 'svn') {
                 while (1) {
-                    my $codec = query_text('Video codec (xvid or h264)?',
+                    my $codec = query_text('Video codec (mpeg4 or h264)?',
                                            'string',
                                            $self->{'ipod_codec'});
                     if ($codec =~ /^x/) {
-                        $self->{'ipod_codec'} = 'xvid';
+                        $self->{'ipod_codec'} = 'mpeg4';
                         last;
                     }
                     elsif ($codec =~ /^h/) {
                         $self->{'ipod_codec'} = 'h264';
                         last;
                     }
-                    print "Please choose either xvid or h264\n";
+                    print "Please choose either mpeg4 or h264\n";
                 }
             }
             else {
-                $self->{'ipod_codec'} = 'xvid';
+                $self->{'ipod_codec'} = 'mpeg4';
                 print "Using the mpeg4 codec (h.264 ipod encoding requires the svn version of ffmpeg.)\n";
             }
         # Video bitrate options
@@ -193,9 +193,6 @@ package export::ffmpeg::iPod;
             push @tmpfiles, 'x264_2pass.log',
                             'x264_2pass.log.temp',
                             'ffmpeg2pass-0.log';
-        # Back up the path and use /dev/null for the first pass
-            my $path_bak = $self->{'path'};
-            $self->{'path'} = '/dev/null';
         # A couple of extra options required for h.264
             if ($self->{'ipod_codec'} eq 'h264') {
                 $ffmpeg_xtra .= ' -vcodec h264'
@@ -214,7 +211,6 @@ package export::ffmpeg::iPod;
         # Build the ffmpeg string
             print "First pass...\n";
             $self->{'ffmpeg_xtra'} = ' -pass 1 '
-                                    .' -acodec copy'
                                     .$ffmpeg_xtra
                                     .' -qcompress 0.6 -qmin 10 -qmax 51 -max_qdiff 4'
                                     .' -f mp4';
@@ -222,9 +218,7 @@ package export::ffmpeg::iPod;
                 $self->{'ffmpeg_xtra'} .= ' -partitions 0 -flags2 0 -me_method 5'
                                          .' -subq 1 -trellis 0 -refs 1';
             }
-            $self->SUPER::export($episode, '');
-        # Restore the path
-            $self->{'path'} = $path_bak;
+            $self->SUPER::export($episode, '', 1);
         # Second Pass
             print "Final pass...\n";
             $self->{'ffmpeg_xtra'} = ' -pass 2 '

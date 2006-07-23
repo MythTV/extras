@@ -126,6 +126,7 @@ package export::ffmpeg;
         my $self    = shift;
         my $episode = shift;
         my $suffix  = (shift or '');
+        my $firstpass = (shift or 0);
     # Init the commands
         my $ffmpeg        = '';
         my $mythtranscode = '';
@@ -142,6 +143,7 @@ package export::ffmpeg;
         my $mythtranscode_bin = find_program('mythtranscode');
         $mythtranscode = "$NICE $mythtranscode_bin --showprogress -p $episode->{'transcoder'} -c $episode->{'channel'} -s $episode->{'start_time_sep'} -f \"/tmp/fifodir_$$/\"";
         $mythtranscode .= ' --honorcutlist' if ($self->{'use_cutlist'});
+        $mythtranscode .= ' --fifosync'     if ($self->{'audioonly'} || $firstpass);
 
         my $videofifo = "/tmp/fifodir_$$/vidout";
         my $videotype = 'rawvideo -pix_fmt yuv420p';
@@ -152,10 +154,8 @@ package export::ffmpeg;
         my $height;
         my $width;
 
-        if ($self->{'audioonly'}) {
-            $ffmpeg .= "cat /tmp/fifodir_$$/vidout > /dev/null | ";
-        }
-        else {
+    # Standard encodes
+        if (!$self->{'audioonly'}) {
         # Do noise reduction -- ffmpeg's -nr flag doesn't seem to do anything other than prevent denoise from working
             if ($self->{'noise_reduction'}) {
                 $ffmpeg .= "$NICE ffmpeg -f rawvideo";
@@ -185,10 +185,12 @@ package export::ffmpeg;
         if ($num_cpus > 1) {
             $ffmpeg .= ' -threads '.($num_cpus);
         }
-        $ffmpeg .= ' -y -f '.($Config{'byteorder'} == 4321 ? 's16be' : 's16le');
-        $ffmpeg .= ' -ar ' . $episode->{'finfo'}{'audio_sample_rate'};
-        $ffmpeg .= ' -ac ' . $episode->{'finfo'}{'audio_channels'};
-        $ffmpeg .= " -i /tmp/fifodir_$$/audout";
+        $ffmpeg .= ' -y -f '.($Config{'byteorder'} == 4321 ? 's16be' : 's16le')
+                  .' -ar ' . $episode->{'finfo'}{'audio_sample_rate'}
+                  .' -ac ' . $episode->{'finfo'}{'audio_channels'};
+        if (!$firstpass) {
+            $ffmpeg .= " -i /tmp/fifodir_$$/audout";
+        }
         if (!$self->{'audioonly'}) {
             $ffmpeg .= " -f $videotype"
                       .' -s ' . $episode->{'finfo'}{'width'} . 'x' . $episode->{'finfo'}{'height'}
@@ -271,7 +273,7 @@ package export::ffmpeg;
         $ffmpeg .= ' '.$self->{'ffmpeg_xtra'};
 
     # Output directory set to null means the first pass of a multipass
-        if (!$self->{'path'} || $self->{'path'} =~ /^\/dev\/null\b/) {
+        if ($firstpass || !$self->{'path'} || $self->{'path'} =~ /^\/dev\/null\b/) {
             $ffmpeg .= ' /dev/null';
         }
     # Add the output filename
@@ -288,6 +290,15 @@ package export::ffmpeg;
         fifos_wait("/tmp/fifodir_$$/");
         push @tmpfiles, "/tmp/fifodir_$$", "/tmp/fifodir_$$/audout", "/tmp/fifodir_$$/vidout";
 
+    # For multipass encodes, we don't need the audio on the first pass
+        if ($self->{'audioonly'}) {
+            my ($cat_pid, $cat_h) = fork_command("cat /tmp/fifodir_$$/vidout > /dev/null");
+            $children{$cat_pid} = 'video dump' if ($cat_pid);
+        }
+        elsif ($firstpass) {
+            my ($cat_pid, $cat_h) = fork_command("cat /tmp/fifodir_$$/audout > /dev/null");
+            $children{$cat_pid} = 'audio dump' if ($cat_pid);
+        }
     # Execute ffmpeg
         print "Starting ffmpeg.\n" unless ($DEBUG);
         ($ffmpeg_pid, $ffmpeg_h) = fork_command("$ffmpeg 2>&1");
