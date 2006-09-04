@@ -107,7 +107,7 @@ package export::NUV_SQL;
         my ($q, $sh);
     # Load and save the related database info
         print DATA "USE mythconverg;\n\n";
-        foreach $table ('recorded', 'oldrecorded', 'recordedmarkup') {
+        foreach $table ('recorded', 'oldrecorded', 'recordedmarkup', 'recordedseek') {
             $q = "SELECT * FROM $table WHERE chanid=? AND starttime=?";
             $sh = $dbh->prepare($q);
             $sh->execute($episode->{'channel'}, $episode->{'start_time'})
