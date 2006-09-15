@@ -112,7 +112,7 @@ package export::ffmpeg::MP4;
                     my $codec = query_text('Video codec (mpeg4 or h264)?',
                                            'string',
                                            $self->{'mp4_codec'});
-                    if ($codec =~ /^x/) {
+                    if ($codec =~ /^m/) {
                         $self->{'mp4_codec'} = 'mpeg4';
                         last;
                     }
