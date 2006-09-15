@@ -12,7 +12,7 @@
 # @copyright Silicon Mechanics
 #
 
-package export::ffmpeg::iPod;
+package export::ffmpeg::MP4;
     use base 'export::ffmpeg';
 
 # Load the myth and nuv utilities, and make sure we're connected to the database
