@@ -266,14 +266,14 @@
 
 </ffmpeg::PSP>
 
-<ffmpeg::iPod>
+<ffmpeg::MP4>
 
 # Codec to use (mpeg4 or h264).  Please note that h264 support requires the
-# SVN version of ffmpeg (not CVS!).  In fact, even the mpeg4 method works
+# SVN version of ffmpeg (not CVS!).  In fact, even the mpeg4 codec works
 # better with the SVN version.
     ipod_codec = mpeg4
 
-</ffmpeg::iPod>
+</ffmpeg::MP4>
 
 <mencoder::XviD>
 

@@ -5,7 +5,7 @@
 # $Author$
 
 # Version
-    $VERSION = '0.3 0.20060719.svn';
+    $VERSION = '0.3 0.20060915.svn';
 
 # Autoflush buffers
     $|++;
@@ -60,7 +60,7 @@
         require export::ffmpeg::ASF;
         require export::ffmpeg::MP3;
         require export::ffmpeg::PSP;
-        require export::ffmpeg::iPod;
+        require export::ffmpeg::MP4;
     }
     elsif ($export_prog eq 'mencoder') {
         find_program('mencoder')

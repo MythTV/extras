@@ -63,6 +63,11 @@ package nuv_export::cli;
         while ($data =~ /<\s*([^>]+)\s*>(.+?)<\s*\/\s*\1\s*>/sg) {
             my $section = lc($1);
             my $args    = $2;
+        # Handle legacy corrections
+            if ($section eq 'ffmpeg::ipod') {
+                die "Please be aware that the ffmpeg::ipod section of $file should now be called ffmpeg:mp4\n";
+            }
+        # Extract the variables
             while ($args =~ /^\s*(\S+?)\s*=\s*(.+?)\s*$/mg) {
                 my $var = lc($1);
                 my $val = $2;

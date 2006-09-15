@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# ffmpeg-based iPod video module for nuvexport.
+# ffmpeg-based MP4 (iPod) video module for nuvexport.
 #
 # Many thanks to cartman in #ffmpeg, and for the instructions at
 # http://rob.opendot.cl/index.php?active=3&subactive=1
@@ -27,13 +27,13 @@ package export::ffmpeg::iPod;
     add_arg('a_bitrate|a=i',    'Audio bitrate');
     add_arg('v_bitrate|v=i',    'Video bitrate');
     add_arg('multipass!',       'Enable two-pass encoding.');
-    add_arg('ipod_codec=s',     'Video codec to use for iPod video (mpeg4 or h264).');
+    add_arg('mp4_codec=s',      'Video codec to use for MP4/iPod video (mpeg4 or h264).');
 
     sub new {
         my $class = shift;
         my $self  = {
-                     'cli'      => qr/\bipod\b/i,
-                     'name'     => 'Export to iPod',
+                     'cli'      => qr/\b(?:mp4|ipod)\b/i,
+                     'name'     => 'Export to MP4 (iPod)',
                      'enabled'  => 1,
                      'errors'   => [],
                      'defaults' => {},
@@ -46,6 +46,8 @@ package export::ffmpeg::iPod;
     # Verify any commandline or config file options
         die "Audio bitrate must be > 0\n" unless (!defined $self->val('a_bitrate') || $self->{'a_bitrate'} > 0);
         die "Video bitrate must be > 0\n" unless (!defined $self->val('v_bitrate') || $self->{'v_bitrate'} > 0);
+        die "Width must be > 0\n"         unless (!defined $self->val('width')     || $self->{'width'} =~ /^\s*\D/  || $self->{'width'}  > 0);
+        die "Height must be > 0\n"        unless (!defined $self->val('height')    || $self->{'height'} =~ /^\s*\D/ || $self->{'height'} > 0);
 
     # VBR, multipass, etc.
         if ($self->val('multipass')) {
@@ -59,7 +61,7 @@ package export::ffmpeg::iPod;
     # Initialize and check for ffmpeg
         $self->init_ffmpeg();
 
-    # Can we even encode ipod?
+    # Can we even encode mp4?
         if (!$self->can_encode('mp4')) {
             push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to mp4 file formats.";
         }
@@ -83,12 +85,13 @@ package export::ffmpeg::iPod;
     # Default settings
         $self->{'defaults'}{'v_bitrate'}  = 384;
         $self->{'defaults'}{'a_bitrate'}  = 64;
-        $self->{'defaults'}{'ipod_codec'} = 'mpeg4';
+        $self->{'defaults'}{'width'}      = 320;
+        $self->{'defaults'}{'mp4_codec'}  = 'mpeg4';
     # Verify commandline options
-        if ($self->val('ipod_codec') !~ /^(?:mpeg4|h264)$/i) {
-            die "ipod_codec must be either mpeg4 or h264.\n";
+        if ($self->val('mp4_codec') !~ /^(?:mpeg4|h264)$/i) {
+            die "mp4_codec must be either mpeg4 or h264.\n";
         }
-        $self->{'ipod_codec'} =~ tr/A-Z/a-z/;
+        $self->{'mp4_codec'} =~ tr/A-Z/a-z/;
 
     }
 
@@ -108,21 +111,21 @@ package export::ffmpeg::iPod;
                 while (1) {
                     my $codec = query_text('Video codec (mpeg4 or h264)?',
                                            'string',
-                                           $self->{'ipod_codec'});
+                                           $self->{'mp4_codec'});
                     if ($codec =~ /^x/) {
-                        $self->{'ipod_codec'} = 'mpeg4';
+                        $self->{'mp4_codec'} = 'mpeg4';
                         last;
                     }
                     elsif ($codec =~ /^h/) {
-                        $self->{'ipod_codec'} = 'h264';
+                        $self->{'mp4_codec'} = 'h264';
                         last;
                     }
                     print "Please choose either mpeg4 or h264\n";
                 }
             }
             else {
-                $self->{'ipod_codec'} = 'mpeg4';
-                print "Using the mpeg4 codec (h.264 ipod encoding requires the svn version of ffmpeg.)\n";
+                $self->{'mp4_codec'} = 'mpeg4';
+                print "Using the mpeg4 codec (h.264 mp4/ipod encoding requires the svn version of ffmpeg.)\n";
             }
         # Video bitrate options
             $self->{'vbr'} = query_text('Variable bitrate video?',
@@ -158,43 +161,46 @@ package export::ffmpeg::iPod;
                                               $self->val('v_bitrate'));
         }
     # Complain about h264
-        if ($self->{'ipod_codec'} eq 'h264' && $self->{'ffmpeg_vers'} ne 'svn') {
-            die "h.264 ipod encoding requires the svn version of ffmpeg.\n";
+        if ($self->{'mp4_codec'} eq 'h264' && $self->{'ffmpeg_vers'} ne 'svn') {
+            die "h.264 mp4/ipod encoding requires the svn version of ffmpeg.\n";
+        }
+    # Query the resolution
+        $self->query_resolution();
+    # Warn about ipod resolution
+        if ($self->{'height'} > 480 || $self->{'width'} > 720) {
+            print "WARNING:  Video larger than 720x480 will not play on an iPod.\n";
         }
     }
 
     sub export {
         my $self    = shift;
         my $episode = shift;
-    # Force to 4:3 aspect ratio
-        $self->{'out_aspect'}       = 1.3333;
+    # Make sure this is set to anamorphic mode
         $self->{'aspect_stretched'} = 1;
     # PAL or NTSC?
         my $standard = ($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 'PAL' : 'NTSC';
-        $self->{'width'}   = 320;
-        $self->{'height'}  = ($standard eq 'PAL') ? '288' : '240';
-        $self->{'out_fps'} = ($standard eq 'PAL') ? 25    : 23.976023976;
+        $self->{'out_fps'} = ($standard eq 'PAL') ? 25 : 23.976023976;
     # Embed the title
         my $safe_title = shell_escape($episode->{'show_name'}.' - '.$episode->{'title'});
     # Build the common ffmpeg string
-        my $ffmpeg_xtra  = ' -vcodec '.$self->{'ipod_codec'}
+        my $ffmpeg_xtra  = ' -vcodec '.$self->{'mp4_codec'}
                           .' -b '     .$self->{'v_bitrate'}
                           ." -title $safe_title";
     # Dual pass?
         if ($self->{'multipass'}) {
         # Apparently, the -passlogfile option doesn't work for h264, so we need
         # to be aware of other processes that might be working in this directory
-            if ($self->{'ipod_codec'} eq 'h264' && (-e 'x264_2pass.log.temp' || -e 'x264_2pass.log')) {
+            if ($self->{'mp4_codec'} eq 'h264' && (-e 'x264_2pass.log.temp' || -e 'x264_2pass.log')) {
                 die "ffmpeg does not allow us to specify the name of the multi-pass log\n"
                    ."file, and x264_2pass.log exists in this directory already.  Please\n"
                    ."wait for the other process to finish, or remove the stale file.\n";
             }
-        # Add the temporary files to the list
+        # Add all possible temporary files to the list
             push @tmpfiles, 'x264_2pass.log',
                             'x264_2pass.log.temp',
                             'ffmpeg2pass-0.log';
         # A couple of extra options required for h.264
-            if ($self->{'ipod_codec'} eq 'h264') {
+            if ($self->{'mp4_codec'} eq 'h264') {
                 $ffmpeg_xtra .= ' -vcodec h264'
                                .' -level 13'
                                .' -flags +loop -chroma 1'
@@ -214,7 +220,7 @@ package export::ffmpeg::iPod;
                                     .$ffmpeg_xtra
                                     .' -qcompress 0.6 -qmin 10 -qmax 51 -max_qdiff 4'
                                     .' -f mp4';
-            if ($self->{'ipod_codec'} eq 'h264') {
+            if ($self->{'mp4_codec'} eq 'h264') {
                 $self->{'ffmpeg_xtra'} .= ' -partitions 0 -flags2 0 -me_method 5'
                                          .' -subq 1 -trellis 0 -refs 1';
             }
@@ -223,7 +229,7 @@ package export::ffmpeg::iPod;
             print "Final pass...\n";
             $self->{'ffmpeg_xtra'} = ' -pass 2 '
                                     .$ffmpeg_xtra;
-            if ($self->{'ipod_codec'} eq 'h264') {
+            if ($self->{'mp4_codec'} eq 'h264') {
                 $self->{'ffmpeg_xtra'} .= ' -partitions partp8x8+partb8x8'
                                          .' -flags2 +mixed_refs -me_method 8'
                                          .' -subq 7 -trellis 2 -refs 5';
@@ -231,7 +237,7 @@ package export::ffmpeg::iPod;
         }
     # Single Pass
         else {
-            if ($self->{'ipod_codec'} eq 'h264') {
+            if ($self->{'mp4_codec'} eq 'h264') {
                 $ffmpeg_xtra .= ' -vcodec h264'
                                .' -flags +loop -chroma 1 -partitions partp8x8+partb8x8'
                                .' -flags2 +mixed_refs -me_method 8 -subq 7 -trellis 2'
