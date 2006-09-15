@@ -25,7 +25,7 @@ EXPORT_MODULES	  = export/generic.pm         \
 		    export/ffmpeg/DVD.pm      \
 		    export/ffmpeg/VCD.pm      \
 		    export/ffmpeg/PSP.pm      \
-		    export/ffmpeg/iPod.pm     \
+		    export/ffmpeg/MP4.pm      \
 		    export/mencoder/XviD.pm
 MODULE_SUBDIRS    = transcode \
 		    ffmpeg    \
