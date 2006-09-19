@@ -1,11 +1,11 @@
-#!/usr/bin/perl -w
 #
-# $Date$
-# $Revision$
-# $Author$
+# ffmpeg-based XviD export module for nuvexport.
 #
-#  export::ffmpeg::XviD
-#  Maintained by Chris Petersen <mythtv@forevermore.net>
+# @url       $URL$
+# @date      $Date$
+# @version   $Revision$
+# @author    $Author$
+# @copyright Silicon Mechanics
 #
 
 package export::ffmpeg::XviD;
@@ -60,6 +60,9 @@ package export::ffmpeg::XviD;
         if (!$self->can_encode('xvid')) {
             push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to xvid.\n"
                                       ."  (It must be compiled with the --enable-xvid option)";
+        }
+        if (!$self->can_encode('mp3')) {
+            push @{$self->{'errors'}}, "Your ffmpeg installation doesn't support encoding to mp3 audio.";
         }
 
     # Any errors?  disable this function
@@ -131,59 +134,50 @@ package export::ffmpeg::XviD;
         my $episode = shift;
     # Make sure we have the framerate
         $self->{'out_fps'} = $episode->{'finfo'}{'fps'};
+    # Embed the title
+        my $safe_title = shell_escape($episode->{'show_name'}.' - '.$episode->{'title'});
+    # Build the common ffmpeg string
+        my $ffmpeg_xtra  = ' -vcodec xvid'
+                          .' -b '.$self->{'v_bitrate'}
+                          .($self->{'vbr'}
+                            ? ' -bt 32 -minrate 32 -maxrate '.(2*$self->{'v_bitrate'})
+                             .' -bufsize 65535'
+                            : '')
+                          .' -flags +4mv+trell+loop'
+                          .' -aic 1'
+                          .' -mbd 1'
+                          .' -cmp 2 -subcmp 2'
+                          .' -cgop 1'
+                          .' -max_b_frames 1'
+                          .' -b_quant_factor 150'
+                          .' -b_quant_offset 100'
+                          ;
     # Dual pass?
         if ($self->{'multipass'}) {
         # Add the temporary file to the list
             push @tmpfiles, "/tmp/xvid.$$.log";
-        # Back up the path and use /dev/null for the first pass
-            my $path_bak = $self->{'path'};
-            $self->{'path'} = '/dev/null';
         # First pass
             print "First pass...\n";
-            $self->{'ffmpeg_xtra'} = ' -vcodec xvid'
-                                   . ' -b ' . $self->{'v_bitrate'}
-                                   . ' -minrate 32 -maxrate '.(2*$self->{'v_bitrate'}).' -bt 32'
-                                   . ' -bufsize 65535'
-                                   . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
-                                   . ' -part'
-                                   . " -pass 1 -passlogfile '/tmp/xvid.$$.log'"
-                                   . ' -f avi';
-            $self->SUPER::export($episode, '');
-        # Restore the path
-            $self->{'path'} = $path_bak;
+            $self->{'ffmpeg_xtra'} = $ffmpeg_xtra
+                                    ." -pass 1 -passlogfile '/tmp/xvid.$$.log'"
+                                    .' -f avi';
+            $self->SUPER::export($episode, '', 1);
         # Second pass
             print "Final pass...\n";
-            $self->{'ffmpeg_xtra'} = ' -vcodec xvid'
-                                   . ' -b ' . $self->{'v_bitrate'}
-                                   . ' -minrate 32 -maxrate '.(2*$self->{'v_bitrate'}).' -bt 32'
-                                   . ' -bufsize 65535'
-                                   . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
-                                   . ' -part'
-                                   . ' -acodec mp3'
-                                   . ' -ab ' . $self->{'a_bitrate'}
-                                   . " -pass 2 -passlogfile '/tmp/xvid.$$.log'"
-                                   . ' -f avi';
+            $self->{'ffmpeg_xtra'} = $ffmpeg_xtra
+                                   . " -pass 2 -passlogfile '/tmp/xvid.$$.log'";
         }
     # Single Pass
         else {
-            $self->{'ffmpeg_xtra'} = ' -vcodec xvid'
-                                   . ' -b ' . $self->{'v_bitrate'}
-                                   . (($self->{'vbr'})
-                                      ? " -qmin $self->{'quantisation'}"
-                                      . ' -qmax 31 -minrate 32'
-                                      . ' -maxrate '.(2*$self->{'v_bitrate'})
-                                      . ' -bt 32'
-                                      . ' -bufsize 65535'
-                                      : '')
-                                   . ' -lumi_mask 0.05 -dark_mask 0.02 -scplx_mask 0.5'
-                                   . ($self->{'ffmpeg_vers'} =~ /cvs|svn/ ? ' -mv4' : ' -4mv')
-                                   . ' -part'
-                                   . ' -acodec mp3'
-                                   . ' -ab ' . $self->{'a_bitrate'}
-                                   . ' -f avi';
+            $self->{'ffmpeg_xtra'} = $ffmpeg_xtra
+                                    .($self->{'vbr'}
+                                      ? ' -qmax 31 -qmin '.$self->{'quantisation'}
+                                      : '');
         }
+    # Don't forget the audio, etc.
+        $self->{'ffmpeg_xtra'} .= ' -acodec mp3 -async 1'
+                                 .' -ab '.$self->{'a_bitrate'}
+                                 .' -f avi';
     # Execute the (final pass) encode
         $self->SUPER::export($episode, '.avi');
     }
