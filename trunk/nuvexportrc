@@ -273,6 +273,10 @@
 # better with the SVN version.
     mp4_codec = mpeg4
 
+# Framerate to use:  auto, 25, 23.97, 29.97.  PAL will always be 25 fps, and
+# auto will set 29.97 for everything over 320x288 and 23.97 for the rest.
+    mp4_fps = auto
+
 </ffmpeg::MP4>
 
 <mencoder::XviD>

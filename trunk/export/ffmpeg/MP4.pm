@@ -4,6 +4,7 @@
 #
 # Many thanks to cartman in #ffmpeg, and for the instructions at
 # http://rob.opendot.cl/index.php?active=3&subactive=1
+# http://videotranscoding.wikispaces.com/EncodeForIPodorPSP
 #
 # @url       $URL$
 # @date      $Date$
@@ -28,6 +29,7 @@ package export::ffmpeg::MP4;
     add_arg('v_bitrate|v=i',    'Video bitrate');
     add_arg('multipass!',       'Enable two-pass encoding.');
     add_arg('mp4_codec=s',      'Video codec to use for MP4/iPod video (mpeg4 or h264).');
+    add_arg('mp4_fps=s',        'Framerate to use:  auto, 25, 23.97, 29.97');
 
     sub new {
         my $class = shift;
@@ -177,15 +179,55 @@ package export::ffmpeg::MP4;
         my $episode = shift;
     # Make sure this is set to anamorphic mode
         $self->{'aspect_stretched'} = 1;
-    # PAL or NTSC?
+    # Framerate
         my $standard = ($episode->{'finfo'}{'fps'} =~ /^2(?:5|4\.9)/) ? 'PAL' : 'NTSC';
-        $self->{'out_fps'} = ($standard eq 'PAL') ? 25 : 23.976023976;
+        if ($standard eq 'PAL') {
+            $self->{'out_fps'} = 25;
+        }
+        elsif ($self->val('mp4_fps') =~ /^23/) {
+            $self->{'out_fps'} = 23.97;
+        }
+        elsif ($self->val('mp4_fps') =~ /^29/) {
+            $self->{'out_fps'} = 29.97;
+        }
+        else {
+            $self->{'out_fps'} = ($self->{'width'} > 320 || $self->{'height'} > 288) ? 29.97 : 23.97;
+        }
     # Embed the title
         my $safe_title = shell_escape($episode->{'show_name'}.' - '.$episode->{'title'});
     # Build the common ffmpeg string
         my $ffmpeg_xtra  = ' -vcodec '.$self->{'mp4_codec'}
                           .' -b '     .$self->{'v_bitrate'}
                           ." -title $safe_title";
+    # Options required for the codecs separately
+        if ($self->{'mp4_codec'} eq 'h264') {
+            $ffmpeg_xtra .= ' -vcodec h264'
+                           .' -level 13'
+                           .' -loop 1'
+                           .' -g 250 -keyint_min 25'
+                           .' -bit_rate_tolerance '.$self->{'v_bitrate'}
+                           .' -rc_max_rate 768 -rc_buffer_size 244'
+                           .' -sc_threshold 40'
+                           .' -i_quant_factor 0.71428572 -b_quant_factor 0.76923078'
+                           .' -max_b_frames 0'
+                           .' -rc_eq \'blurCplx^(1-qComp)\''
+                           # These should match the defaults:
+                           #.' -me epzs' #(could do "full" but it's only marginally better for less than 1/3 the speed)
+                           ;
+        }
+        else {
+           $ffmpeg_xtra .= ' -flags +4mv+trell+loop'
+                          .' -aic 1'
+                          .' -mbd 1'
+                          .' -cmp 2 -subcmp 2'
+                          ;
+        }
+    # Some shared options
+        if ($self->{'multipass'} || $self->{'vbr'}) {
+            $ffmpeg_xtra .= ' -qcompress 0.6'
+                           .' -qmax 51 -max_qdiff 4'
+                           ;
+        }
     # Dual pass?
         if ($self->{'multipass'}) {
         # Apparently, the -passlogfile option doesn't work for h264, so we need
@@ -199,69 +241,46 @@ package export::ffmpeg::MP4;
             push @tmpfiles, 'x264_2pass.log',
                             'x264_2pass.log.temp',
                             'ffmpeg2pass-0.log';
-        # A couple of extra options required for h.264
-            if ($self->{'mp4_codec'} eq 'h264') {
-                $ffmpeg_xtra .= ' -vcodec h264'
-                               .' -level 13'
-                               .' -flags +loop -chroma 1'
-                               .' -keyint_min 25 -sc_threshold 40 -i_quant_factor 0.71'
-                               .' -bit_rate_tolerance '.$self->{'v_bitrate'}
-                               .' -rc_max_rate 768000 -rc_buffer_size 2000000'
-                               .' -rc_eq \'blurCplx^(1-qComp)\''
-                               .' -coder 0 -me_range 16 -gop_size 250';
-            }
-            else {
-                $ffmpeg_xtra .= ' -mbd 2 -flags +4mv+trell -aic 2'
-                               .' -cmp 2 -subcmp 2';
-            }
         # Build the ffmpeg string
             print "First pass...\n";
-            $self->{'ffmpeg_xtra'} = ' -pass 1 '
+            $self->{'ffmpeg_xtra'} = ' -pass 1'
                                     .$ffmpeg_xtra
-                                    .' -qcompress 0.6 -qmin 10 -qmax 51 -max_qdiff 4'
                                     .' -f mp4';
             if ($self->{'mp4_codec'} eq 'h264') {
-                $self->{'ffmpeg_xtra'} .= ' -partitions 0 -flags2 0 -me_method 5'
-                                         .' -subq 1 -trellis 0 -refs 1';
+                $self->{'ffmpeg_xtra'} .= ' -refs 1 -subq 1'
+                                         .' -trellis 0'
+                                         ;
             }
             $self->SUPER::export($episode, '', 1);
         # Second Pass
             print "Final pass...\n";
-            $self->{'ffmpeg_xtra'} = ' -pass 2 '
-                                    .$ffmpeg_xtra;
-            if ($self->{'mp4_codec'} eq 'h264') {
-                $self->{'ffmpeg_xtra'} .= ' -partitions partp8x8+partb8x8'
-                                         .' -flags2 +mixed_refs -me_method 8'
-                                         .' -subq 7 -trellis 2 -refs 5';
-            }
+            $ffmpeg_xtra = ' -pass 2 '
+                          .$ffmpeg_xtra;
         }
     # Single Pass
         else {
-            if ($self->{'mp4_codec'} eq 'h264') {
-                $ffmpeg_xtra .= ' -vcodec h264'
-                               .' -flags +loop -chroma 1 -partitions partp8x8+partb8x8'
-                               .' -flags2 +mixed_refs -me_method 8 -subq 7 -trellis 2'
-                               .' -refs 5 -coder 0 -me_range 16 -gop_size 250'
-                               .' -keyint_min 25 -sc_threshold 40 -i_quant_factor 0.71'
-                               .' -bit_rate_tolerance '.$self->{'v_bitrate'}
-                               .' -rc_max_rate 768000 -rc_buffer_size 2000000'
-                               .' -rc_eq \'blurCplx^(1-qComp)\''
-                               .' -level 13';
+            if ($self->{'vbr'}) {
+                $ffmpeg_xtra .= ' -qmin '.$self->{'quantisation'};
             }
-            else {
-                $ffmpeg_xtra .= ' -mbd 2 -flags +4mv+trell -aic 2'
-                               .' -cmp 2 -subcmp 2';
-            }
-            $self->{'ffmpeg_xtra'} = ($self->{'vbr'}
-                                      ? ' -qcompress 0.6 -qmin '.$self->{'quantisation'}
-                                       .' -qmax 51 -max_qdiff 4'
-                                       .' -maxrate '.(2*$self->{'v_bitrate'})
-                                      : '')
-                                    .$ffmpeg_xtra;
+        }
+    # Single/final pass options
+        if ($self->{'mp4_codec'} eq 'h264') {
+            $ffmpeg_xtra .= ' -refs 5 -subq 7'
+                           .' -partitions parti4x4+parti8x8+partp4x4+partp8x8+partb8x8'
+                           .' -flags2 +bpyramid+wpred+mixed_refs+8x8dct+brdo'
+                           .' -me_range 21'
+                           .' -trellis 2'
+                           .' -chroma 1'
+                           .' -slice 2'
+                           .' -cmp 1'
+                           # These should match the defaults:
+                           .' -deblockalpha 0 -deblockbeta 0'
+                           ;
         }
     # Don't forget the audio, etc.
-        $self->{'ffmpeg_xtra'} .= ' -acodec aac -ar 48000 -async 1'
-                                 .' -ab '.$self->{'a_bitrate'};
+        $self->{'ffmpeg_xtra'} = $ffmpeg_xtra
+                                .' -acodec aac -ar 48000 -async 1'
+                                .' -ab '.$self->{'a_bitrate'};
     # Execute the (final pass) encode
         $self->SUPER::export($episode, '.mp4');
     }
