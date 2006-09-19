@@ -239,7 +239,7 @@
 </XviD>
 
 #
-#  Default mp3 bitrate is 128
+#  Default mp3 bitrate in MythTV is 128
 #
 <MP3>
     bitrate = 128
@@ -250,6 +250,25 @@
 #    use its full name, and it will override any more generic settings.
 #
 
+#
+# The MP4 encoder for ffmpeg has a couple of options unique to itself
+#
+<ffmpeg::MP4>
+
+# Codec to use (mpeg4 or h264).  Please note that h264 support requires the
+# SVN version of ffmpeg (not CVS!).  In fact, even the mpeg4 codec works
+# better with the SVN version.
+    mp4_codec = mpeg4
+
+# Framerate to use:  auto, 25, 23.97, 29.97.  PAL will always be 25 fps, and
+# auto will set 29.97 for everything over 320x288 and 23.97 for the rest.
+    mp4_fps = auto
+
+</ffmpeg::MP4>
+
+#
+# As does the PSP exporter
+#
 <ffmpeg::PSP>
 
 # PSP framerate (high=29.97, low=14.985)
@@ -266,22 +285,29 @@
 
 </ffmpeg::PSP>
 
-<ffmpeg::MP4>
-
-# Codec to use (mpeg4 or h264).  Please note that h264 support requires the
-# SVN version of ffmpeg (not CVS!).  In fact, even the mpeg4 codec works
-# better with the SVN version.
-    mp4_codec = mpeg4
-
-# Framerate to use:  auto, 25, 23.97, 29.97.  PAL will always be 25 fps, and
-# auto will set 29.97 for everything over 320x288 and 23.97 for the rest.
-    mp4_fps = auto
-
-</ffmpeg::MP4>
-
+#
+# You can also add flags to the one and only mencoder option
+#
 <mencoder::XviD>
 
     multipass = no
 
 </mencoder::XviD>
+
+#
+# You can also make specific profiles called with the --profile parameter that
+# will override other config options (but not commandline arguments).
+#
+# For example, you could make a profile that would encode your favorite show
+# with your favorite settings.
+#
+<profile::sample>
+
+    title       = test
+
+    export_prog = transcode
+    mode        = xvid
+    confirm     = true
+
+</profile::sample>
 

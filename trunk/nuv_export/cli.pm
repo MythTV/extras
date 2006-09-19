@@ -27,6 +27,17 @@ package nuv_export::cli;
                         /;
     }
 
+
+# Debug mode?
+    our $DEBUG;
+
+# Look for certain commandline options to determine if this is cli-mode
+    our $is_cli = 0;
+
+# Only need to keep track of cli args here
+    my %cli_args;
+    my %args;
+
 # Load some options early, before anything else:
 # --ffmpeg, --transcode and --config
     our $export_prog = undef;
@@ -35,6 +46,7 @@ package nuv_export::cli;
                'transcode'  => sub { $export_prog = 'transcode'; },
                'mencoder'   => sub { $export_prog = 'mencoder';  },
                'config|c=s' => \$config_file,
+               'profile=s'  => \$args{'profile'},
               );
 
 # Make sure the specified config file exists
@@ -87,9 +99,20 @@ package nuv_export::cli;
         last;
     }
 
+# Unknown profile?
+    if ($args{'profile'} && ! defined $rc_args{'profile::'.$args{'profile'}}) {
+        die "Unknown profile:  $args{'profile'}\n";
+    }
+
 # Make sure the export_prog exists
     if (!$export_prog) {
-        if ($export_prog = lc($rc_args{'nuvexport'}{'export_prog'})) {
+        if ($args{'profile'} && $rc_args{'profile::'.$args{'profile'}}{'export_prog'}) {
+            $export_prog = lc($rc_args{'profile::'.$args{'profile'}}{'export_prog'});
+        }
+        else {
+            $export_prog = lc($rc_args{'nuvexport'}{'export_prog'});
+        }
+        if ($export_prog) {
             if ($export_prog !~ /(?:ffmpeg|transcode|mencoder)$/) {
                 print "Unknown export_prog in nuvexportrc:  $export_prog\n\n";
                 exit;
@@ -103,16 +126,6 @@ package nuv_export::cli;
                                 : 'mencoder';
         }
     }
-
-# Debug mode?
-    our $DEBUG;
-
-# Look for certain commandline options to determine if this is cli-mode
-    our $is_cli = 0;
-
-# Only need to keep track of cli args here
-    my %cli_args;
-    my %args;
 
 # Load the following extra parameters from the commandline
     add_arg('search-only',                 'Search only, do not do anything with the found recordings');
@@ -134,6 +147,9 @@ package nuv_export::cli;
 
     add_arg('nice=i',                      'Set the value of "nice" for subprocesses');
     add_arg('version',                     'Show the version and exit');
+
+    add_arg('profile=s',                   'nuvexportrc profile to load');
+
 
 # Load the commandline options
     add_arg('help:s',                      'Show nuvexport help');
@@ -179,6 +195,10 @@ package nuv_export::cli;
         my $package = lc(shift or (caller())[0]);
     # Commandline preference/override
         return $args{$arg} if (defined($args{$arg}));
+    # Profile settings are next in priority
+        if ($args{'profile'} && defined $rc_args{'profile::'.$args{'profile'}}{$arg}) {
+            return $rc_args{'profile::'.$args{'profile'}}{$arg};
+        }
     # Load rc preference
         my $rc_arg = rc_arg($arg, $package);
     # Return the rc preference, or the passed-in default value
