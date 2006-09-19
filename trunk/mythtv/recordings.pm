@@ -40,7 +40,6 @@ package mythtv::recordings;
     add_arg('date:s', 'Date format used for human-readable dates.');
 
 #
-#   load_recordings:
 #   Load all known recordings
 #
     sub load_recordings {
@@ -63,7 +62,6 @@ package mythtv::recordings;
     # Try a basename file search
         my $rows;
         $sh = $dbh->prepare('SELECT *, basename FROM recorded');
-        die "nuvexport 0.3 requires MythTV 0.19\n" unless ($sh);
         $rows = $sh->execute();
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
@@ -77,10 +75,9 @@ package mythtv::recordings;
         die "No valid recordings found!\n\n" unless (@files);
 
     # Prepare a query to look up GOP info used to determine mpeg recording length
-        $q = 'SELECT MAX(mark) FROM recordedmarkup WHERE chanid=? AND starttime=?';
+        $q = 'SELECT MAX(mark) FROM recordedseek WHERE chanid=? AND starttime=?';
         $sh  = $dbh->prepare($q);
-        $q2 = 'SELECT MAX(mark) FROM recordedseek WHERE chanid=? AND starttime=?';
-        $sh2  = $dbh->prepare($q2);
+        die "nuvexport $VERSION requires MythTV 0.20\n" unless ($sh);
 
     # Prepare a query to pull out cutlist information
         my $c_q  = 'SELECT type, mark FROM recordedmarkup WHERE chanid=? AND starttime=? AND type IN (0,1) ORDER BY mark';
@@ -121,11 +118,6 @@ package mythtv::recordings;
             $sh->execute($info{'chanid'}, $info{'starttime'})
                 or die "Could not execute ($q):  $!\n\n";
             ($info{'last_frame'}) = $sh->fetchrow_array();
-            if (!$info{'last_frame'} || $info{'last_frame'} < 1) {
-                $sh2->execute($info{'chanid'}, $info{'starttime'})
-                    or die "Could not execute ($q):  $!\n\n";
-                ($info{'last_frame'}) = $sh2->fetchrow_array();
-            }
         # Cleanup
             $info{'starttime_sep'} = $info{'starttime'};
             $info{'starttime_sep'} =~ s/\D+/-/sg;
@@ -186,7 +178,6 @@ package mythtv::recordings;
     }
 
 #
-#   generate_showtime:
 #   Returns a nicely-formatted timestamp from a specified time
 #
     sub generate_showtime {
@@ -197,9 +188,7 @@ package mythtv::recordings;
         $day   = int($day);
     # Special datetime format?
         if ($showtime = arg('date')) {
-#print "$year-$month-$day-$hour-$minute-$second -> ",ParseDate("$year-$month-$day $hour:$minute:$second"), "\n";
             $showtime = UnixDate(ParseDate("$year-$month-$day $hour:$minute:$second"), $showtime);
-#print "$showtime\n";exit;
         }
     # Default to the standard
         else {

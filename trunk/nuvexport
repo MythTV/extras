@@ -1,11 +1,16 @@
 #!/usr/bin/perl -w
 #
-# $Date$
-# $Revision$
-# $Author$
+# Export MythTV recordings into a variety of formats.
+#
+# @url       $URL$
+# @date      $Date$
+# @version   $Revision$
+# @author    $Author$
+# @license   GPL
+#
 
 # Version
-    $VERSION = '0.3 0.20060915.svn';
+    $VERSION = '0.4 0.20060915.svn';
 
 # Autoflush buffers
     $|++;

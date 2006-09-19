@@ -3,7 +3,7 @@
 #
 
 Name:       nuvexport
-Version:    0.3
+Version:    0.4
 Release:    0.20060915.svn
 License:    GPL
 Summary:    mythtv nuv video file conversion script
@@ -20,14 +20,12 @@ Requires:  perl >= 5.6
 Requires:  perl-DateManip
 Requires:  perl-DBD-MySQL
 Requires:  perl-DBI
-#Requires:  perl-Time-HiRes     # This is now built into the core perl package.
-Requires:  transcode >= 0.6.12
-Requires:  ffmpeg >= 0.4.9
+Requires:  transcode  >= 0.6.12
+Requires:  ffmpeg     >= 0.4.9
 Requires:  mjpegtools >= 1.6.2
 Requires:  mplayer
-#Requires:  divx4linux
-# Actually requires the id3tag program, but it lives in this libarary
-Requires:  id3lib
+
+Requires:  /usr/bin/id3tag
 
 # Provides some of its own perl modules -- rpm complains if this isn't included
 Provides:  perl(nuvexport::shared_utils)
