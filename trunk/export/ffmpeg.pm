@@ -9,6 +9,14 @@
 #    Maintained by Gavin Hurlbut <gjhurlbu@gmail.com>
 #
 
+#
+# Need some kind of hash to deal with the various ffmpeg command version
+# differences:
+#
+# http://svn.mplayerhq.hu/ffmpeg/trunk/libavcodec/utils.c?r1=6252&r2=6257&pathrev=6257
+#
+
+
 package export::ffmpeg;
     use base 'export::generic';
 
