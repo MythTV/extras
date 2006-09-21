@@ -38,6 +38,8 @@ package export::ffmpeg;
     sub init_ffmpeg {
         my $self      = shift;
         my $audioonly = (shift or 0);
+    # Temp var
+        my $data;
     # Make sure we have ffmpeg
         my $ffmpeg = find_program('ffmpeg')
             or push @{$self->{'errors'}}, 'You need ffmpeg to use this exporter.';
@@ -46,7 +48,7 @@ package export::ffmpeg;
             or push @{$self->{'errors'}}, 'You need yuvdenoise (part of mjpegtools) to use this exporter.';
     # Check the yuvdenoise version
         if (!defined $self->{'denoise_vmaj'}) {
-            my $data = `cat /dev/null | yuvdenoise 2>&1`;
+            $data = `cat /dev/null | yuvdenoise 2>&1`;
             if ($data =~ m/yuvdenoise version (\d+(?:\.\d+)?)(\.\d+)?/i) {
                 $self->{'denoise_vmaj'} = $1;
                 $self->{'denoise_vmin'} = $2;
@@ -84,8 +86,16 @@ package export::ffmpeg;
         }
     # Audio only?
         $self->{'audioonly'} = $audioonly;
+    # Load the parameter version?
+        $data = `ffmpeg -h 2>&1`;
+        if ($data =~ /bit_rate_tolerance/) {
+            $self->{'ffmpeg_param_vers'} = 0;
+        }
+        else {
+            $self->{'ffmpeg_param_vers'} = 1;
+        }
     # Gather the supported codecs
-        my $data      = `$ffmpeg -formats 2>&1`;
+        $data         = `$ffmpeg -formats 2>&1`;
         my ($formats) = $data =~ /(?:^|\n\s*)File\sformats:\s*\n(.+?\n)\s*\n/s;
         my ($codecs)  = $data =~ /(?:^|\n\s*)Codecs:\s*\n(.+?\n)\s*\n/s;
         if ($formats) {
@@ -112,6 +122,44 @@ package export::ffmpeg;
         my $codec = shift;
         return ($self->{'codecs'}{$codec} && $self->{'codecs'}{$codec} =~ /^.E/
                 || $self->{'formats'}{$codec} && $self->{'formats'}{$codec} =~ /^.E/) ? 1 : 0;
+    }
+
+# ffmpeg keeps changing their parameter names... so we work around it.
+    sub param {
+        my $self  = shift;
+        my $param = lc(shift);
+        my $value = shift;
+    # Which version?
+        if ($self->{'ffmpeg_param_vers'} == 1) {
+            return param_pair('ac',             $value)        if ($param eq 'channels');
+            return param_pair('ar',             $value)        if ($param eq 'sample_rate');
+            return param_pair('b',              $value * 1024) if ($param eq 'bit_rate');
+            return param_pair('b_qfactor',      $value)        if ($param eq 'b_quant_factor');
+            return param_pair('b_qoffset',      $value)        if ($param eq 'b_quant_offset');
+            return param_pair('bf',             $value)        if ($param eq 'max_b_frames');
+            return param_pair('bt',             $value * 1024) if ($param eq 'bit_rate_tolerance');
+            return param_pair('bufsize',        $value)        if ($param eq 'rc_buffer_size');
+            return param_pair('bug',            $value)        if ($param eq 'bugs');
+            return param_pair('error',          $value)        if ($param eq 'error_rate');
+            return param_pair('g',              $value)        if ($param eq 'gop_size');
+            return param_pair('i_qfactor',      $value)        if ($param eq 'i_quant_factor');
+            return param_pair('i_qoffset',      $value)        if ($param eq 'i_quant_offset');
+            return param_pair('maxrate',        $value)        if ($param eq 'rc_max_rate');
+            return param_pair('mblmax',         $value)        if ($param eq 'mb_lmax');
+            return param_pair('mblmin',         $value)        if ($param eq 'mb_lmin');
+            return param_pair('mepc',           $value)        if ($param eq 'me_penalty_compensation');
+            return param_pair('minrate',        $value)        if ($param eq 'rc_min_rate');
+            return param_pair('qcomp',          $value)        if ($param eq 'qcompress');
+            return param_pair('qdiff',          $value)        if ($param eq 'max_qdiff');
+            return param_pair('qsquish',        $value)        if ($param eq 'rc_qsquish');
+            return param_pair('rc_init_cplx',   $value)        if ($param eq 'rc_initial_cplx');
+            return param_pair('skip_exp',       $value)        if ($param eq 'frame_skip_exp');
+            return param_pair('skip_factor',    $value)        if ($param eq 'frame_skip_factor');
+            return param_pair('skip_threshold', $value)        if ($param eq 'frame_skip_threshold');
+            return param_pair('threads',        $value)        if ($param eq 'thread_count');
+        }
+    # Unknown, just return the parameter
+        return param_pair($param, $value);
     }
 
 # Load default settings

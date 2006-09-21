@@ -19,6 +19,7 @@ package nuv_export::shared_utils;
 
         our @EXPORT = qw/ &min
                           &clear        &find_program       &shell_escape
+                          &param_pair
                           &wrap         &wipe_tmpfiles      &byteswap32
                           &system       &mkdir              &byteswap64
                           @Exporters    @episodes           $exporter
@@ -169,9 +170,19 @@ BEGIN {
 
 # Escape a parameter for safe use in a commandline call
     sub shell_escape {
-        $file = shift;
-        $file =~ s/'/'\\''/sg;
-        return "'$file'";
+        $str = shift;
+        $str =~ s/'/'\\''/sg;
+        return "'$str'";
+    }
+
+# Return a parameter/value pair, properly escaped
+    sub param_pair {
+        my $param = shift;
+        my $value = shift;
+        if (defined $value) {
+            $param .= ' '.shell_escape($value);
+        }
+        return ' -'.$param;
     }
 
 #

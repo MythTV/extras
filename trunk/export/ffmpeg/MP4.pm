@@ -194,23 +194,28 @@ package export::ffmpeg::MP4;
             $self->{'out_fps'} = ($self->{'width'} > 320 || $self->{'height'} > 288) ? 29.97 : 23.97;
         }
     # Embed the title
-        my $safe_title = shell_escape($episode->{'show_name'}.' - '.$episode->{'title'});
+        $safe_title = $episode->{'show_name'};
+        if ($episode->{'title'} ne 'Untitled') {
+            $safe_title .= ' - '.$episode->{'title'};
+        }
+        my $safe_title = shell_escape($safe_title);
     # Build the common ffmpeg string
         my $ffmpeg_xtra  = ' -vcodec '.$self->{'mp4_codec'}
-                          .' -b '     .$self->{'v_bitrate'}
+                           .$self->param('bit_rate', $self->{'v_bitrate'})
                           ." -title $safe_title";
     # Options required for the codecs separately
         if ($self->{'mp4_codec'} eq 'h264') {
-            $ffmpeg_xtra .= ' -vcodec h264'
-                           .' -level 13'
+            $ffmpeg_xtra .= ' -level 13'
                            .' -loop 1'
                            .' -g 250 -keyint_min 25'
-                           .' -bit_rate_tolerance '.$self->{'v_bitrate'}
-                           .' -rc_max_rate 768 -rc_buffer_size 244'
                            .' -sc_threshold 40'
-                           .' -i_quant_factor 0.71428572 -b_quant_factor 0.76923078'
-                           .' -max_b_frames 0'
                            .' -rc_eq \'blurCplx^(1-qComp)\''
+                           .$self->param('bit_rate_tolerance', $self->{'v_bitrate'})
+                           .$self->param('rc_max_rate',        768)
+                           .$self->param('rc_buffer_size',     244)
+                           .$self->param('i_quant_factor',     0.71428572)
+                           .$self->param('b_quant_factor',     0.76923078)
+                           .$self->param('max_b_frames',       0)
                            # These should match the defaults:
                            #.' -me epzs' #(could do "full" but it's only marginally better for less than 1/3 the speed)
                            ;
@@ -224,8 +229,9 @@ package export::ffmpeg::MP4;
         }
     # Some shared options
         if ($self->{'multipass'} || $self->{'vbr'}) {
-            $ffmpeg_xtra .= ' -qcompress 0.6'
-                           .' -qmax 51 -max_qdiff 4'
+            $ffmpeg_xtra .= $self->param('qcompress', 0.6)
+                           .$self->param('qmax',      51)
+                           .$self->param('max_qdiff', 4)
                            ;
         }
     # Dual pass?
