@@ -169,8 +169,8 @@ package export::ffmpeg::MP4;
     # Query the resolution
         $self->query_resolution();
     # Warn about ipod resolution
-        if ($self->{'height'} > 480 || $self->{'width'} > 720) {
-            print "WARNING:  Video larger than 720x480 will not play on an iPod.\n";
+        if ($self->{'height'} > 480 || $self->{'width'} > 640) {
+            print "WARNING:  Video larger than 640x480 will not play on an iPod.\n";
         }
     }
 
@@ -205,7 +205,7 @@ package export::ffmpeg::MP4;
                           ." -title $safe_title";
     # Options required for the codecs separately
         if ($self->{'mp4_codec'} eq 'h264') {
-            $ffmpeg_xtra .= ' -level 13'
+            $ffmpeg_xtra .= ' -level 30'
                            .' -loop 1'
                            .' -g 250 -keyint_min 25'
                            .' -sc_threshold 40'
@@ -271,7 +271,8 @@ package export::ffmpeg::MP4;
         }
     # Single/final pass options
         if ($self->{'mp4_codec'} eq 'h264') {
-            $ffmpeg_xtra .= ' -refs 5 -subq 7'
+            $ffmpeg_xtra .= ' -refs 2'
+                           .' -subq 7'
                            .' -partitions parti4x4+parti8x8+partp4x4+partp8x8+partb8x8'
                            .' -flags2 +bpyramid+wpred+mixed_refs+8x8dct+brdo'
                            .' -me_range 21'
