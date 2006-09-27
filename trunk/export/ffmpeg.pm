@@ -144,7 +144,7 @@ package export::ffmpeg;
             return param_pair('g',              $value)        if ($param eq 'gop_size');
             return param_pair('i_qfactor',      $value)        if ($param eq 'i_quant_factor');
             return param_pair('i_qoffset',      $value)        if ($param eq 'i_quant_offset');
-            return param_pair('maxrate',        $value)        if ($param eq 'rc_max_rate');
+            return param_pair('maxrate',        $value * 1024) if ($param eq 'rc_max_rate');
             return param_pair('mblmax',         $value)        if ($param eq 'mb_lmax');
             return param_pair('mblmin',         $value)        if ($param eq 'mb_lmin');
             return param_pair('mepc',           $value)        if ($param eq 'me_penalty_compensation');
