@@ -152,9 +152,9 @@ package export::ffmpeg::XviD;
                           .' -mbd 1'
                           .' -cmp 2 -subcmp 2'
                           .' -cgop 1'
-                          .' -max_b_frames 1'
-                          .' -b_quant_factor 150'
-                          .' -b_quant_offset 100'
+                           .$self->param('b_quant_factor',     150)
+                           .$self->param('b_quant_offset',     100)
+                           .$self->param('max_b_frames',       1)
                           ;
     # Dual pass?
         if ($self->{'multipass'}) {

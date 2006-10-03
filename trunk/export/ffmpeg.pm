@@ -138,7 +138,7 @@ package export::ffmpeg;
             return param_pair('b_qoffset',      $value)        if ($param eq 'b_quant_offset');
             return param_pair('bf',             $value)        if ($param eq 'max_b_frames');
             return param_pair('bt',             $value * 1024) if ($param eq 'bit_rate_tolerance');
-            return param_pair('bufsize',        $value)        if ($param eq 'rc_buffer_size');
+            return param_pair('bufsize',        $value * 1024) if ($param eq 'rc_buffer_size');
             return param_pair('bug',            $value)        if ($param eq 'bugs');
             return param_pair('error',          $value)        if ($param eq 'error_rate');
             return param_pair('g',              $value)        if ($param eq 'gop_size');
