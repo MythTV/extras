@@ -174,7 +174,7 @@ package mythtv::nuvinfo;
     # First, we check for the existence of  an mpeg info program
         my $program = find_program('mplayer');
     # Nothing found?  Die
-        die "You need mplayer to use this script on mpeg-based nuv files.\n\n" unless ($program);
+        die "You need mplayer to use this script on mpeg-based files.\n\n" unless ($program);
     # Set the is_mpeg flag
         $info{'is_mpeg'} = 1;
     # Grab the info we want from mplayer (go uber-verbose to override --really-quiet)
@@ -248,10 +248,10 @@ package mythtv::nuvinfo;
     # European decimals...
         $aspect =~ s/\,/\./;
     # Parse out decimal formats
-        if ($aspect == 1)          { return '1:1';        }
-        elsif ($aspect =~ m/^1.3/) { return '4:3';        }
-        elsif ($aspect =~ m/^1.7/) { return '16:9';       }
-        elsif ($aspect == 2.21)    { return '2.21:1';     }
+        if ($aspect == 1)          { return '1:1';    }
+        elsif ($aspect =~ m/^1.3/) { return '4:3';    }
+        elsif ($aspect =~ m/^1.7/) { return '16:9';   }
+        elsif ($aspect == 2.21)    { return '2.21:1'; }
     # Unknown aspect
         print STDERR "Unknown aspect ratio:  $aspect\n";
         return $aspect.':1';
