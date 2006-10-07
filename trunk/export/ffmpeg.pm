@@ -256,7 +256,7 @@ package export::ffmpeg;
 
             $self->{'out_aspect'} ||= $episode->{'finfo'}{'aspect_f'};
 
-        # The output is actually a stretched aspect ratio
+        # The output is actually a stretched/anamorphic aspect ratio
         # (like 480x480 for SVCD, which is 4:3)
             if ($self->{'aspect_stretched'}) {
             # Stretch the width to the full aspect ratio for calculating

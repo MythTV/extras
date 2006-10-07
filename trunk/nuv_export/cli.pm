@@ -174,7 +174,7 @@ package nuv_export::cli;
         }
         $NICE .= ' -n'.int($args{'nice'});
     # Is this a commandline-only request?
-        if (!$args{'confirm'} && ($args{'title'} || $args{'subtitle'} || $args{'description'} || $args{'infile'} || $args{'starttime'} || $args{'chanid'})) {
+        if (!arg('confirm') && (arg('title') || arg('subtitle') || arg('description') || arg('infile') || arg('starttime') || arg('chanid'))) {
             $is_cli = 1;
         }
     # No server stuff enabled yet, default to off
