@@ -54,7 +54,7 @@ sysconfdir=/etc
 MODDIR=${datadir}/nuvexport
 
 default:
-	@echo "Use \"make install\" to install the new version"
+	@echo "Use \"make install\" to install the new version and \"make uninstall\" to remove this version"
 
 install:
 	# First the binaries
@@ -78,4 +78,17 @@ install:
 	   ${INSTALL} -Dv ${OWNER} -m 0755 $$i ${MODDIR}/$$i; \
 	done
 
+uninstall:
+	# First the binaries
+	@for i in ${BINS} ; do \
+	    rm -f ${bindir}/$$i; \
+	done
+	# Remove the mode symlinks
+	@for i in ${NUVEXPORT_LINKS} ; do \
+	    rm -f ${bindir}/nuvexport-$$i; \
+	done
+	# Remove the modules
+	@for i in ${MODULES} ; do \
+	    rm -f ${MODDIR}/$$i; \
+	done
 
