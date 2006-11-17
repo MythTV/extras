@@ -10,7 +10,7 @@
 #
 
 # Version
-    $VERSION = '0.4 0.20061007.svn';
+    $VERSION = '0.4 0.20061116.svn';
 
 # Autoflush buffers
     $|++;

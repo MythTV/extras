@@ -20,7 +20,7 @@
     else {
         print "Help section still needs to be updated.\n"
              ."   For now, please read /etc/nuvexportrc or the nuvexport wiki at\n"
-             ."   https://svn.forevermore.net/nuvexport/\n\n";
+             ."   http://mythtv.org/wiki/index.php/Nuvexport\n\n";
     }
 
     exit;
