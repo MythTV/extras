@@ -185,7 +185,7 @@ package export::mencoder;
             print "\rprocessed:  $frames of $total_frames frames ($pct\%), $fps fps ";
         # Read from the mencoder handle
             while (has_data($mencoder_h) and $l = <$mencoder_h>) {
-                if ($l =~ /^Pos:.*?(\d+)f.*?\(.*?(\d+)fps/) {
+                if ($l =~ /^Pos:.*?(\d+)f.*?\(.*?(\d+(?:\.\d+)?)fps/) {
                     $frames = int($1);
                     $fps    = $2;
                 }
