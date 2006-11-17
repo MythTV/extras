@@ -65,7 +65,7 @@ package mythtv::recordings;
         $rows = $sh->execute();
         if (defined $rows) {
             while ($file = $sh->fetchrow_hashref()) {
-                next unless (-e "$video_dir/".$file->{'basename'});
+                next unless ($file->{'basename'} && -e "$video_dir/".$file->{'basename'});
                 push @files, $file;
             }
         }
