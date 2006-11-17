@@ -51,11 +51,11 @@ package export::ffmpeg;
             $data = `cat /dev/null | yuvdenoise 2>&1`;
             if ($data =~ m/yuvdenoise version (\d+(?:\.\d+)?)(\.\d+)?/i) {
                 $self->{'denoise_vmaj'} = $1;
-                $self->{'denoise_vmin'} = $2;
+                $self->{'denoise_vmin'} = ($2 or 0);
             }
             elsif ($data =~ m/version: mjpegtools (\d+(?:\.\d+)?)(\.\d+)?/i) {
                 $self->{'denoise_vmaj'} = $1;
-                $self->{'denoise_vmin'} = $2;
+                $self->{'denoise_vmin'} = ($2 or 0);
             }
             else {
                 push @{$self->{'errors'}}, 'Unrecognizeable yuvdenoise version string.';
