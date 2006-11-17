@@ -287,7 +287,7 @@ package nuv_export::ui;
             }
             my @matches;
             foreach my $episode (split(/\D+/, $choice)) {
-                next unless ($episode > 0 && $episode_choices[$episode-1]);
+                next unless (int($episode) > 0 && $episode_choices[$episode-1]);
                 push @matches, $episode_choices[$episode-1];
             }
             return ('v', @matches) if (@matches);
