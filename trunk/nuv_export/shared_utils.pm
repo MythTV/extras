@@ -43,19 +43,10 @@ package nuv_export::shared_utils;
     our $DEBUG;
     our $NICE;
 
-# Remove any temporary files, and make sure child processes are cleaned up.
+# Make sure cleanup happens
+    $SIG{'INT'} = \&sig_end;
     END {
-        if (!$is_child) {
-        # Clean up temp files/directories
-            wipe_tmpfiles();
-        # Make sure any child processes also go away
-            if (%children) {
-                foreach my $child (keys %children) {
-                    kill('INT', $child);
-                }
-                usleep(100000) while (wait > 0);
-            }
-        }
+        &shutdown_cleanup;
     }
 
 # Set up the terminal commands we need to send a clear-screen character
@@ -83,6 +74,28 @@ package nuv_export::shared_utils;
 # Make sure that we have nice installed
     $NICE = find_program('nice');
     die "You need nice in order to use nuvexport.\n\n" unless ($NICE);
+
+# Exit from a signal
+    sub sig_end {
+        exit 0;
+    }
+
+# Clean up child processes, etc
+    sub shutdown_cleanup {
+    # Nothing to do for forked versions
+        return if ($is_child);
+    # Clean up temp files/directories
+        print "\nCleaning up temp files.\n";
+        wipe_tmpfiles();
+    # Make sure any child processes also go away
+        if (%children) {
+            print "Cleaning up child processes.\n";
+            foreach my $child (keys %children) {
+                kill('INT', $child);
+            }
+            usleep(100000) while (wait > 0);
+        }
+    }
 
 # Clear the screen
     sub clear {
