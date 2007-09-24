@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/**
+ * MFPlayer.mxml
+ * 
+ * Copyright (C) 2007 Jean-Philippe Steinmetz
+ *
+ * This file is part of MythFlash.
+ * 
+ * MythFlash is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * MythFlash is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MythFlash; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ **/
+-->
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+				layout="absolute"
+				xmlns:MFPlayer="MythFlash.MFPlayer.*"
+				creationComplete="init()">
+	<mx:Script>
+		<![CDATA[
+			import MythFlash.Events.MFPlayerEvent;
+			
+			[Bindable]
+			public var flvSource:String;
+			[Bindable]
+			public var flvIsLive:Boolean = false;
+			[Bindable]
+			public var flvStyles:String = null;
+			[Bindable]
+			public var flvStillImage:String = null;
+			[Bindable]
+			public var flvTotalTime:Number = 0;
+		
+			private function init():void
+			{
+				trace("Initializing");
+				
+				if(Application.application.parameters.file)
+				{
+					flvSource = Application.application.parameters.file;
+				}
+				
+				if(Application.application.parameters.live)
+				{
+					flvIsLive = Application.application.parameters.live;
+				}
+				
+				if(Application.application.parameters.styles)
+				{
+					flvStyles = Application.application.parameters.styles;
+				}
+				
+				if(Application.application.parameters.still)
+				{
+					flvStillImage = Application.application.parameters.still;
+				}
+				
+				if(Application.application.parameters.totalTime)
+				{
+					flvTotalTime = Application.application.parameters.totalTime;
+				}
+				
+				mfpStill.addEventListener(MouseEvent.CLICK,startPlayer);
+			}
+			
+			public function startPlayer(event:Event):void
+			{
+				trace("Creating player");
+				mfpStill.visible = false;
+				
+				mfpPlayer.autoPlay = true;
+				mfpPlayer.source = flvSource;
+				mfpPlayer.totalTime = flvTotalTime;
+			}
+		]]>
+	</mx:Script>
+	<MFPlayer:MFPlayer isLive="{flvIsLive}" styles="{flvStyles}" x="0" y="0" width="320" height="260" id="mfpPlayer"/>
+	<MFPlayer:MFPStill source="{flvStillImage}" label="Click to start video." x="0" y="0" width="320" height="260" id="mfpStill"/>
+</mx:Application>

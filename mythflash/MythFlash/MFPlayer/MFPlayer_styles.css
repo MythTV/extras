@@ -1,0 +1,191 @@
+/**
+ * MFPlayer_styles.css
+ * 
+ * Copyright (C) 2007 Jean-Philippe Steinmetz
+ *
+ * This file is part of MythFlash.
+ * 
+ * MythFlash is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * MythFlash is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with MythFlash; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ **/
+
+/*
+//------------------------------
+//  Application
+//------------------------------
+*/
+Application
+{
+	backgroundImage: Embed(source="MFPlayer_skins.swf",symbol="BackgroundImage");
+}
+
+/*
+//------------------------------
+//  Button
+//------------------------------
+*/
+Button
+{
+	disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="Button_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="Button_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="Button_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="Button_upSkin");
+}
+
+.mfpPlayBtn
+{
+	/**disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="PlayBtn_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="PlayBtn_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="PlayBtn_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="PlayBtn_upSkin");**/
+	icon: Embed(source="MFPlayer_skins.swf", symbol="PlayBtn_iconSkin");
+}
+
+.mfpPauseBtn
+{
+	/**disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="PauseBtn_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="PauseBtn_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="PauseBtn_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="PauseBtn_upSkin");**/
+	icon: Embed(source="MFPlayer_skins.swf", symbol="PauseBtn_iconSkin");
+}
+
+.mfpStopBtn
+{
+	/**disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="StopBtn_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="StopBtn_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="StopBtn_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="StopBtn_upSkin");**/
+	icon: Embed(source="MFPlayer_skins.swf", symbol="StopBtn_iconSkin");
+}
+
+.mfpFullScreenBtn
+{
+	/**disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="FullScreenBtn_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="FullScreenBtn_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="FullScreenBtn_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="FullScreenBtn_upSkin");**/
+	icon: Embed(source="MFPlayer_skins.swf", symbol="FullScreenBtn_iconSkin");
+}
+
+.mfpVolumeBtn
+{
+	/**disabledSkin: Embed(source="MFPlayer_skins.swf", symbol="VolumeBtn_disabledSkin");
+	downSkin: Embed(source="MFPlayer_skins.swf", symbol="VolumeBtn_downSkin");
+	overSkin: Embed(source="MFPlayer_skins.swf", symbol="VolumeBtn_overSkin");
+	upSkin: Embed(source="MFPlayer_skins.swf", symbol="VolumeBtn_upSkin");**/
+	icon: Embed(source="MFPlayer_skins.swf", symbol="VolumeBtn_iconSkin");
+}
+
+/*
+//------------------------------
+//  ProgressBar
+//------------------------------
+*/
+ProgressBar
+{
+
+	barSkin: Embed(source="MFPlayer_skins.swf", symbol="ProgressBarSkin");
+	indeterminateSkin: Embed(source="MFPlayer_skins.swf", symbol="ProgressIndeterminateSkin");
+	trackSkin: Embed(source="MFPlayer_skins.swf", symbol="ProgressTrackSkin");
+
+}
+
+/*
+//------------------------------
+//  Slider
+//------------------------------
+*/
+Slider
+{
+	thumbDisabledSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_disabledSkin");
+	thumbDownSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_downSkin");
+	thumbOverSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_overSkin");
+	thumbUpSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_upSkin");
+	trackHighlightSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderHighlight_Skin");
+	trackSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderTrack_Skin");
+}
+
+HSlider
+{
+	thumbDisabledSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_disabledSkin");
+	thumbDownSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_downSkin");
+	thumbOverSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_overSkin");
+	thumbUpSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_upSkin");
+	trackHighlightSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderHighlight_Skin");
+	trackSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderTrack_Skin");
+}
+
+VSlider
+{
+	thumbDisabledSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_disabledSkin");
+	thumbDownSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_downSkin");
+	thumbOverSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_overSkin");
+	thumbUpSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderThumb_upSkin");
+	trackHighlightSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderHighlight_Skin");
+	trackSkin: Embed(source="MFPlayer_skins.swf", symbol="SliderTrack_Skin");
+}
+
+.mfpProgressSlider
+{
+	trackHighlightSkin: Embed(source="MFPlayer_skins.swf", symbol="ProgressSliderHighlight_Skin");
+	trackSkin: Embed(source="MFPlayer_skins.swf", symbol="ProgressSliderTrack_Skin");
+}
+
+.mfpVolumeSlider
+{
+}
+
+/*
+//------------------------------
+// HBox
+//------------------------------
+*/
+.mfpControlBBox
+{
+	backgroundImage: Embed(source="MFPlayer_skins.swf", symbol="ControllerBackground_Skin");
+}
+
+/*
+//------------------------------
+// VBox
+//------------------------------
+*/
+.mfpVolumeSliderBox
+{
+	backgroundImage: Embed(source="MFPlayer_skins.swf", symbol="VolumeSliderBox_Skin");
+}
+
+/*
+//------------------------------
+// Label
+//------------------------------
+*/
+.mfpTimeLabel
+{
+	borderStyle: solid;
+	borderColor: #666666;
+}
+
+/*
+//------------------------------
+//  ToolTip
+//------------------------------
+*/
+ToolTip
+{
+
+	borderSkin: Embed(source="MFPlayer_skins.swf", symbol="ToolTip_borderSkin");
+
+}
