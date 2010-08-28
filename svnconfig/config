@@ -92,41 +92,113 @@ enable-auto-props = yes
 [auto-props]
 
 # Scriptish formats
-*.bat        = svn:keywords=Id Date Revision Author HeadURL;svn:svn:eol-style=native
-*.bsh        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-beanshell
-*.js         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/javascript
-*.php        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-php
-*.pl         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-perl;svn:executable
-*.pm         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-perl
-*.py         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-python;svn:executable
-*.sh         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-sh;svn:executable
-*.spec       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-sh
+*.bat       = svn:keywords=Id Date Revision Author HeadURL;svn:svn:eol-style=native
+*.bsh       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-beanshell
+*.erb       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-ruby-template
+*.inc       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-php
+*.js        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/javascript
+*.php       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-php
+*.pl        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-perl;svn:executable
+*.pm        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-perl
+*.py        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-python;svn:executable
+*.rb        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-ruby-source
+*.rhtml     = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-ruby-source
+*.rjs       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-ruby-source
+*.rxml      = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-ruby-source
+*.sh        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-sh;svn:executable
+*.spec      = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-rpmspec
 
 # Image formats
-*.bmp        = svn:mime-type=image/bmp
-*.gif        = svn:mime-type=image/gif
-*.ico        = svn:mime-type=image/x-icon
-*.jpeg       = svn:mime-type=image/jpeg
-*.jpg        = svn:mime-type=image/jpeg
-*.png        = svn:mime-type=image/png
-*.tif        = svn:mime-type=image/tiff
-*.tiff       = svn:mime-type=image/tiff
+*.bmp       = svn:mime-type=image/bmp
+*.gif       = svn:mime-type=image/gif
+*.ico       = svn:mime-type=image/x-icon
+*.jpeg      = svn:mime-type=image/jpeg
+*.jpg       = svn:mime-type=image/jpeg
+*.png       = svn:mime-type=image/png
+*.svg       = svn:mime-type=image/svg+xml
+*.svgz      = svn:mime-type=image/svg+xml
+*.tif       = svn:mime-type=image/tiff
+*.tiff      = svn:mime-type=image/tiff
+*.eps       = svn:mime-type=application/postscript
+
+# Multimedia formats
+*.avi       = svn:mime-type=video/x-msvideo
+*.mov       = svn:mime-type=video/quicktime
+*.mp3       = svn:mime-type=audio/mpeg
+*.smil      = svn:mime-type=application/smil
+*.swf       = svn:mime-type=application/x-shockwave-flash
 
 # Data formats
-*.pdf        = svn:mime-type=application/pdf
-*.csv        = svn:mime-type=text/csv
+*.bz2       = svn:mime-type=application/x-bzip
+*.gpgkey    = svn:mime-type=application/gpg-keys
+*.gtar      = svn:mime-type=application/x-gtar
+*.gz        = svn:mime-type=application/x-gzip
+*.tar       = svn:mime-type=application/x-tar
+*.tar.bz2   = svn:mime-type=application/x-bzip-compressed-tar
+*.tar.gz    = svn:mime-type=application/x-tgz
+*.tbz       = svn:mime-type=application/x-bzip-compressed-tar
+*.tgz       = svn:mime-type=application/x-tgz
+*.vcf       = svn:mime-type=text/x-vcard
+*.zip       = svn:mime-type=application/zip
+
+# Document formats
+*.ai        = svn:mime-type=application/illustrator
+*.csv       = svn:eol-style=native;svn:mime-type=text/csv
+*.doc       = svn:mime-type=application/msword
+*.docm      = svn:mime-type=application/vnd.ms-word.document.macroEnabled.12
+*.docx      = svn:mime-type=application/vnd.openxmlformats-officedocument.wordprocessingml.document
+*.dotm      = svn:mime-type=application/vnd.ms-word.template.macroEnabled.12
+*.dotx      = svn:mime-type=application/vnd.openxmlformats-officedocument.wordprocessingml.template
+*.odb       = svn:mime-type=application/vnd.oasis.opendocument.database
+*.odc       = svn:mime-type=application/vnd.oasis.opendocument.chart
+*.odf       = svn:mime-type=application/vnd.oasis.opendocument.formula
+*.odg       = svn:mime-type=application/vnd.oasis.opendocument.graphics
+*.odi       = svn:mime-type=application/vnd.oasis.opendocument.image
+*.odm       = svn:mime-type=application/vnd.oasis.opendocument.text-master
+*.odp       = svn:mime-type=application/vnd.oasis.opendocument.presentation
+*.ods       = svn:mime-type=application/vnd.oasis.opendocument.spreadsheet
+*.odt       = svn:mime-type=application/vnd.oasis.opendocument.text
+*.otg       = svn:mime-type=application/vnd.oasis.opendocument.graphics-template
+*.oth       = svn:mime-type=application/vnd.oasis.opendocument.text-web
+*.otp       = svn:mime-type=application/vnd.oasis.opendocument.presentation-template
+*.ots       = svn:mime-type=application/vnd.oasis.opendocument.spreadsheet-template
+*.ott       = svn:mime-type=application/vnd.oasis.opendocument.text-template
+*.pdf       = svn:mime-type=application/pdf
+*.pdf       = svn:mime-type=application/pdf
+*.potm      = svn:mime-type=application/vnd.ms-powerpoint.template.macroEnabled.12
+*.potx      = svn:mime-type=application/vnd.openxmlformats-officedocument.presentationml.template
+*.ppam      = svn:mime-type=application/vnd.ms-powerpoint.addin.macroEnabled.12
+*.ppsm      = svn:mime-type=application/vnd.ms-powerpoint.slideshow.macroEnabled.12
+*.ppsx      = svn:mime-type=application/vnd.openxmlformats-officedocument.presentationml.slideshow
+*.ppt       = svn:mime-type=application/vnd.ms-powerpoint
+*.pptm      = svn:mime-type=application/vnd.ms-powerpoint.presentation.macroEnabled.12
+*.pptx      = svn:mime-type=application/vnd.openxmlformats-officedocument.presentationml.presentation
+*.ps        = svn:mime-type=application/postscript
+*.psd       = svn:mime-type=application/photoshop
+*.rtf       = svn:mime-type=text/rtf
+*.xlam      = svn:mime-type=application/vnd.ms-excel.addin.macroEnabled.12
+*.xls       = svn:mime-type=application/vnd.ms-excel
+*.xlsb      = svn:mime-type=application/vnd.ms-excel.sheet.binary.macroEnabled.12
+*.xlsm      = svn:mime-type=application/vnd.ms-excel.sheet.macroEnabled.12
+*.xlsx      = svn:mime-type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+*.xltm      = svn:mime-type=application/vnd.ms-excel.template.macroEnabled.12
+*.xltx      = svn:mime-type=application/vnd.openxmlformats-officedocument.spreadsheetml.template
+
+# XML formats (not necessarily text, but we don't want svn to track them as binary)
+*.dtd        = svn:eol-style=native;svn:mime-type=text/xml-dtd
+*.xml        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xml
+*.xsl        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xml
 
 # Text formats
+*.tex        = svn:eol-style=native;svn:mime-type=text/x-tex
 *.css        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/css
-*.dtd        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xml-dtd
 *.htm        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/html
 *.html       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/html
 *.sql        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-sql
 *.txt        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/plain
 *.tt         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-html+tt
+*.vm         = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/velocity
 *.xhtml      = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xhtml+xml
-*.xml        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xml
-*.xsl        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/xml
 INSTALL      = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/plain
 Makefile     = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/plain
 README       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/plain
@@ -138,5 +210,7 @@ COPYING      = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native
 *.c          = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-csrc
 *.cpp        = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-c++src
 *.h          = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-csrc
-*.java       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/javasrc
+*.java       = svn:keywords=Id Date Revision Author HeadURL;svn:eol-style=native;svn:mime-type=text/x-java
+*.class      = svn:mime-type=application/x-java
+*.jar        = svn:mime-type=application/x-java-archive
 
