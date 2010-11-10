@@ -1,7 +1,7 @@
 #!/bin/sh
 
-RELEASEP="0.23"
-RELEASEM="0-23"
+RELEASEP="0.24"
+RELEASEM="0-24"
 
 echo "Exporting $RELEASEP repository"
 svn export http://svn.mythtv.org/svn/tags/release-$RELEASEM > /dev/null
