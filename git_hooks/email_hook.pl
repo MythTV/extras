@@ -50,7 +50,13 @@ foreach my $commit ( @{$payload->{"commits"}} ) {
     $changeurl =~ s/$longsha$/$shortsha/;
 
     my $subject = "$repository commit: $shortsha by " .
-                  $commit->{"author"}->{"username"};
+                  "$commit->{"author"}->{"name"} (";
+    if ($commit->{"author"}->{"username"}) {
+        $subject .= $commit->{"author"}->{"username"};
+    } else {
+        $subject .= "no github username";
+    }
+    $subject .= ")";
 
     my $email = <<EOF;
       Author:  $commit->{"author"}->{"name"} <$commit->{"author"}->{"email"}>
