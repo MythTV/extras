@@ -45,11 +45,11 @@ my %headers = (
 
 foreach my $commit ( @{$payload->{"commits"}} ) {
     my $longsha = $commit->{"id"};
-    my $shortsha = substr $longsha, 0, 7;
+    my $shortsha = substr $longsha, 0, 9;
     my $changeurl = $commit->{"url"};
     $changeurl =~ s/$longsha$/$shortsha/;
 
-    my $subject = "$repository commit: $shortsha by " .
+    my $subject = "$repository/$branch commit: $shortsha by " .
                   $commit->{"author"}->{"name"} . " (";
     if ($commit->{"author"}->{"username"}) {
         $subject .= $commit->{"author"}->{"username"};
