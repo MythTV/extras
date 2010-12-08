@@ -41,6 +41,7 @@ my %headers = (
     "To"            => 'mythtv-commits@mythtv.org',
     "Reply-to"      => 'mythtv-dev@mythtv.org',
     "X-Repository"  => $repository,
+    "X-Branch"      => $branch,
 );
 
 foreach my $commit ( @{$payload->{"commits"}} ) {
