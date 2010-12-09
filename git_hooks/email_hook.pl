@@ -35,8 +35,9 @@ my $repository = $payload->{"repository"}->{"name"};
 my $branch = $payload->{"ref"};
 $branch =~ s/^refs\/.*?\///;
 
-if ($branch !~ /^(?:master|fixes\/)/)
+if ($branch !~ /^(?:master|fixes\/)/) {
     exit 0;
+}
 
 # These maybe should go into a config file later
 my %headers = (
