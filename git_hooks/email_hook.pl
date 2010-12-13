@@ -7,7 +7,7 @@ use CGI;
 use JSON;
 use Mail::Send;
 
-my $debug = 0;
+my $debug = 1;
 
 my $r = shift;
 
@@ -26,7 +26,7 @@ my $payload = CGI->new->param('payload');
 $payload    = $json->decode($payload);
 
 if ( $debug ) {
-    open FH, ">", "/tmp/dump.json";
+    open FH, ">>", "/tmp/dump.json";
     print FH $json->pretty->encode($payload);
     close FH;
 }
