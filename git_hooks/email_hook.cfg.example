@@ -1,0 +1,8 @@
+debug = 1
+ignoreregexp = '^(?:master|fixes\/)'
+<db>
+  database = email_hook
+  host     = localhost
+  user     = email_hook
+  password = email_hook
+</db>

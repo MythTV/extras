@@ -1,13 +1,17 @@
 #! /usr/bin/perl
 # vim:ts=4:sw=4:ai:et:si:sts=4
+
 use strict;
 use warnings;
 use Apache2::Const -compile => qw(M_POST HTTP_METHOD_NOT_ALLOWED);
 use CGI;
 use JSON;
 use Mail::Send;
-
-my $debug = 1;
+use Config::General;
+use DBI;
+use File::Basename;
+use English;
+use Cwd 'abs_path';
 
 my $r = shift;
 
@@ -16,6 +20,12 @@ unless ($r->method_number == Apache2::Const::M_POST) {
     $r->status(Apache2::Const::HTTP_METHOD_NOT_ALLOWED);
     return;
 }
+
+my $conffile = dirname(abs_path($0 or $PROGRAM_NAME)) . "email_hook.cfg"
+my $conf = new Config::General($conffile);
+my %config = $conf->getall;
+
+my $debug = $config{'debug'} or 0;
 
 $r->content_type('text/html');
 $r->print();
@@ -35,9 +45,22 @@ my $repository = $payload->{"repository"}->{"name"};
 my $branch = $payload->{"ref"};
 $branch =~ s/^refs\/.*?\///;
 
-if ($branch !~ /^(?:master|fixes\/)/) {
+$regexp = qr($config{'ignoreregexp'});
+if ($branch !~ $regexp) {
     exit 0;
 }
+
+my $dbh = DBI->connect("dbi:mysql:database=".$config{'db'}{'database'}.
+                       ":host=".$config{'db'}{'host'},
+                       $config{'db'}{'user'}, $config{'db'}{'password'})
+            or die "Cannot connect to database: " . DBI::errstr . "\n";
+
+my $q = "SELECT sha1 FROM seen WHERE sha1 = ?";
+my $select_h = $dbh->prepare($q);
+
+$q = "INSERT INTO seen (sha1, lastseen) VALUES (?, NULL)";
+my $insert_h = $dbh->prepare($q);
+
 
 # These maybe should go into a config file later
 my %headers = (
@@ -50,6 +73,10 @@ my %headers = (
 
 foreach my $commit ( @{$payload->{"commits"}} ) {
     my $longsha = $commit->{"id"};
+    $select_h->execute($longsha);
+    my ($resultsha) = $select_h->fetchrow_array;
+    next if defined $resultsha;
+
     my $shortsha = substr $longsha, 0, 9;
     my $changeurl = $commit->{"url"};
     $changeurl =~ s/$longsha$/$shortsha/;
@@ -103,5 +130,7 @@ EOF
     my $fh = $msg->open;
     print $fh $email;
     $fh->close;
+
+    $insert_h->execute($longsha);
 }
 
