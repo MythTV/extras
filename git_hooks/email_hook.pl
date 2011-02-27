@@ -55,7 +55,7 @@ my $dbh = DBI->connect("dbi:mysql:database=".$config{'db'}{'database'}.
                        $config{'db'}{'user'}, $config{'db'}{'password'})
             or die "Cannot connect to database: " . DBI::errstr . "\n";
 
-my $q = "SELECT sha1 FROM seen WHERE repo = ?, sha1 = ?";
+my $q = "SELECT sha1 FROM seen WHERE repo = ? AND sha1 = ?";
 my $select_h = $dbh->prepare($q);
 
 $q = "INSERT INTO seen (repo, sha1, lastseen) VALUES (?, ?, NULL)";
