@@ -21,7 +21,7 @@ unless ($r->method_number == Apache2::Const::M_POST) {
     return;
 }
 
-my $conffile = dirname(abs_path($0 or $PROGRAM_NAME)) . "email_hook.cfg"
+my $conffile = dirname(abs_path($0 or $PROGRAM_NAME)) . "/email_hook.cfg";
 my $conf = new Config::General($conffile);
 my %config = $conf->getall;
 
@@ -45,7 +45,7 @@ my $repository = $payload->{"repository"}->{"name"};
 my $branch = $payload->{"ref"};
 $branch =~ s/^refs\/.*?\///;
 
-$regexp = qr($config{'ignoreregexp'});
+my $regexp = qr($config{'ignoreregexp'});
 if ($branch !~ $regexp) {
     exit 0;
 }

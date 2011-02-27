@@ -1,5 +1,5 @@
 debug = 1
-ignoreregexp = '^(?:master|fixes\/)'
+ignoreregexp = ^(?:master|fixes\/)
 <db>
   database = email_hook
   host     = localhost
