@@ -55,10 +55,10 @@ my $dbh = DBI->connect("dbi:mysql:database=".$config{'db'}{'database'}.
                        $config{'db'}{'user'}, $config{'db'}{'password'})
             or die "Cannot connect to database: " . DBI::errstr . "\n";
 
-my $q = "SELECT sha1 FROM seen WHERE sha1 = ?";
+my $q = "SELECT sha1 FROM seen WHERE repo = ?, sha1 = ?";
 my $select_h = $dbh->prepare($q);
 
-$q = "INSERT INTO seen (sha1, lastseen) VALUES (?, NULL)";
+$q = "INSERT INTO seen (repo, sha1, lastseen) VALUES (?, ?, NULL)";
 my $insert_h = $dbh->prepare($q);
 
 
@@ -73,7 +73,7 @@ my %headers = (
 
 foreach my $commit ( @{$payload->{"commits"}} ) {
     my $longsha = $commit->{"id"};
-    $select_h->execute($longsha);
+    $select_h->execute($repository,$longsha);
     my ($resultsha) = $select_h->fetchrow_array;
     next if defined $resultsha;
 
@@ -131,6 +131,6 @@ EOF
     print $fh $email;
     $fh->close;
 
-    $insert_h->execute($longsha);
+    $insert_h->execute($repository,$longsha);
 }
 
