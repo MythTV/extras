@@ -74,8 +74,7 @@ my %headers = (
 foreach my $commit ( @{$payload->{"commits"}} ) {
     my $longsha = $commit->{"id"};
     $select_h->execute($repository,$longsha);
-    my ($resultsha) = $select_h->fetchrow_array;
-    next if defined $resultsha;
+    next if $select_h->rows;
 
     my $shortsha = substr $longsha, 0, 9;
     my $changeurl = $commit->{"url"};
