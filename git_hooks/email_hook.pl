@@ -13,6 +13,7 @@ use File::Basename;
 use English;
 use Cwd 'abs_path';
 
+my $filtered = 0;
 my $r = shift;
 
 unless ($r->method_number == Apache2::Const::M_POST) {
@@ -47,7 +48,7 @@ $branch =~ s/^refs\/.*?\///;
 
 my $regexp = qr($config{'ignoreregexp'});
 if ($branch !~ $regexp) {
-    exit 0;
+    $filtered = 1;
 }
 
 my $dbh = DBI->connect("dbi:mysql:database=".$config{'db'}{'database'}.
@@ -63,9 +64,17 @@ my $insert_h = $dbh->prepare($q);
 
 
 # These maybe should go into a config file later
-my %headers = (
+my %commitsheaders = (
     "From"          => 'MythTV <noreply@mythtv.org>',
     "To"            => 'mythtv-commits@mythtv.org',
+    "Reply-to"      => 'mythtv-dev@mythtv.org',
+    "X-Repository"  => $repository,
+    "X-Branch"      => $branch,
+);
+
+my %firehoseheaders = (
+    "From"          => 'MythTV <noreply@mythtv.org>',
+    "To"            => 'mythtv-firehose@mythtv.org',
     "Reply-to"      => 'mythtv-dev@mythtv.org',
     "X-Repository"  => $repository,
     "X-Branch"      => $branch,
@@ -119,17 +128,25 @@ EOF
         $email .= "Modified:\n\n   " . join("\n   ", @array) . "\n\n";
     }
 
-    # Send the email
+    # Send the firehose email
+    send_email($subject, $email, \%firehoseheaders);
+
+    # Send the commits email
+    send_email($subject, $email, \%commitsheaders) if !$filtered;
+
+    $insert_h->execute($repository,$longsha);
+}
+
+sub send_email {
+    my ($subject, $email, $headers) = @_;
+
     my $msg = Mail::Send->new;
     $msg->subject($subject);
-    foreach my $h (keys %headers) {
-        $msg->set($h, $headers{$h});
+    foreach my $h (keys %{$headers}) {
+        $msg->set($h, $headers->{$h});
     }
 
     my $fh = $msg->open;
     print $fh $email;
     $fh->close;
-
-    $insert_h->execute($repository,$longsha);
 }
-
