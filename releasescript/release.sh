@@ -1,32 +1,22 @@
 #!/bin/sh
 
-RELEASEP="0.24"
-RELEASEM="0-24"
+RELEASEP="0.24.1"
 
-echo "Exporting $RELEASEP repository"
-svn export http://svn.mythtv.org/svn/tags/release-$RELEASEM > /dev/null
-pushd release-$RELEASEM > /dev/null
-echo "Renaming release directories"
-mv mythtv      mythtv-$RELEASEP
-mv mythplugins mythplugins-$RELEASEP
-mv myththemes  myththemes-$RELEASEP
-echo 'SOURCE_VERSION="$RELEASEP"' > mythtv-$RELEASEP/VERSION
-echo "Taring release files"
-tar cf ../mythtv-$RELEASEP.tar      mythtv-$RELEASEP
-tar cf ../mythplugins-$RELEASEP.tar mythplugins-$RELEASEP
-tar cf ../myththemes-$RELEASEP.tar  myththemes-$RELEASEP
-echo "Restoring release directory names"
-mv mythtv-$RELEASEP      mythtv
-mv mythplugins-$RELEASEP mythplugins
-mv myththemes-$RELEASEP  myththemes
-echo "Compressing release files"
+echo "Creating release directory"
+mkdir release > /dev/null
+pushd mythtv > /dev/null
+echo "Archiving MythTV v$RELEASEP"
+git archive --format=tar --prefix mythtv-$RELEASEP/ -o ../release/mythtv-$RELEASEP.tar v$RELEASEP mythtv
+echo "Archiving MythPlugins v$RELEASEP"
+git archive --format=tar --prefix mythplugins-$RELEASEP/ -o ../release/mythplugins-$RELEASEP.tar v$RELEASEP mythplugins
 popd > /dev/null
+pushd release > /dev/null
+echo "Compressing release files"
 bzip2 -9 mythtv-$RELEASEP.tar
-bzip2 -9 myththemes-$RELEASEP.tar
 bzip2 -9 mythplugins-$RELEASEP.tar
 echo "Computing md5 sums"
 md5sum mythtv-$RELEASEP.tar.bz2      > mythtv-$RELEASEP.md5sum
 md5sum mythplugins-$RELEASEP.tar.bz2 > mythplugins-$RELEASEP.md5sum
-md5sum myththemes-$RELEASEP.tar.bz2  > myththemes-$RELEASEP.md5sum
-echo "Done, created these output files:"
-ls -l myth{tv,plugins,themes}-$RELEASEP.{tar.bz2,md5sum}
+echo "Done, created these output files in release directory:"
+ls -lh myth{tv,plugins}-$RELEASEP.{tar.bz2,md5sum}
+popd > /dev/null
