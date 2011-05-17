@@ -6,9 +6,13 @@ echo "Creating release directory"
 mkdir release > /dev/null
 pushd mythtv > /dev/null
 echo "Archiving MythTV v$RELEASEP"
-git archive --format=tar --prefix mythtv-$RELEASEP/ -o ../release/mythtv-$RELEASEP.tar v$RELEASEP mythtv
+pushd mythtv > /dev/null
+git archive --format=tar --prefix mythtv-$RELEASEP/ -o ../../release/mythtv-$RELEASEP.tar v$RELEASEP
+popd > /dev/null
+pushd mythplugins > /dev/null
 echo "Archiving MythPlugins v$RELEASEP"
-git archive --format=tar --prefix mythplugins-$RELEASEP/ -o ../release/mythplugins-$RELEASEP.tar v$RELEASEP mythplugins
+git archive --format=tar --prefix mythplugins-$RELEASEP/ -o ../../release/mythplugins-$RELEASEP.tar v$RELEASEP
+popd > /dev/null
 popd > /dev/null
 pushd release > /dev/null
 echo "Compressing release files"
