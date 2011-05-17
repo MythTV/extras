@@ -25,7 +25,7 @@ popd > /dev/null
 pushd release > /dev/null
 tar xf mythweb-$RELEASEP.tar
 tar --append -f mythplugins-$RELEASEP.tar mythplugins-$RELEASEP
-rm -rf mythplugins-$RELEASEP
+rm -rf mythplugins-$RELEASEP mythweb-$RELEASEP.tar
 popd > /dev/null
 
 pushd release > /dev/null
