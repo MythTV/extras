@@ -31,9 +31,18 @@ my $debug = $config{'debug'} or 0;
 $r->content_type('text/html');
 $r->print();
 
+
 # Payload is described at http://help.github.com/post-receive-hooks/
 my $json    = JSON->new->utf8;
 my $payload = CGI->new->param('payload');
+
+# Log the raw payload too!
+if ( $debug ) {
+    open FH, ">>", "/tmp/dump.raw..json";
+    print FH "$payload\n";
+    close FH;
+}
+
 $payload    = $json->decode($payload);
 
 if ( $debug ) {
