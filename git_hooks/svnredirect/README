@@ -1,0 +1,13 @@
+This utility maps the old subversion changesets to the new git
+hashes, and allows old references to continue to work using URLs
+such as the following:
+
+  http://code.mythtv.org/svnredirect/26280
+
+If there is a 1:1 matching, the link redirects directly to the
+relevent page on github.  If the changeset is instead mapped to
+code that is now in multiple repositories, this displays a page
+with links to each.
+
+This uses the existing database lookup tables as produced for
+use with the MythLogBot IRC bot.
