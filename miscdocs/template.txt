@@ -1,0 +1,17 @@
+Developer's Full Name:
+
+Developer's Canonical Alias (first initial, last name): 
+
+GPG Key ID:
+
+SSH Key (paste below):
+
+
+htpasswd line:
+
+IRC nickname (N/A if you don't do IRC):
+
+Would you like a mythtv/developer IRC cloak?
+
+
+Please attach the signed code of conduct file.
