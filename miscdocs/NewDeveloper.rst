@@ -1,3 +1,5 @@
+NOTE:  This is not yet in effect.  No freaking out.
+
 ========================================
 Information for the new MythTV developer
 ========================================
@@ -12,13 +14,13 @@ below), and send the signed copy to: new-developer@mythtv.org.
 Git Access
 ----------
 
-| Our code is committed via centralized git repositories at:
-|    git@code.mythtv.org:/mythtv
-|    git@code.mythtv.org:/mythweb
-|    git@code.mythtv.org:/packaging
-|    git@code.mythtv.org:/extras
-|    git@code.mythtv.org:/myththemes
-|    git@code.mythtv.org:/nuvexport
+Our code is committed via centralized git repositories at:
+ - git@code.mythtv.org:/mythtv
+ - git@code.mythtv.org:/mythweb
+ - git@code.mythtv.org:/packaging
+ - git@code.mythtv.org:/extras
+ - git@code.mythtv.org:/myththemes
+ - git@code.mythtv.org:/nuvexport
 
 These repositories are all mirrored at github.com/MythTV for use by the public,
 but be forewarned:  if you commit to github directly, your commits will be
@@ -30,10 +32,17 @@ key (see below) to: new-developer@mythtv.org
 Mail Aliases
 ------------
 
-| Every developer is given a mail alias in the form:
-|   first initial + last name @mythtv.org
-| for instance:
-|   ghurlbut@mythtv.org  (for Gavin Hurlbut)
+Every developer is given a mail alias in the form:
+
+::
+
+   first initial + last name @mythtv.org
+
+for instance:
+
+::
+
+   ghurlbut@mythtv.org  (for Gavin Hurlbut)
 
 Additionally, if you would like a nickname mapped, please let us know via:
 new-developer@mythtv.org.  We will need to know what valid email address this
@@ -155,6 +164,8 @@ Paste the output line into the template email.
 Git setup
 ---------
  - please use git 1.6 or newer
+ - at some point, we may begin enforcing that the correct email is being used
+   at commit time, but right now, it's on the honor system.
  - please do:
 
 ::
@@ -162,5 +173,3 @@ Git setup
   $ git config --global user.name "Full Name"
   $ git config --global user.email canonicalalias@mythtv.org
 
- - at some point, we may begin enforcing that the correct email is being used
-   at commit time, but right now, it's on the honor system.
