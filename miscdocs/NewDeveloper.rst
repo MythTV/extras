@@ -130,7 +130,7 @@ to include the signature, you will need to do:
 
 ::
 
-  $ gpg --keyserver keyserver.ubuntu.com --recv-key 0x950452A3
+  $ gpg --keyserver keyserver.ubuntu.com --recv-key 0x950462A3
 
 This will update your keychain with the signature we added.  Should you wish to 
 sign a key for someone else (please make sure by all means possible that it
