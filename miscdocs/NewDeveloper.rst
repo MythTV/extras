@@ -46,9 +46,8 @@ for instance:
 
    ghurlbut@mythtv.org  (for Gavin Hurlbut)
 
-Additionally, if you would like a nickname mapped, please let us know via:
-new-developer@mythtv.org.  We will need to know what valid email address this
-email should forward to.
+Additionally, if you would like a nickname mapped, please let us know.
+We will need to know what valid email address this email should forward to.
 
 Either the canonical mail alias or the nickname mail alias is to be used for
 all git commits, and also for generating the GPG key, and will be used for
@@ -131,7 +130,7 @@ to include the signature, you will need to do:
 
 ::
 
-  $ gpg --keyserver keyserver.ubuntu.com --recv-key 0x920452A3
+  $ gpg --keyserver keyserver.ubuntu.com --recv-key 0x950452A3
 
 This will update your keychain with the signature we added.  Should you wish to 
 sign a key for someone else (please make sure by all means possible that it

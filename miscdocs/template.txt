@@ -4,6 +4,8 @@ Developer's Canonical Alias (first initial, last name):
 
 Developer's Nickname Alias (optional - keep it clean!):
 
+Email to forward above aliases to:
+
 GPG Key ID:
 
 SSH Key(s) (paste below):
