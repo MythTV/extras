@@ -19,7 +19,6 @@ Our code is committed via centralized git repositories at:
  - git@code.mythtv.org:/mythweb
  - git@code.mythtv.org:/packaging
  - git@code.mythtv.org:/extras
- - git@code.mythtv.org:/myththemes
  - git@code.mythtv.org:/nuvexport
 
 These repositories are all mirrored at github.com/MythTV for use by the public,
@@ -28,6 +27,9 @@ blown away on the next commit to the mythtv repos.
 
 To get commit access to the MythTV repos, you will need to send an ssh public
 key (see below) to: new-developer@mythtv.org
+
+Your git username will be either your canonical username (see below), or, if
+that is too long or cumbersome, we can use your requested nickname instead.
 
 Mail Aliases
 ------------
@@ -48,15 +50,27 @@ Additionally, if you would like a nickname mapped, please let us know via:
 new-developer@mythtv.org.  We will need to know what valid email address this
 email should forward to.
 
-The canonical mail alias is to be used for all git commits, and also for
-generating the GPG key.
+Either the canonical mail alias or the nickname mail alias is to be used for
+all git commits, and also for generating the GPG key, and will be used for
+your git userid and your trac userid.
+
+You will likely want to create a github account as well (not absolutely needed)
+and link your canonical and/or nickname mail aliases to that github account.
+This will make it look "nicer" on github, but is not a requirement.
 
 
 Trac Access
 -----------
 
 To be added into Trac as a developer, we need an htpasswd line for your 
-user.  Send this to: new-developer@mythtv.org.
+user.  To create this password (or to change it later), once your git access is
+in place, do:
+
+::
+
+    ssh git@code.mythtv.org htpasswd
+
+Your trac username will match your git username.
 
 
 IRC Cloak
@@ -151,14 +165,9 @@ SSH Key
 Paste in the .pub file generated into the template email.  Be careful not to
 change it in any way.
 
-Htpasswd entry
---------------
-
-::
-
-  $ htpasswd -m -n username      --- please use either the canonical or nick
-
-Paste the output line into the template email.
+If you have more than one development box and want separate keys on each,
+please send all the public keys you wish to have access with.  This is not an
+issue.
 
 
 Git setup
