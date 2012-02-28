@@ -78,7 +78,8 @@ IRC Cloak
 If you are an IRC user, and you would like a "mythtv/developer" cloak, please
 indicate your IRC user and desire for a cloak in the template email.
 
-
+Your IRC nick MUST be registered with nickserv in order to be granted a cloak.
+This is required by freenode and enforced by freenode staff.
 
 =======
 Details
