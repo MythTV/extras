@@ -1,6 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
-RELEASEP="0.24.1"
+if [ "$1" == "" ] 
+then
+    echo "Usage:  $0 releasetag"
+    echo ""
+    exit 1
+fi
+
+RELEASEP=$1
 
 echo "Creating release directory"
 mkdir release > /dev/null
