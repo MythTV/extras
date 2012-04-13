@@ -228,17 +228,14 @@ generate_email_header()
 	# Generate header
 	cat <<-EOF
 	To: $recipients
-	Subject: ${emailprefix}$projectdesc $refname_type $short_refname ${change_type}d. $describe
+	Subject: ${emailprefix}$projectdesc $refname_type $short_refname ${change_type}d by $GL_USER. $describe
 	X-Git-Refname: $refname
 	X-Git-Reftype: $refname_type
 	X-Git-Oldrev: $oldrev
 	X-Git-Newrev: $newrev
 
-	This is an automated email from the git hooks/post-receive script. It was
-	generated because a ref change was pushed to the repository containing
-	the project "$projectdesc".
-
-	The $refname_type, $short_refname has been ${change_type}d
+	The $refname_type, $short_refname has been ${change_type}d on the
+	$projectdesc repository by gitolite user $GL_USER.
 	EOF
 }
 
@@ -247,10 +244,8 @@ generate_email_footer()
 	SPACE=" "
 	cat <<-EOF
 
+	--$SPACE
 
-	hooks/post-receive
-	--${SPACE}
-	$projectdesc
 	EOF
 }
 
@@ -656,7 +651,8 @@ show_new_revisions()
 	git rev-parse --not $other_branches |
 	if [ -z "$custom_showrev" ]
 	then
-		git rev-list --pretty=fuller --stdin $revspec
+		#git rev-list --pretty=fuller --stdin $revspec
+		git rev-list --format="$FORMAT" --stdin $revspec
 	else
 		git rev-list --stdin $revspec |
 		while read onerev
@@ -723,6 +719,8 @@ envelopesender=$(git config hooks.envelopesender)
 emailprefix=$(git config hooks.emailprefix || echo '[SCM] ')
 custom_showrev=$(git config hooks.showrev)
 maxlines=$(git config hooks.emailmaxlines)
+BASEURL="http://code.mythtv.org/cgit/$GL_REPO/commit/?id="
+FORMAT="Author:    %an <%ae> at %aD%nCommitter: %cn <%ce> at %cD%nURL:       $BASEURL%H%n%n%s%n%b%n%n"
 
 # --- Main loop
 # Allow dual mode: run from the command line just like the update hook, or
