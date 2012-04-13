@@ -13,7 +13,7 @@
 <?php
 echo "Your search of revision <b><i>{$revision}</i></b> has turned up {$rowcount} results:<br>\n";
 while ( $row = mysql_fetch_assoc($result) ) {
-    echo "&nbsp;&nbsp;&nbsp; <a href='http://github.com/MythTV/".$row['repo']."/commit/".$row['sha1']."'>MythTV/".$row['repo']."/".$row['branch']."/".substr($row['sha1'], 0, 9)."</a><br>\n";
+    echo "&nbsp;&nbsp;&nbsp; <a href='http://code.mythtv.org/trac/changeset/{$row['sha1']}/{$row['repo']}'>MythTV/{$row['repo']}/{$row['branch']}/".substr($row['sha1'], 0, 9)."</a><br>\n";
 }
 ?>
 </body>

@@ -2,7 +2,7 @@
 $row = mysql_fetch_assoc($result);
 
 header("HTTP/1.1 301 Moved Permanently");
-header("Location: http://github.com/MythTV/{$row['repo']}/commit/{$row['sha1']}")
+header("Location: http://code.mythtv.org/trac/changeset/{$row['sha1']}/{$row['repo']}")
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -17,6 +17,6 @@ header("Location: http://github.com/MythTV/{$row['repo']}/commit/{$row['sha1']}"
 
 <body>
 <?php
-echo "You are seeing this page because your browser does not properly handle HTTP/301 redirects.  Please continue to <a href='http://github.com/MythTV/{$row['repo']}/commit/{$row['sha1']}'>Github</a>...\n";
+echo "You are seeing this page because your browser does not properly handle HTTP/301 redirects.  Please continue to <a href='http://code.mythtv.org/trac/changeset/{$row['sha1']}/{$row['repo']}'>Trac</a>...\n";
 ?>
 </body>
