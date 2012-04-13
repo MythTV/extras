@@ -1,0 +1,113 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+# === update ===
+# this is gitolite's update hook
+
+# ----------------------------------------------------------------------------
+#       find the rc file, then pull the libraries
+# ----------------------------------------------------------------------------
+
+BEGIN {
+    # people with shell access should be allowed to bypass the update hook,
+    # simply by setting an env var that the ssh "front door" will never set
+    exit 0 if exists $ENV{GL_BYPASS_UPDATE_HOOK};
+
+    die "ENV GL_RC not set\n" unless $ENV{GL_RC};
+    die "ENV GL_BINDIR not set\n" unless $ENV{GL_BINDIR};
+}
+
+use lib $ENV{GL_BINDIR};
+use gitolite_rc;
+use gitolite qw(:DEFAULT %repos);
+
+# ----------------------------------------------------------------------------
+#       start...
+# ----------------------------------------------------------------------------
+
+my ($perm, $creator, $wild) = repo_rights($ENV{GL_REPO});
+my $reported_repo = $ENV{GL_REPO} . ( $wild ? " ($wild)" : "" );
+
+# arguments are as supplied to an update hook by git; man githooks
+my ($ref, $oldsha, $newsha) = @ARGV;
+my $merge_base = '0' x 40;
+# compute a merge-base if both SHAs are non-0, else leave it as '0'x40
+# (i.e., for branch create or delete, merge_base == '0'x40)
+chomp($merge_base = `git merge-base $oldsha $newsha`)
+    unless $oldsha eq '0' x 40
+        or $newsha eq '0' x 40;
+
+# att_acc == attempted access -- what are you trying to do?  (is it 'W' or '+'?)
+my $att_acc = 'W';
+# rewriting a tag is considered a rewind, in terms of permissions
+$att_acc = '+' if $ref =~ m(refs/tags/) and $oldsha ne ('0' x 40);
+# non-ff push to ref
+# notice that ref delete looks like a rewind, as it should
+$att_acc = '+' if $oldsha ne $merge_base;
+
+# were any 'D' perms specified?  If they were, it means we have to separate
+# deletes from rewinds, so if the new sha is all 0's, change the '+' to a 'D'
+$att_acc = 'D' if ( $repos{$ENV{GL_REPO}}{DELETE_IS_D} or $repos{'@all'}{DELETE_IS_D} ) and $newsha eq '0' x 40;
+# similarly C for create a branch
+$att_acc = 'C' if ( $repos{$ENV{GL_REPO}}{CREATE_IS_C} or $repos{'@all'}{CREATE_IS_C} ) and $oldsha eq '0' x 40;
+
+# and now "M" commits.  This presents a bit of a problem.  All the other
+# accesses (W, +, C, D) were mutually exclusive in some sense.  Sure a W could
+# be a C or a + could be a D but that's by design.  A merge commit, however,
+# could still be any of the others (except a "D").
+
+# so we have to *append* 'M' to $att_acc (if the repo has MERGE_CHECK in
+# effect and this push contains a merge inside)
+if ( $repos{ $ENV{GL_REPO} }{MERGE_CHECK} or $repos{'@all'}{MERGE_CHECK} ) {
+    if ( $oldsha eq '0' x 40 or $newsha eq '0' x 40 ) {
+        warn "ref create/delete ignored for purposes of merge-check\n";
+    } else {
+        $att_acc .= 'M' if `git rev-list -n 1 --merges $oldsha..$newsha` =~ /./;
+    }
+}
+
+my @allowed_refs;
+# @all repos: see comments in similar code in check_access
+push @allowed_refs, @ { $repos{$ENV{GL_REPO}}{$ENV{GL_USER}} || [] };
+push @allowed_refs, @ { $repos{'@all'}       {$ENV{GL_USER}} || [] };
+push @allowed_refs, @ { $repos{$ENV{GL_REPO}}{'@all'} || [] };
+push @allowed_refs, @ { $repos{'@all'}       {'@all'} || [] };
+
+# prepare the list of refs to be checked
+
+# previously, we just checked $ref -- the ref being updated, which is passed
+# to us by git (see man githooks).  Now we also have to treat each NAME being
+# updated as a potential "ref" and check that, if NAME-based restrictions have
+# been specified
+
+my @refs = ($ref);      # the first ref to check is the real one
+# because making it work screws up efficiency like no tomorrow...
+if (exists $repos{$ENV{GL_REPO}}{NAME_LIMITS}) {
+    # this is special to git -- the hash of an empty tree
+    my $empty='4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+    # well they're not really "trees" but $empty is indeed the empty tree so
+    # we can just pretend $oldsha/$newsha are also trees, and anyway 'git
+    # diff' only wants trees
+    my $oldtree = $oldsha eq '0' x 40 ? $empty : $oldsha;
+    my $newtree = $newsha eq '0' x 40 ? $empty : $newsha;
+    push @refs, map { chomp; s/^/NAME\//; $_; } `git diff --name-only $oldtree $newtree`;
+}
+
+# we potentially have many "refs" to check.  The one we print in the log is
+# the *first* one (which is a *real* ref, like refs/heads/master), while all
+# the rest (if they exist) are like NAME/something.  So we do the first one
+# separately to capture it, then run the rest (if any)
+my $log_refex = check_ref(\@allowed_refs, $ENV{GL_REPO}, (shift @refs), $att_acc);
+check_ref                (\@allowed_refs, $ENV{GL_REPO}, $_           , $att_acc) for @refs;
+
+# if we returned at all, all the checks succeeded.  Check secondary hooks now
+$UPDATE_CHAINS_TO ||= 'hooks/update.secondary';
+-x $UPDATE_CHAINS_TO and system ( $UPDATE_CHAINS_TO, @ARGV ) and die "$UPDATE_CHAINS_TO died\n";
+
+# now log it and exit 0 so git can get on with it
+log_it("", "$att_acc\t" .  substr($oldsha, 0, 14) . "\t" . substr($newsha, 0, 14) .
+    "\t$reported_repo\t$ref\t$log_refex");
+
+exit 0;

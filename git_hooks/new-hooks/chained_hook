@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use autodie;
+use File::Temp qw( tempfile );
+use IPC::Cmd qw( run );
+
+if (@ARGV and $ARGV[0] eq 'wrapper') {
+    shift( @ARGV );
+
+    my $hook_filename = shift( @ARGV );
+    my $temp_filename = shift( @ARGV );
+
+    open( STDIN, '<', $temp_filename );
+
+    exec($hook_filename, @ARGV);
+}
+
+my $hook_type = $0;
+$hook_type =~ s{^.+/}{};
+
+my $git_dir = $ENV{GIT_DIR} || `git rev-parse --git-dir`;
+chomp( $git_dir );
+my $hook_dir = $git_dir . "/hooks";
+
+opendir( my $dh, $hook_dir );
+my @hooks = sort grep { /^${hook_type}_/ } readdir( $dh );
+closedir( $dh );
+
+my ($temp_fh, $temp_filename) = tempfile(UNLINK => 1);
+while (my $line = <STDIN>) {
+    print $temp_fh $line;
+}
+close( $temp_fh );
+
+foreach my $hook (@hooks) {
+    my $hooktype = $hook;
+    $hooktype =~ s/^.*_//;
+    print "Executing $hooktype hook\n";
+
+    my @cmd = [ $0, 'wrapper', "$hook_dir/$hook", $temp_filename, @ARGV, ];
+    my ($success, $error, $full_buf) = run( command => @cmd );
+    print join('', @$full_buf);
+
+    if (!$success) {
+        die "Error running hook: " . $hook . ": $error\n";
+    }
+}

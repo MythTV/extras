@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# gitolite mirroring
+
+# please see doc/mirroring.mkd for instructions on how to use this
+
+die() { echo $0 "(post-receive.mirrorpush):" "$@" >&2; exit 1; }
+
+# flush STDIN coming from git; we have no use for that info in this hook but
+# if you don't do this, git-shell sometimes dies of a signal 13 (SIGPIPE)
+[ -t 0 ] || cat >/dev/null
+
+# even slaves have post-receive hooks, so we bail when a mirrored push happens
+[ -n "$GL_BYPASS_UPDATE_HOOK" ] && exit 0
+
+# CAUTION: a server-side push (bypassing gitolite) will not be mirrored
+# automatically because we don't know GL_REPO (we can deduce it but we won't!)
+[ -z "$GL_REPO" ] && die GL_REPO not set
+[ -z "$GL_BINDIR" ] && die GL_BINDIR not set
+
+slaves=`git config --get gitolite.mirror.slaves`
+[ -z "$slaves" ] && exit 0
+$GL_BINDIR/gl-mirror-push $GL_REPO $slaves
