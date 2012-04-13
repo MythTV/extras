@@ -35,8 +35,19 @@ tar --append -f mythplugins-$RELEASEP.tar mythplugins-$RELEASEP
 rm -rf mythplugins-$RELEASEP mythweb-$RELEASEP.tar
 popd > /dev/null
 
+# The VERSION file is used to fill in --version for non-git builds
+echo "Fixing VERSION file"
 pushd release > /dev/null
+tar xf mythtv-$RELEASEP.tar
+pushd mythtv-$RELEASEP > /dev/null
+echo SOURCE_VERSION='"v'$RELEASEP'"' > VERSION
+popd > /dev/null
+tar cf mythtv-$RELEASEP.tar mythtv-$RELEASEP
+rm -rf mythtv-$RELEASEP
+popd > /dev/null
+
 echo "Compressing release files"
+pushd release > /dev/null
 bzip2 -9 mythtv-$RELEASEP.tar
 bzip2 -9 mythplugins-$RELEASEP.tar
 
