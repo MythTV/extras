@@ -41,7 +41,6 @@ git tag -a -f -m "Tagging release $RELEASEP" v$RELEASEP
 git push -f origin v$RELEASEP
 
 echo "Archiving MythTV v$RELEASEP"
-pushd mythtv > /dev/null
 git archive --format=tar --prefix mythtv-$RELEASEP/ -o ../../release/mythtv-$RELEASEP.tar v$RELEASEP
 popd > /dev/null
 
