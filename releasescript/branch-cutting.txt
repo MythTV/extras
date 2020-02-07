@@ -1,0 +1,8 @@
+- Create Branches for each repo (mythtv, mythweb, packaging) and push
+* Master
+  - Update VERSION in master to next -Pre version. ie v32-Pre. and push
+  - Create tag in master for next -Pre version. ie v32-Pre, and *force* push
+  - Update binary version (mythtv/libs/libmythbase/mythversion.h)
+  - Update library version (mythtv/settings.pro & mythplugins/settings.pro)
+* Branch
+  - Update VERSION in fixes branch to something like "v31-Branch". and push
