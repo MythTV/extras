@@ -1,4 +1,6 @@
 - Create Branches for each repo (mythtv, mythweb, packaging) and push
+- Create Branches for each theme in https://github.com/MythTV-themes/
+
 * Master
   - Update VERSION in master to next -Pre version. ie v32-Pre. and push
   - Create tag in master for next -Pre version. ie v32-Pre, and *force* push
@@ -8,3 +10,6 @@
     - Example: https://github.com/MythTV/mythtv/commit/28694639115456db02cfc12cd454d7429065359d
 * Branch
   - Update VERSION in fixes branch to something like "v31-Branch". and push
+
+- Update theme packaging script to package themes for new version
+
