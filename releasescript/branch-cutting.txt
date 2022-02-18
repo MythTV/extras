@@ -3,6 +3,10 @@
 - Create Branches for each theme in https://github.com/MythTV-themes/
 
 * Master (make a new clone from github just for this process)
+  - Update theme strings
+    - Run make in the "themestringstool" directory
+    - Run the `run.sh` wrapper script
+    - Commit any changed themestring.h files
   - Update SRC_VERSION in master to next -Pre version. ie v33-Pre. and push
   - Create an annotated tag in master for next -Pre version. ie v33-Pre, and 'git push --tags'
   - Update binary version (mythtv/libs/libmythbase/mythversion.h)
