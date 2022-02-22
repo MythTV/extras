@@ -7,6 +7,13 @@ then
     exit 1
 fi
 
+if [[ $1 == v* ]]
+then
+    echo "Bad releasetag. Use only numbers, like '32.0'"
+    echo ""
+    exit 1
+fi
+
 RELEASEP=$1
 
 echo "Creating release directory"
