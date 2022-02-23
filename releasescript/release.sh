@@ -34,10 +34,10 @@ read -p "Continue? " yes
 if [ .$yes. == .n. -o .$yes. == .N. ] ; then exit 1 ; fi
 popd > /dev/null
 
-# The VERSION file is used to fill in --version for non-git builds
+# The SRC_VERSION file is used to fill in --version for non-git builds
 pushd mythtv > /dev/null
 pushd mythtv > /dev/null
-echo "Fixing VERSION file"
+echo "Fixing SRC_VERSION file"
 echo SOURCE_VERSION='"v'$RELEASEP'"' > SRC_VERSION
 git add SRC_VERSION
 git commit -m "Setting SRC_VERSION to v$RELEASEP"
