@@ -38,9 +38,9 @@ popd > /dev/null
 pushd mythtv > /dev/null
 pushd mythtv > /dev/null
 echo "Fixing VERSION file"
-echo SOURCE_VERSION='"v'$RELEASEP'"' > VERSION
-git add VERSION
-git commit -m "Setting VERSION to v$RELEASEP"
+echo SOURCE_VERSION='"v'$RELEASEP'"' > SRC_VERSION
+git add SRC_VERSION
+git commit -m "Setting SRC_VERSION to v$RELEASEP"
 git push origin
 
 echo "Tagging MythTV v$RELEASEP"
