@@ -1,22 +1,20 @@
 - Create Branches for each repo (mythtv, mythweb, packaging) and push
-  - git push -n origin HEAD:refs/heads/fixes/32
+  - git push origin HEAD:refs/heads/fixes/33
 - Create Branches for each theme in https://github.com/MythTV-themes/
+  - run branch_themes.sh script
 
 * Master (make a new clone from github just for this process)
   - Update theme strings
     - Run make in the "themestringstool" directory
     - Run the `run.sh` wrapper script
     - Commit any changed themestring.h files
-  - Update SRC_VERSION in master to next -Pre version. ie v33-Pre. and push
-  - Create an annotated tag in master for next -Pre version. ie v33-Pre, and 'git push --tags'
-  - Update binary version (mythtv/libs/libmythbase/mythversion.h)
-  - Update library version (mythtv/settings.pro & mythplugins/settings.pro)
-  - Update python bindings for new master version
-    - Example: https://github.com/MythTV/mythtv/commit/28694639115456db02cfc12cd454d7429065359d
-    - Note: setup.py is now setup.cfg
-  - Update perl bindings for new master version (bindings/perl/MythTV.pm)
+  - Update SRC_VERSION in master to next -Pre version. ie v34-Pre. and push
+  - Create an annotated tag in master for next -Pre version
+    - git tag -a -m "New development version v34-Pre" v34-Pre
+    - git push --tags
+  - Update binary/library/python/perl versions (mythtv/configure)
 * Branch
-  - Update SRC_VERSION in fixes branch to something like "v32-Branch". and push
+  - Use release.sh script
+  - Upload files in release directory to github ???
 
 - Update theme packaging script to package themes for new version
-
