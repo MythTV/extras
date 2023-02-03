@@ -18,3 +18,8 @@
   - Upload files in release directory to github ???
 
 - Update theme packaging script to package themes for new version
+  - Checkout MythTV-legacy-services repo
+  - Update scripts/package_themes
+  - Commit
+  - On themes.int.mythtv.org, checkout legacy-services
+  - Run "sudo ./publish.pl"
