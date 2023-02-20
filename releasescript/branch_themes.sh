@@ -28,12 +28,12 @@ pushd themes > /dev/null
 
 REPOS=(
     "git@github.com:MythTV-Themes/Arclight.git"
-    "git@github.com:MythTV-Themes/Mythbuntu.git"
-    "git@github.com:MythTV-Themes/Steppes.git"
-    "git@github.com:MythTV-Themes/Steppes-large.git"
     "git@github.com:MythTV-Themes/blue-abstract-wide.git"
     "git@github.com:MythTV-Themes/Functionality.git"
     "git@github.com:MythTV-Themes/LCARS.git"
+    "git@github.com:MythTV-Themes/Mythbuntu.git"
+    "git@github.com:MythTV-Themes/Steppes-large.git"
+    "git@github.com:MythTV-Themes/Steppes.git"
     #"git@github.com:paul-h/MythCenterXMAS-wide.git"
     #"git@github.com:paul-h/MythCenterXMASKIDS-wide.git"
 )
