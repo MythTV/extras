@@ -15,11 +15,31 @@
   - Update binary/library/python/perl versions (mythtv/configure)
 * Branch
   - Use release.sh script
-  - Upload files in release directory to github ???
+  - No need to upload files in release directory to github
+    - Github builds archives on demand using the latest branch commit
 
 - Update theme packaging script to package themes for new version
   - Checkout MythTV-legacy-services repo
   - Update scripts/package_themes
   - Commit
   - On themes.int.mythtv.org, checkout legacy-services
+  - Run "sudo ./publish.pl"
+
+- Update code.mythtv.org/trac
+  - Update section on checking out stable release.
+
+- Update wiki.mythtv.org
+  - Update home page
+    - Release notes for two previous branches
+    - Template:CurrentRelease
+    - Template:CurrentReleaseDate
+  - Update Release_Notes_-_33 page
+    - Final release date and changeset
+
+- Update mythtv.org
+  - Update version array in includes/conf.php
+  - Add announcement for new release.
+    - e.g. news/173.php
+  - Commit
+  - On themes.int.mythtv.org, checkout www.mythtv.org
   - Run "sudo ./publish.pl"
