@@ -1,20 +1,41 @@
-- Create Branches for each repo (mythtv, mythweb, packaging) and push
-  - git push origin HEAD:refs/heads/fixes/33
-- Create Branches for each theme in https://github.com/MythTV-themes/
-  - run branch_themes.sh script
+* Create a new directory for all the following work
+
+* Branch all the repositories for the new release
+
+  - MYTHWEB TO BE DEPRECATED IN v35.0
+
+  - Checkout each of the repositories
+    - git clone git@github.com:MythTV/mythtv.git
+    - git clone git@github.com:MythTV/mythweb.git
+    - git clone git@github.com:MythTV/packaging.git
+
+  - Create Branches for each repo and push
+    - (cd mythtv ; git push origin HEAD:refs/heads/fixes/34)
+    - (cd mythweb ; git push origin HEAD:refs/heads/fixes/34)
+    - (cd packaging ; git push origin HEAD:refs/heads/fixes/34)
+
+  - Create Branches for each theme in https://github.com/MythTV-themes/
+    - run branch_themes.sh script
+      - ~/Projects/MythTV-admin/extras/releasescript/branch_themes.sh 34
+    - this will create and populate the "themes" directory
 
 * Master (make a new clone from github just for this process)
   - Update theme strings
     - Run make in the "themestringstool" directory
     - Run the `run.sh` wrapper script
     - Commit any changed themestring.h files
-  - Update SRC_VERSION in master to next -Pre version. ie v34-Pre. and push
+  - Update SRC_VERSION in master to next -Pre version. ie v35-Pre. and push
   - Create an annotated tag in master for next -Pre version
-    - git tag -a -m "New development version v34-Pre" v34-Pre
+    - git tag -a -m "New development version v35-Pre" v35-Pre
     - git push --tags
   - Update binary/library/python/perl versions (mythtv/configure)
+  - Update project version in top level CMakeLists.txt file
+  - Commit changes
+
 * Branch
+  - Check out the fixes-xx branch in the mythtv and mythweb repositories
   - Use release.sh script
+    - ~/Projects/MythTV-admin/extras/releasescript/release.sh 34.0
   - No need to upload files in release directory to github
     - Github builds archives on demand using the latest branch commit
 
@@ -24,6 +45,10 @@
   - Commit
   - On themes.int.mythtv.org, checkout legacy-services
   - Run "sudo ./publish.pl"
+  - Run the theme update scripts as root
+    - /opt/www/services.mythtv.org/scripts/package_themes.sh
+    - /opt/www/services.mythtv.org/scripts/updateThemeRepo.sh
+  - Test download of themes for new release
 
 - Update code.mythtv.org/trac
   - Update section on checking out stable release.
@@ -33,7 +58,7 @@
     - Release notes for two previous branches
     - Template:CurrentRelease
     - Template:CurrentReleaseDate
-  - Update Release_Notes_-_33 page
+  - Update Release_Notes_-_34 page
     - Final release date and changeset
 
 - Update mythtv.org
@@ -41,5 +66,6 @@
   - Add announcement for new release.
     - e.g. news/173.php
   - Commit
-  - On themes.int.mythtv.org, checkout www.mythtv.org
-  - Run "sudo ./publish.pl"
+
+- Update build server
+  - Change oldest branch number to newest branch number.
