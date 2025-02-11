@@ -57,20 +57,20 @@ git archive --format=tar --prefix mythplugins-$RELEASEP/ -o ../../release/mythpl
 popd > /dev/null
 popd > /dev/null
 
-pushd mythweb > /dev/null
-echo "Tagging MythWeb v$RELEASEP"
-git tag -a -f -m "Tagging release $RELEASEP" v$RELEASEP
-git push -f origin v$RELEASEP
-
-echo "Archiving MythWeb v$RELEASEP"
-git archive --format=tar --prefix mythplugins-$RELEASEP/mythweb/ -o ../release/mythweb-$RELEASEP.tar v$RELEASEP
-popd > /dev/null
-# We're appending this to the mythplugins tarball, can't use git archive result directly
-pushd release > /dev/null
-tar xf mythweb-$RELEASEP.tar
-tar --append -f mythplugins-$RELEASEP.tar mythplugins-$RELEASEP
-rm -rf mythplugins-$RELEASEP mythweb-$RELEASEP.tar
-popd > /dev/null
+# pushd mythweb > /dev/null
+# echo "Tagging MythWeb v$RELEASEP"
+# git tag -a -f -m "Tagging release $RELEASEP" v$RELEASEP
+# git push -f origin v$RELEASEP
+# 
+# echo "Archiving MythWeb v$RELEASEP"
+# git archive --format=tar --prefix mythplugins-$RELEASEP/mythweb/ -o ../release/mythweb-$RELEASEP.tar v$RELEASEP
+# popd > /dev/null
+# # We're appending this to the mythplugins tarball, can't use git archive result directly
+# pushd release > /dev/null
+# tar xf mythweb-$RELEASEP.tar
+# tar --append -f mythplugins-$RELEASEP.tar mythplugins-$RELEASEP
+# rm -rf mythplugins-$RELEASEP mythweb-$RELEASEP.tar
+# popd > /dev/null
 
 echo "Compressing release files"
 pushd release > /dev/null
