@@ -33,8 +33,11 @@ REPOS=(
     "git@github.com:MythTV-Themes/LCARS.git"
     "git@github.com:MythTV-Themes/Mythbuntu.git"
     "git@github.com:MythTV-Themes/Steppes-large.git"
+    "git@github.com:MythTV-Themes/Steppes-narrow.git"
+    "git@github.com:MythTV-Themes/Steppes-small.git"
     "git@github.com:MythTV-Themes/Steppes.git"
     "git@github.com:MythTV-Themes/TintedGlass.git"
+    #"git@github.com:hambre/Monochrome.git"
     #"git@github.com:paul-h/MythCenterXMAS-wide.git"
     #"git@github.com:paul-h/MythCenterXMASKIDS-wide.git"
 )
