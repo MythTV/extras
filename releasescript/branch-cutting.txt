@@ -79,3 +79,6 @@ updated.  Continue to release the new version.
   - Add announcement for new release.
     - e.g. news/173.php
   - Commit
+
+- Update forum.mythtv.org
+  - Add a new Announcement
