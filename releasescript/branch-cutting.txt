@@ -36,14 +36,6 @@
   - Push everything back to github
     - git push --tags
 
-* Branch
-  - Check out the fixes-xx branch in the mythtv repositories
-  - Use release.sh script
-    - THIS WILL CREATE THE RELEASE FOR THE WORLD
-    - ~/Projects/MythTV-admin/extras/releasescript/release.sh 35.0
-  - No need to upload files in release directory to github
-    - Github builds archives on demand using the latest branch commit
-
 - Update theme packaging script to package themes for new version
   - Checkout MythTV-legacy-services repo
   - Update scripts/package_themes
@@ -55,14 +47,30 @@
     - /opt/www/services.mythtv.org/scripts/updateThemeRepo.sh
   - Test download of themes for new release
 
+- Update build server
+  - Change oldest branch number to newest branch number.
+
+
+STOP HERE!!!  The version is branched and infrastructure has been
+updated.  Continue to release the new version.
+
+
+* Branch
+  - Check out the fixes-xx branch in the mythtv repositories
+  - Use release.sh script
+    - THIS WILL CREATE THE RELEASE FOR THE WORLD
+    - ~/Projects/MythTV-admin/extras/releasescript/release.sh 35.0
+  - No need to upload files in release directory to github
+    - Github builds archives on demand using the latest branch commit
+
 - Update code.mythtv.org/trac
   - Update section on checking out stable release.
 
 - Update wiki.mythtv.org
   - Update home page
     - Release notes for two previous branches
-    - Template:CurrentRelease
-    - Template:CurrentReleaseDate
+    - Template:CurrentRelease (bottom of edit page)
+    - Template:CurrentReleaseDate (bottom of edit page)
   - Update Release_Notes_-_35 page
     - Final release date and changeset
 
@@ -71,6 +79,3 @@
   - Add announcement for new release.
     - e.g. news/173.php
   - Commit
-
-- Update build server
-  - Change oldest branch number to newest branch number.
