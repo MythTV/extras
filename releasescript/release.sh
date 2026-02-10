@@ -28,12 +28,6 @@ if [ .$yes. == .n. -o .$yes. == .N. ] ; then exit 1 ; fi
 popd > /dev/null
 popd > /dev/null
 
-pushd mythweb > /dev/null
-git status
-read -p "Continue? " yes
-if [ .$yes. == .n. -o .$yes. == .N. ] ; then exit 1 ; fi
-popd > /dev/null
-
 # The SRC_VERSION file is used to fill in --version for non-git builds
 pushd mythtv > /dev/null
 pushd mythtv > /dev/null
