@@ -55,14 +55,14 @@ updated.  Continue to release the new version.
 
 
 * Branch
-  - Check out the fixes-xx branch in the mythtv repositories
+  - Check out the fixes-xx branch in the mythtv repository
   - Use release.sh script
     - THIS WILL CREATE THE RELEASE FOR THE WORLD
     - ~/Projects/MythTV-admin/extras/releasescript/release.sh 36.0
   - No need to upload files in release directory to github
     - Github builds archives on demand using the latest branch commit
 
-- Update code.mythtv.org/trac
+- Update trac.mythtv.org/trac
   - Update section on checking out stable release.
 
 - Update wiki.mythtv.org
@@ -74,10 +74,17 @@ updated.  Continue to release the new version.
     - Final release date and changeset
 
 - Update mythtv.org
-  - Update version array in includes/conf.php
-  - Add announcement for new release.
-    - e.g. news/173.php
+  - Go to the repository for www.mythtv.org
+  1) create the announcement for new release.
+     - Go into the news directory
+     - Use the ./newpost.pl script
+  2) Update version array in includes/conf.php
   - Commit
+  - Use the mythtv_admin.yml playbook to update the website
 
 - Update forum.mythtv.org
+  - Go to the announcements board
   - Add a new Announcement
+    - Click "new topic", fill in, select "Announcement" radio button at bottom
+  - Demote old announcement
+    - Edit previous announcement, select "Normal" radio button at bottom
